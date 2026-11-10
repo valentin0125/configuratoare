@@ -553,7 +553,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 {
     "generat":  "09.11.2026",
     "tva":  0.21,
-    "endpoint":  "https://script.google.com/macros/s/AKfycbxKSF_l1I7rCWU3PU3Sz6nUjQPtYUeaf2NUhQmz5Va4SkOgCqNS1i6NrAL8mDy1r-M/exec",
+    "endpoint":  "https://script.google.com/macros/s/AKfycby5cfoqKTZzM_MaasYkrxgLj64Z4tlet8u0VnNnmxY3KGLA23zm-H6KU3w0AtXYoXc/exec",
     "contact":  {
                     "telefon":  "+40 722 384 008",
                     "whatsapp":  "40722384008",
@@ -1349,7 +1349,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
      2. Calcul    - preț = mașina + opționale + culoare + servicii; TVA peste. Prețurile afișate sunt FĂRĂ TVA
                     (ca la B2C și B2B); prețul cu TVA apare doar mic, sub total.
      3. Interfață - model -> versiune -> culoare -> opționale (sau mașină rulată) -> servicii -> datele clientului
-     4. Trimitere - POST JSON la scriptul din Cereri B2C (același ca la B2C); dacă nu merge: WhatsApp + text de copiat.
+     4. Trimitere - POST JSON la scriptul din „Cereri Zeekr” (CONF ZEEKR); dacă nu merge: WhatsApp + text de copiat.
      Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
      ===================================================================== */
 
@@ -1702,7 +1702,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     }
   });
 
-  // ---------- trimitere (ca la B2C: același script din Cereri B2C; cererile Zeekr intră în tab-ul „Cereri Zeekr”) ----------
+  // ---------- trimitere (scriptul din fișierul „Cereri Zeekr”, folderul CONF ZEEKR) ----------
   const fields = {
     nume: { el: $('f-nume'), wrap: $('fw-nume'), err: $('e-nume'), ok: (v) => v.trim().length >= 3 },
     tel: { el: $('f-tel'), wrap: $('fw-tel'), err: $('e-tel'), ok: (v) => v.replace(/\D/g, '').length >= 9 },
@@ -1832,7 +1832,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     }
     $('send-msg').textContent = '';
     $('send-msg').className = 'send-msg';
-    const d = withLang('ro', payload);   // în Cereri B2C totul rămâne în română; limba clientului se vede la „sursa”
+    const d = withLang('ro', payload);   // în Cereri Zeekr totul rămâne în română; limba clientului se vede la „sursa”
     if (UI.lang === 'en') d.sursa += ' · EN';
     if (!D.endpoint) { showManual(d, false); return; }
     const btns = [$('btn-panel'), $('mb-btn')];
