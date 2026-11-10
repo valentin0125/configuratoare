@@ -1,0 +1,968 @@
+<!doctype html><html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Configurator BADSI Automotive pentru firme</title><meta name="description" content="Configurator BADSI Automotive pentru firme: alege ma&#537;ina &#537;i serviciile, vezi pre&#539;ul estimat &#537;i trimite cererea."><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<script>
+/* tema și limba alese de vizitator (implicit: luminos, română), aplicate înainte de prima desenare */
+(function () {
+  var d = document.documentElement, t = null, l = null;
+  try { t = localStorage.getItem('badsi-ui-theme'); l = localStorage.getItem('badsi-ui-lang'); } catch (e) { /* fără stocare locală */ }
+  if (t === 'dark') d.setAttribute('data-scheme', 'dark');
+  d.lang = l === 'en' ? 'en' : 'ro';
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Michroma&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Configurator B2B (firme + persoane fizice, fără cont deocamdată): ca B2C, dar prețul mare e FĂRĂ TVA, cu reducerea B2B pe prețul mașinii, iar datele cer tipul clientului (PJ: CUI căutat la ANAF, firmă, funcție, nr. mașini).
+   Layout: bara neagră BADSI sus (ca pe badsi.ro: limba + tema în dreapta). Stânga: pașii clientului (mașina -> servicii -> datele lui); dreapta: panoul cu prețul, lipit. Pe telefon: o coloană + bară de preț jos.
+   Paleta badsi.ro: fond crem #fdf8f4, carduri albe, text #212529, negru pentru acțiuni și preț. Luminos implicit; întunecat doar din butonul din bară (data-scheme="dark"). */
+:root {
+  --bg: #fdf8f4;
+  --card: #ffffff;
+  --ink: #212529;
+  --muted: #6b6f75;
+  --line: #e7e1db;
+  --soft: #f8f4f0;
+  --accent: #000000;
+  --accent-ink: #ffffff;
+  --panel: #ffffff;
+  --panel-ink: #212529;
+  --panel-muted: #6b6f75;
+  --panel-line: #e7e1db;
+  --panel-soft: #f8f4f0;
+  --warn-ink: #8a4f08;
+  --warn-bg: #fcf0dc;
+  --err-ink: #a3261b;
+  --err-bg: #fbe6e3;
+  --ok: #1f7a4d;
+  --ok-bg: #e2f3ea;
+  --bar: #000000;
+  --bar-ink: #ffffff;
+  --bar-muted: #a9a9a9;
+  --bar-edge: #3d3d3d;
+  --bar-line: #000000;
+  --shadow: 0 1px 2px rgba(33, 37, 41, .05), 0 6px 20px rgba(33, 37, 41, .05);
+  --font-display: "Michroma", "Arial Black", system-ui, sans-serif;
+  --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+:root[data-scheme="dark"] {
+  --bg: #0b0c0e; --card: #15171a; --ink: #f2efeb; --muted: #9da0a6; --line: #2a2c30; --soft: #1d1f23;
+  --accent: #ffffff; --accent-ink: #000000;
+  --panel: #15171a; --panel-ink: #f2efeb; --panel-muted: #9da0a6; --panel-line: #2a2c30; --panel-soft: #1d1f23;
+  --warn-ink: #f0b45a; --warn-bg: #2e2416; --err-ink: #ff9a8f; --err-bg: #34191a; --ok: #5cc196; --ok-bg: #15281f;
+  --bar: #000000; --bar-ink: #ffffff; --bar-muted: #9a9a9a; --bar-edge: #3d3d3d; --bar-line: #26282c;
+  --shadow: none;
+  color-scheme: dark;
+}
+
+/* bara BADSI: limba (RO/EN) și tema (luminos/întunecat) */
+.topbar { background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--bar-line); }
+.topbar-in {
+  max-width: 1200px; margin: 0 auto; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap;
+}
+.wordmark { font-family: var(--font-display); font-size: 16px; letter-spacing: .32em; margin-right: -.32em; }
+.ui-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lang { display: inline-flex; border: 1px solid var(--bar-edge); border-radius: 999px; padding: 2px; }
+.lang label { cursor: pointer; }
+.lang input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.lang span { display: block; padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--bar-muted); }
+.lang input:checked + span { background: var(--bar-ink); color: var(--bar); }
+.lang input:focus-visible + span { outline: 2px solid var(--bar-ink); outline-offset: 2px; }
+.theme-btn {
+  display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12px; font-weight: 700; color: var(--bar-ink);
+  background: transparent; border: 1px solid var(--bar-edge); border-radius: 999px; padding: 5px 12px 5px 9px; cursor: pointer;
+}
+.theme-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.theme-btn .i-sun { display: none; }
+:root[data-scheme="dark"] .theme-btn .i-sun { display: inline; }
+:root[data-scheme="dark"] .theme-btn .i-moon { display: none; }
+.theme-btn:hover { border-color: var(--bar-muted); }
+.theme-btn:focus-visible { outline: 2px solid var(--bar-ink); outline-offset: 2px; }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.45; }
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; }
+.num { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-block: 22px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 18px;
+}
+
+/* ---------- antet ---------- */
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 24px; flex-wrap: wrap; }
+.top > div:first-child { display: grid; gap: 6px; max-width: 64ch; min-width: 0; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--font-display); font-size: 22px; font-weight: 400; letter-spacing: .02em; text-wrap: balance; }
+.intro { color: var(--muted); font-size: 13.5px; }
+.contact { font-size: 12.5px; color: var(--muted); display: grid; gap: 2px; text-align: right; }
+.contact b { color: var(--ink); font-family: var(--font-data); font-weight: 600; font-size: 13px; user-select: all; }
+
+/* ---------- layout ---------- */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 390px); gap: 20px; align-items: start; }
+.steps { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; display: grid; gap: 16px; min-width: 0; box-shadow: var(--shadow); }
+.step-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.step-no { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-size: 11px; flex: none; }
+h2 { font-size: 16px; font-weight: 800; letter-spacing: .005em; }
+.step-head .hint { margin-left: auto; font-size: 12px; color: var(--muted); }
+.group { display: grid; gap: 8px; min-width: 0; border: 0; padding: 0; margin: 0; }
+.group > .lbl, .group > legend { font-size: 12px; font-weight: 700; color: var(--muted); padding: 0; margin-bottom: 0; }
+.hint-text { font-size: 12.5px; color: var(--muted); max-width: 72ch; }
+
+/* comutator (Din ofertă / Altă mașină, Nouă / Rulată) */
+.seg { display: inline-flex; justify-self: start; width: fit-content; border: 1.5px solid var(--ink); border-radius: 999px; overflow: hidden; max-width: 100%; }
+.seg label { cursor: pointer; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: block; padding: 7px 16px; font-weight: 700; font-size: 13px; white-space: nowrap; }
+.seg input:checked + span { background: var(--ink); color: var(--bg); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: -3px; }
+.seg input:disabled + span { opacity: .4; cursor: not-allowed; }
+
+/* modele */
+.models { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.opt { position: relative; display: block; cursor: pointer; min-width: 0; }
+.opt input { position: absolute; opacity: 0; pointer-events: none; }
+.opt .box { display: grid; gap: 4px; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); height: 100%; }
+.opt:hover .box { border-color: var(--muted); }
+.opt input:checked + .box { border-color: var(--ink); background: var(--soft); box-shadow: inset 0 0 0 1px var(--ink); }
+.opt input:focus-visible + .box { outline: 2px solid var(--accent); outline-offset: 2px; }
+.model-name { font-family: var(--font-display); font-size: 15px; letter-spacing: .02em; }
+.model-from { font-size: 12.5px; color: var(--muted); }
+.model-from b { color: var(--ink); font-family: var(--font-data); font-weight: 600; }
+
+/* versiuni */
+.versions { display: grid; gap: 8px; }
+.ver .box { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 12px 16px; }
+.ver-name { font-weight: 800; font-size: 14.5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ver-meta { font-size: 12.5px; color: var(--muted); grid-column: 1; }
+.ver-price { grid-row: 1 / span 2; grid-column: 2; text-align: right; font-family: var(--font-data); font-weight: 600; font-size: 14px; white-space: nowrap; }
+.ver-price small { display: block; font-family: var(--font-body); font-weight: 500; font-size: 11px; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--warn-bg); color: var(--warn-ink); }
+
+/* servicii */
+.svc { display: grid; gap: 6px; }
+.svc-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.svc-row:has(input:checked) { border-color: var(--ink); background: var(--soft); }
+.svc-row input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--ink); }
+.svc-name { font-weight: 700; font-size: 13.5px; }
+.svc-desc { grid-column: 2; font-size: 12px; color: var(--muted); }
+.svc-price { grid-row: 1; grid-column: 3; font-family: var(--font-data); font-size: 12.5px; white-space: nowrap; }
+
+/* formular */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid; gap: 5px; min-width: 0; }
+.field > span { font-size: 12px; font-weight: 700; color: var(--muted); }
+.field small { font-size: 11.5px; color: var(--muted); }
+input[type="text"], input[type="number"], input[type="tel"], input[type="email"], input[type="url"], textarea {
+  width: 100%; min-width: 0; font: inherit; color: var(--ink); background: var(--soft);
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+}
+textarea { resize: vertical; min-height: 74px; }
+.field.is-bad input, .field.is-bad textarea { border-color: var(--err-ink); }
+.field .err { color: var(--err-ink); font-size: 11.5px; }
+input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.agree { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; cursor: pointer; }
+.agree input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--ink); flex: none; }
+.agree.is-bad { color: var(--err-ink); }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 700;
+  padding: 10px 18px; border-radius: 999px; border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.btn:hover { background: transparent; color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: var(--accent); color: var(--accent-ink); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.row-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.msg { font-size: 13px; color: var(--muted); min-width: 0; }
+.msg.is-error { color: var(--err-ink); }
+
+.done { display: grid; gap: 10px; padding: 16px 18px; border-radius: 12px; background: var(--ok-bg); color: var(--ok); }
+.done b { font-size: 15px; }
+.done p { color: var(--ink); }
+.manual-send { display: grid; gap: 12px; padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--soft); }
+.manual-send textarea { background: var(--card); font-size: 12.5px; min-height: 150px; }
+.manual-send .addr { font-family: var(--font-data); font-weight: 600; user-select: all; }
+
+/* ---------- panoul de preț ---------- */
+.panel {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 14px);
+  background: var(--panel); color: var(--panel-ink); border: 1px solid var(--panel-line); border-radius: 14px; padding: 20px 20px 18px;
+  display: grid; gap: 14px; min-width: 0; box-shadow: var(--shadow);
+}
+.panel h2 { font-family: var(--font-display); font-weight: 400; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+.panel .sub { font-size: 13px; color: var(--panel-ink); font-weight: 700; margin-top: 4px; }
+.panel .sub span { display: block; font-weight: 500; font-size: 12px; color: var(--panel-muted); }
+.blk { display: grid; gap: 5px; padding-top: 12px; border-top: 1px solid var(--panel-line); }
+.ln { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; min-width: 0; }
+.ln > :first-child { min-width: 0; }
+.ln .v { font-family: var(--font-data); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ln .d { color: var(--panel-muted); font-size: 11.5px; display: block; }
+.big { display: grid; gap: 2px; padding: 14px 14px 12px; border-radius: 11px; background: var(--panel-soft); }
+.big span { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--panel-muted); }
+.big b { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.big b .cur { font-family: var(--font-body); font-weight: 700; margin-right: .2em; }   /* Michroma desenează € ca pe un O */
+.big small { font-size: 12.5px; color: var(--panel-muted); font-family: var(--font-data); }
+.big.wait b { font-family: var(--font-body); font-weight: 800; font-size: 18px; }
+.notes { display: grid; gap: 6px; font-size: 12px; color: var(--panel-muted); }
+.panel .warn { font-size: 12.5px; padding: 9px 11px; border-radius: 9px; background: var(--warn-bg); color: var(--warn-ink); }
+.panel .btn { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); width: 100%; }
+.panel .btn:hover { background: transparent; color: var(--panel-ink); }
+.foot { font-size: 11.5px; color: var(--muted); max-width: 90ch; }
+
+/* bara de preț pe telefon */
+.mbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  background: var(--panel); color: var(--panel-ink);
+  border-top: 1px solid var(--panel-line); box-shadow: 0 -6px 20px rgba(0, 0, 0, .08);
+  padding-top: 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: none; align-items: center; justify-content: space-between; gap: 12px;
+}
+.mbar span { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--panel-muted); }
+.mbar b { font-family: var(--font-data); font-size: 16px; font-weight: 600; }
+.mbar .btn { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); padding: 8px 14px; }
+
+@media (max-width: 940px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .panel { position: static; }
+  .mbar { display: flex; }
+  .page { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+  .contact { text-align: left; }
+}
+@media (max-width: 600px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 16px; }
+  h1 { font-size: 18px; }
+  .ver .box { grid-template-columns: minmax(0, 1fr); }
+  .ver-price { grid-row: auto; grid-column: 1; text-align: left; }
+  .ver-price small { display: inline; margin-left: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="wordmark" aria-hidden="true">BADSI</span>
+    <div class="ui-tools">
+      <div class="lang" role="radiogroup" aria-label="Limba / Language">
+        <label><input type="radio" name="ui-lang" id="ui-lang-ro" value="ro"><span lang="ro">RO</span></label>
+        <label><input type="radio" name="ui-lang" id="ui-lang-en" value="en"><span lang="en">EN</span></label>
+      </div>
+      <button class="theme-btn" type="button" id="ui-theme" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        <span data-en="Dark mode">Mod întunecat</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+  <header class="top">
+    <div>
+      <p class="eyebrow" id="t-eticheta"></p>
+      <h1 id="t-titlu"></h1>
+      <p class="intro" id="t-intro"></p>
+    </div>
+    <div class="contact" id="contact"></div>
+  </header>
+
+  <div class="layout">
+    <div class="steps">
+
+      <!-- 1. masina -->
+      <section class="card" aria-labelledby="h-car">
+        <div class="step-head"><span class="step-no">1</span><h2 id="h-car" data-en="The car">Mașina</h2></div>
+        <div class="seg" role="radiogroup" aria-label="Ce mașină cauți" data-en-aria="Which car are you looking for">
+          <label><input type="radio" name="mode" value="catalog" id="mode-catalog" checked><span data-en="From our offer">Din oferta noastră</span></label>
+          <label><input type="radio" name="mode" value="other" id="mode-other"><span data-en="Another car">Altă mașină</span></label>
+        </div>
+
+        <div id="catalog" class="steps">
+          <div class="group" role="radiogroup" aria-labelledby="l-model">
+            <span class="lbl" id="l-model">Model</span>
+            <div class="models" id="models"></div>
+          </div>
+          <div class="group">
+            <span class="lbl" id="l-stare" data-en="Condition">Stare</span>
+            <div class="seg" role="radiogroup" aria-labelledby="l-stare">
+              <label><input type="radio" name="stare" value="nou" id="stare-nou" checked><span data-en="New">Nouă</span></label>
+              <label><input type="radio" name="stare" value="rulat" id="stare-rulat"><span data-en="Used">Rulată</span></label>
+            </div>
+            <p class="hint-text" id="stare-note"></p>
+          </div>
+          <div class="group" role="radiogroup" aria-labelledby="l-ver">
+            <span class="lbl" id="l-ver" data-en="Version">Versiune</span>
+            <div class="versions" id="versions"></div>
+          </div>
+        </div>
+
+        <div id="other" class="steps" hidden>
+          <p class="hint-text" id="t-alta"></p>
+          <label class="field" id="fw-desc"><span data-en="Which car are you looking for">Ce mașină cauți</span>
+            <textarea id="o-desc" rows="3" maxlength="2000" placeholder="ex.: Xiaomi SU7 Max, 2025, alb, sub 20.000 km, buget în jur de 60.000 €" data-en-ph="e.g. Xiaomi SU7 Max, 2025, white, under 20,000 km, budget around €60,000"></textarea>
+            <small class="err" id="e-desc" hidden data-en="Write a few words about the car you are looking for.">Scrie câteva cuvinte despre mașina pe care o cauți.</small>
+          </label>
+          <label class="field"><span data-en="Link to a listing (optional)">Link către un anunț (opțional)</span>
+            <input type="url" id="o-link" maxlength="500" inputmode="url" placeholder="https://…">
+          </label>
+        </div>
+      </section>
+
+      <!-- 2. servicii -->
+      <section class="card" id="s-svc" aria-labelledby="h-svc">
+        <div class="step-head"><span class="step-no">2</span><h2 id="h-svc" data-en="BADSI services">Servicii BADSI</h2><span class="hint" data-en="Prices excl. VAT">Prețuri fără TVA</span></div>
+        <fieldset class="group" id="g-war">
+          <legend data-en="BADSI warranty package (DEFEND Car Protect DELUXE: 3 years, unlimited km, no excess, up to RON 40,000 per claim, battery included)">Pachet de garanție BADSI (DEFEND Car Protect DELUXE: 3 ani, km nelimitați, fără franșiză, până la 40.000 RON per eveniment, bateria inclusă)</legend>
+          <div class="svc" id="svc-war"></div>
+        </fieldset>
+        <div class="group">
+          <span class="lbl" data-en="Other services">Alte servicii</span>
+          <div class="svc" id="svc-other"></div>
+        </div>
+      </section>
+
+      <!-- 3. datele clientului -->
+      <section class="card" id="s-date" aria-labelledby="h-date">
+        <div class="step-head"><span class="step-no" id="no-date">3</span><h2 id="h-date" data-en="Your details">Datele dumneavoastră</h2></div>
+        <form id="form" novalidate class="steps">
+          <div class="seg" role="radiogroup" aria-label="Tip client" data-en-aria="Customer type">
+            <label><input type="radio" name="client" value="PJ" id="client-pj" checked><span data-en="Company">Persoană juridică</span></label>
+            <label><input type="radio" name="client" value="PF" id="client-pf"><span data-en="Individual">Persoană fizică</span></label>
+          </div>
+          <div class="grid2" id="pj-box">
+            <label class="field" id="fw-cui"><span>CUI</span>
+              <input type="text" id="f-cui" inputmode="numeric" maxlength="14" placeholder="ex.: RO12345678" data-en-ph="e.g. RO12345678" autocomplete="off">
+              <small class="err" id="e-cui" hidden data-en="Write a valid tax ID (CUI).">Scrieți un CUI valid.</small>
+              <small id="anaf-msg" aria-live="polite"></small>
+            </label>
+            <label class="field" id="fw-firma"><span data-en="Company name">Firma</span>
+              <input type="text" id="f-firma" autocomplete="organization" maxlength="200">
+              <small class="err" id="e-firma" hidden data-en="Write the company name.">Scrieți numele firmei.</small>
+            </label>
+            <label class="field"><span data-en="Job title (optional)">Funcție (opțional)</span>
+              <input type="text" id="f-functie" autocomplete="organization-title" maxlength="120" placeholder="ex.: administrator, manager flotă" data-en-ph="e.g. director, fleet manager">
+            </label>
+            <label class="field" id="fw-nr"><span data-en="Number of cars">Număr de mașini</span>
+              <input type="number" id="f-nr" min="1" max="999" step="1" value="1" inputmode="numeric">
+              <small class="err" id="e-nr" hidden data-en="Write a number between 1 and 999.">Scrieți un număr între 1 și 999.</small>
+            </label>
+          </div>
+          <div class="grid2">
+            <label class="field" id="fw-nume"><span id="l-nume" data-en="Contact person">Persoană de contact</span>
+              <input type="text" id="f-nume" autocomplete="name" maxlength="120" required>
+              <small class="err" id="e-nume" hidden data-en="Write your name.">Scrieți numele.</small>
+            </label>
+            <label class="field" id="fw-tel"><span data-en="Phone">Telefon</span>
+              <input type="tel" id="f-tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="07xx xxx xxx" data-en-ph="+40 7xx xxx xxx" required>
+              <small class="err" id="e-tel" hidden data-en="Write a valid phone number.">Scrieți un număr de telefon valid.</small>
+            </label>
+          </div>
+          <label class="field" id="fw-email"><span>Email</span>
+            <input type="email" id="f-email" autocomplete="email" maxlength="160" placeholder="nume@exemplu.ro" data-en-ph="name@example.com" required>
+            <small class="err" id="e-email" hidden data-en="Write a valid email address.">Scrieți o adresă de email validă.</small>
+          </label>
+          <label class="field" id="fw-msg"><span data-en="Message (optional)">Mesaj (opțional)</span>
+            <textarea id="f-msg" rows="2" maxlength="2000" placeholder="ex.: culoarea dorită, când ai vrea mașina" data-en-ph="e.g. the colour you want, when you would like the car"></textarea>
+          </label>
+          <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
+          <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
+          <p class="msg" id="send-msg" aria-live="polite"></p>
+        </form>
+        <div class="done" id="done" hidden role="status"></div>
+        <div class="manual-send" id="manual" hidden></div>
+      </section>
+    </div>
+
+    <!-- pretul -->
+    <aside class="panel" aria-labelledby="h-calc">
+      <div>
+        <h2 id="h-calc" data-en="Your estimate">Estimarea ta</h2>
+        <p class="sub" id="p-car"></p>
+      </div>
+      <div id="p-body"></div>
+      <div class="notes" id="p-notes"></div>
+      <button class="btn" type="button" id="btn-panel">Trimite cererea</button>
+    </aside>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<div class="mbar" id="mbar" aria-hidden="true">
+  <div><span id="mb-label">Preț estimativ fără TVA</span><b id="mb-price"></b></div>
+  <button class="btn" type="button" id="mb-btn" tabindex="-1">Trimite cererea</button>
+</div>
+
+<!-- DATE B2B: generate de Claude din „Baza date configurator B2B” (reducere, TVA, texte; Drive VC MEGA PROIECT / CONF B2B) + catalogul și serviciile din „Baza date configurator B2C”. Nu se editează de mână: se schimbă baza, apoi se republică. Conține doar ce vede clientul. Varianta engleză: „texte_en” (Texte, coloana D) și câmpurile „*_en” (Catalog R–T, Servicii BADSI I–J). -->
+<script type="application/json" id="b2b-data">
+{
+  "generat": "10.11.2026",
+  "tva": 0.21,
+  "reducere": 0.10,
+  "endpoint": "",
+  "contact": { "telefon": "+40 722 384 008", "whatsapp": "40722384008", "email": "hello@badsi.ro", "gdprLink": "https://drive.google.com/file/d/1ZDby0AdaWGcxKvodKZhM71sm3-CN7eGN/view" },
+  "texte": {
+    "eticheta": "BADSI Automotive · import din China · pentru firme",
+    "titlu": "Configurator pentru firme",
+    "intro": "Alege mașina și serviciile, vezi prețul estimativ fără TVA cu reducerea B2B inclusă și trimite-ne cererea. Un consultant BADSI te contactează cu oferta finală.",
+    "nota_reducere": "Prețul mașinii include reducerea B2B de {p}.",
+    "nota_livrare": "Livrat la sediul BADSI din București: transportul din China și vămuirea sunt incluse.",
+    "nota_estimare": "Preț estimativ. Prețul final îți este confirmat de un consultant BADSI.",
+    "nota_antidumping": "Posibil să apară taxe suplimentare la mașinile noi, inclusiv la cele hibride (taxa anti-dumping, până la 35%). Pentru a le evita, se recomandă mașina rulată.",
+    "nota_rulat": "Mașini rulate 6.000–10.000 km, la aproximativ 6 luni de la prima înmatriculare în China.",
+    "alta_masina": "Nu găsiți mașina pe care o căutați? Descrieți-o (marcă, model, an, buget, număr de bucăți) sau lipiți linkul unui anunț și revenim cu o estimare.",
+    "gdpr": "Sunt de acord ca BADSI Automotive să folosească datele introduse pentru a mă contacta în legătură cu această cerere.",
+    "confirmare": "Mulțumim! Am primit cererea. Un consultant BADSI vă contactează în curând.",
+    "subsol": "Prețurile sunt fără obligații contractuale și pot varia în funcție de cursul valutar și de disponibilitate."
+  },
+  "texte_en": {
+    "eticheta": "BADSI Automotive · imported from China · for businesses",
+    "titlu": "Configurator for businesses",
+    "intro": "Choose the car and services, see the estimated price excluding VAT with the B2B discount included, and send us your request. A BADSI consultant will contact you with the final offer.",
+    "nota_reducere": "The car price includes the {p} B2B discount.",
+    "nota_livrare": "Delivered to the BADSI headquarters in Bucharest: transport from China and customs clearance are included.",
+    "nota_estimare": "Estimated price. Your final price is confirmed by a BADSI consultant.",
+    "nota_antidumping": "New cars may be subject to additional duties, including hybrids (anti-dumping duty of up to 35%). To avoid them, we recommend a used car.",
+    "nota_rulat": "Used cars with 6,000–10,000 km, about 6 months after first registration in China.",
+    "alta_masina": "Can't find the car you're looking for? Describe it (make, model, year, budget, quantity) or paste a link to a listing and we'll get back to you with an estimate.",
+    "gdpr": "I agree that BADSI Automotive may use the data entered to contact me about this request.",
+    "confirmare": "Thank you! We have received your request. A BADSI consultant will contact you shortly.",
+    "subsol": "Prices are non-binding and may vary with the exchange rate and availability."
+  },
+  "masini": [
+    { "cod": "9x-max-nou", "marca": "Zeekr", "model": "9X", "versiune": "Max", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "55 kWh", "termen": "5 luni", "termen_en": "5 months", "pret": 99500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "9x-ultra-nou", "marca": "Zeekr", "model": "9X", "versiune": "Ultra", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "55 kWh", "termen": "5 luni", "termen_en": "5 months", "pret": 114500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "9x-hyper-nou", "marca": "Zeekr", "model": "9X", "versiune": "Hyper", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "5 luni", "termen_en": "5 months", "pret": 132500, "mentiune": "Momentan nu se poate comanda", "mentiune_en": "Currently not available to order" },
+    { "cod": "9x-obsidian-nou", "marca": "Zeekr", "model": "9X", "versiune": "Gloss Black (Obsidian)", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "5 luni", "termen_en": "5 months", "pret": 138500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-max-nou", "marca": "Zeekr", "model": "8X", "versiune": "Max", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "55 kWh", "termen": "", "termen_en": "", "pret": 89500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-ultra-nou", "marca": "Zeekr", "model": "8X", "versiune": "Ultra", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "55 kWh", "termen": "", "termen_en": "", "pret": 94500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-ultraplus-nou", "marca": "Zeekr", "model": "8X", "versiune": "Ultra+", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "", "termen_en": "", "pret": 99500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-h7-nou", "marca": "Zeekr", "model": "8X", "versiune": "Dawn Edition", "stare": "nou", "an": "", "km": "0 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "", "termen_en": "", "pret": 109500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "9x-ultra70-rulat", "marca": "Zeekr", "model": "9X", "versiune": "Ultra 70 kWh", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "", "termen_en": "", "pret": 100500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "9x-hyper-rulat", "marca": "Zeekr", "model": "9X", "versiune": "Hyper", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "", "termen_en": "", "pret": 110500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "9x-obsidian-rulat", "marca": "Zeekr", "model": "9X", "versiune": "Gloss Black (Obsidian)", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "", "termen_en": "", "pret": 113500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-max-rulat", "marca": "Zeekr", "model": "8X", "versiune": "Max", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "55 kWh", "termen": "3 luni", "termen_en": "3 months", "pret": 76500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-ultra55-rulat", "marca": "Zeekr", "model": "8X", "versiune": "Ultra 55 kWh", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "55 kWh", "termen": "3 luni", "termen_en": "3 months", "pret": 79500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-ultra70-rulat", "marca": "Zeekr", "model": "8X", "versiune": "Ultra 70 kWh", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "3 luni", "termen_en": "3 months", "pret": 81500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-ultraplus-rulat", "marca": "Zeekr", "model": "8X", "versiune": "Ultra+", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "3 luni", "termen_en": "3 months", "pret": 88500, "mentiune": "", "mentiune_en": "" },
+    { "cod": "8x-h7-rulat", "marca": "Zeekr", "model": "8X", "versiune": "Dawn Edition", "stare": "rulat", "an": "", "km": "6.000–10.000 km", "motorizare": "Hibrid", "motorizare_en": "Hybrid", "baterie": "70 kWh", "termen": "3 luni", "termen_en": "3 months", "pret": 98500, "mentiune": "", "mentiune_en": "" }
+  ],
+  "servicii": [
+    { "cod": "omol", "nume": "Omologare + înmatriculare", "nume_en": "Homologation + registration", "descriere": "Omologarea vehiculului și înmatricularea în România", "descriere_en": "Vehicle homologation and registration in Romania", "pret": 5000, "tip": "bifă", "implicit": true },
+    { "cod": "w-none", "nume": "Fără garanție", "nume_en": "No warranty", "descriere": "Fără pachet de garanție", "descriere_en": "No warranty package", "pret": 0, "tip": "garanție", "implicit": false },
+    { "cod": "w-base", "nume": "SILVER", "nume_en": "SILVER", "descriere": "Garanție DEFEND 3 ani", "descriere_en": "DEFEND 3-year warranty", "pret": 2000, "tip": "garanție", "implicit": false },
+    { "cod": "w-concierge", "nume": "GOLD", "nume_en": "GOLD", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat (un om de la noi, la care apelezi oricând)", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge (one person on our team you can call any time)", "pret": 5000, "tip": "garanție", "implicit": false },
+    { "cod": "w-service", "nume": "PLATINUM", "nume_en": "PLATINUM", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat + 3 revizii periodice incluse", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge + 3 scheduled services included", "pret": 10000, "tip": "garanție", "implicit": true },
+    { "cod": "soft", "nume": "Software", "nume_en": "Software", "descriere": "Pachet software BADSI", "descriere_en": "BADSI software package", "pret": 1500, "tip": "bifă", "implicit": true },
+    { "cod": "resoft", "nume": "Resoftare", "nume_en": "Software update", "descriere": "Actualizare la ultima versiune de software", "descriere_en": "Update to the latest software version", "pret": 700, "tip": "bifă", "implicit": false },
+    { "cod": "lang", "nume": "Limba română, SIM și CarPlay", "nume_en": "Romanian language, SIM and CarPlay", "descriere": "Interfață în limba română, cartelă SIM locală și Apple CarPlay", "descriere_en": "Romanian-language interface, local SIM card and Apple CarPlay", "pret": 2500, "tip": "bifă", "implicit": false }
+  ]
+}
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     ARHITECTURA (configurator B2B, public, fără cont deocamdată)
+     1. Date        - blocul JSON de mai sus
+     2. Utilitare   - formatare bani, text
+     3. Calcul      - preț = mașina × (1 − reducere B2B) + servicii bifate; TVA peste (afișat mic)
+     4. Interfață   - stare + randare (model -> stare -> versiune -> servicii)
+     5. Trimitere   - POST JSON la adresa din „endpoint” (scriptul din Cereri B2B; tot el caută CUI-ul la ANAF);
+                      dacă nu există sau nu merge: WhatsApp + text de copiat.
+     Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
+     ===================================================================== */
+
+  // ---------- 1. date ----------
+  const D = JSON.parse(document.getElementById('b2b-data').textContent);
+  const SVC = D.servicii;
+  const WAR = SVC.filter(s => s.tip === 'garanție');
+  const OTHER = SVC.filter(s => s.tip !== 'garanție');
+  const RED = Number(D.reducere) || 0;   // reducerea B2B, pe prețul mașinii (din Baza date configurator B2B / Parametri)
+
+  // ---------- 2. utilitare ----------
+  const $ = id => document.getElementById(id);
+
+  // limba (RO/EN): textele fixe au varianta engleză în data-en / data-en-ph / data-en-aria; cele generate folosesc L(ro, en);
+  // datele au câmpuri *_en (rezerva e româna). Ce ajunge în Cereri B2C rămâne în română.
+  const UI = { lang: document.documentElement.lang === 'en' ? 'en' : 'ro' };
+  const L = (ro, en) => (UI.lang === 'en' ? en : ro);
+  const pick = (ro, en) => (UI.lang === 'en' && en ? en : ro);
+  function withLang(lang, fn) { const prev = UI.lang; UI.lang = lang; try { return fn(); } finally { UI.lang = prev; } }
+  const uiSave = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* fără stocare locală */ } };
+  function applyStatic() {
+    const en = UI.lang === 'en';
+    document.querySelectorAll('[data-en]').forEach(el => { if (el.dataset.ro == null) el.dataset.ro = el.innerHTML; el.innerHTML = en ? el.dataset.en : el.dataset.ro; });
+    document.querySelectorAll('[data-en-ph]').forEach(el => { if (el.dataset.roPh == null) el.dataset.roPh = el.getAttribute('placeholder') || ''; el.setAttribute('placeholder', en ? el.dataset.enPh : el.dataset.roPh); });
+    document.querySelectorAll('[data-en-aria]').forEach(el => { if (el.dataset.roAria == null) el.dataset.roAria = el.getAttribute('aria-label') || ''; el.setAttribute('aria-label', en ? el.dataset.enAria : el.dataset.roAria); });
+    $('ui-lang-' + UI.lang).checked = true;
+  }
+  const tx = k => pick(D.texte[k], (D.texte_en || {})[k]);
+  const sNume = s => pick(s.nume, s.nume_en);
+  const sDesc = s => pick(s.descriere, s.descriere_en);
+  const kmOf = m => L(m.km, String(m.km).replace(/(\d)\.(\d{3})/g, '$1,$2'));
+  const motOf = m => pick(m.motorizare, m.motorizare_en);
+  const termOf = m => pick(m.termen, m.termen_en);
+  const mentOf = m => pick(m.mentiune, m.mentiune_en);
+
+  const group3 = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, L('.', ','));
+  const eur = n => '€ ' + group3(n);
+  const gross = net => Math.round(net * (1 + D.tva));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const keyOf = m => m.marca + ' ' + m.model;
+  const verLabel = m => m.versiune + (m.baterie && !/kwh/i.test(m.versiune) ? ' ' + m.baterie : '');
+  const carLabel = m => keyOf(m) + ' ' + verLabel(m);
+  const stareLabel = s => (s === 'nou' ? L('nouă', 'new') : L('rulată', 'used'));
+
+  // modele, în ordinea prețului de pornire (cel mai ieftin primul)
+  const MODELS = [];
+  D.masini.forEach(m => { if (!MODELS.includes(keyOf(m))) MODELS.push(keyOf(m)); });
+  const minNet = k => Math.min.apply(null, D.masini.filter(m => keyOf(m) === k).map(m => m.pret));
+  MODELS.sort((a, b) => minNet(a) - minNet(b));
+
+  // ---------- stare ----------
+  const S = {
+    mode: 'catalog',
+    model: MODELS[0],
+    stare: 'nou',
+    cod: null,
+    war: (WAR.find(s => s.implicit) || WAR[WAR.length - 1] || {}).cod,
+    extra: new Set(OTHER.filter(s => s.implicit).map(s => s.cod)),
+    sent: false
+  };
+
+  // ---------- 3. calcul ----------
+  function svcNet() {
+    let t = 0;
+    const w = WAR.find(s => s.cod === S.war);
+    if (w) t += w.pret;
+    OTHER.forEach(s => { if (S.extra.has(s.cod)) t += s.pret; });
+    return t;
+  }
+  function svcNames() {
+    const out = [];
+    OTHER.forEach(s => { if (S.extra.has(s.cod) && s.cod === 'omol') out.push(sNume(s)); });
+    const w = WAR.find(s => s.cod === S.war);
+    if (w) out.push(w.pret ? L('Pachet ' + sNume(w), sNume(w) + ' package') : sNume(w));
+    OTHER.forEach(s => { if (S.extra.has(s.cod) && s.cod !== 'omol') out.push(sNume(s)); });
+    return out;
+  }
+  // B2B: toate sumele sunt fără TVA; reducerea se aplică doar prețului mașinii
+  function priceOf(m) {
+    const disc = Math.round(m.pret * RED);
+    const carNet = m.pret - disc;
+    const svc = svcNet();
+    const net = carNet + svc;
+    return { list: m.pret, disc: disc, carNet: carNet, svc: svc, net: net, gross: gross(net) };
+  }
+  const pct = () => Math.round(RED * 100) + '%';
+  const car = () => D.masini.find(m => m.cod === S.cod) || null;
+  const carsFor = (k, st) => D.masini.filter(m => keyOf(m) === k && m.stare === st);
+
+  // ---------- 4. interfață ----------
+  function fillStatic() {
+    $('t-eticheta').textContent = tx('eticheta');
+    $('t-titlu').textContent = tx('titlu');
+    $('t-intro').textContent = tx('intro');
+    $('t-alta').textContent = tx('alta_masina');
+    const g = $('t-gdpr');
+    g.textContent = tx('gdpr') + ' ';
+    if (D.contact.gdprLink) {
+      const a = document.createElement('a');
+      a.href = D.contact.gdprLink; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = L('Politica de confidențialitate', 'Privacy policy');
+      g.appendChild(a);
+    }
+    $('contact').innerHTML = L('Ai întrebări? Sună-ne', 'Questions? Call us') + '<b>' + esc(D.contact.telefon) + '</b>' +
+      (D.contact.email ? '<span>' + L('sau scrie la ', 'or write to ') + '<b>' + esc(D.contact.email) + '</b></span>' : '');
+    $('foot').textContent = tx('subsol') + L(' Prețuri actualizate la ', ' Prices updated on ') + D.generat + '.';
+
+    $('svc-war').innerHTML = WAR.map(s =>
+      '<label class="svc-row"><input type="radio" name="war" value="' + esc(s.cod) + '">' +
+      '<span class="svc-name">' + esc(sNume(s)) + '</span>' +
+      '<span class="svc-price">' + (s.pret ? '+' + eur(s.pret) : '—') + '</span>' +
+      '<span class="svc-desc">' + esc(sDesc(s)) + '</span></label>').join('');
+    $('svc-other').innerHTML = OTHER.map(s =>
+      '<label class="svc-row"><input type="checkbox" name="extra" value="' + esc(s.cod) + '">' +
+      '<span class="svc-name">' + esc(sNume(s)) + '</span>' +
+      '<span class="svc-price">+' + eur(s.pret) + '</span>' +
+      '<span class="svc-desc">' + esc(sDesc(s)) + '</span></label>').join('');
+    document.querySelectorAll('input[name="war"]').forEach(i => { i.checked = i.value === S.war; });
+    document.querySelectorAll('input[name="extra"]').forEach(i => { i.checked = S.extra.has(i.value); });
+  }
+
+  function pickDefaultCar() {
+    const list = carsFor(S.model, S.stare);
+    if (!list.some(m => m.cod === S.cod)) S.cod = list.length ? list[0].cod : null;
+  }
+
+  function renderModels() {
+    $('models').innerHTML = MODELS.map(k => {
+      const from = Math.min.apply(null, D.masini.filter(m => keyOf(m) === k).map(m => priceOf(m).net));
+      return '<label class="opt"><input type="radio" name="model" value="' + esc(k) + '"' + (k === S.model ? ' checked' : '') + '>' +
+        '<span class="box"><span class="model-name">' + esc(k) + '</span>' +
+        '<span class="model-from">' + L('de la ', 'from ') + '<b>' + eur(from) + '</b>' + L(' fără TVA', ' excl. VAT') + '</span></span></label>';
+    }).join('');
+  }
+
+  function renderStare() {
+    ['nou', 'rulat'].forEach(st => {
+      const el = $('stare-' + st);
+      el.disabled = carsFor(S.model, st).length === 0;
+      el.checked = S.stare === st;
+    });
+    $('stare-note').textContent = S.stare === 'nou' ? tx('nota_antidumping') : tx('nota_rulat');
+  }
+
+  function renderVersions() {
+    const list = carsFor(S.model, S.stare);
+    $('versions').innerHTML = list.map(m => {
+      const p = priceOf(m);
+      const meta = [m.baterie && !/kwh/i.test(m.versiune) ? m.baterie : '', motOf(m), kmOf(m), m.an]
+        .filter(Boolean).join(' · ') + (termOf(m) ? L(' · livrare în aproximativ ', ' · delivery in about ') + termOf(m) : '');
+      return '<label class="opt ver"><input type="radio" name="ver" value="' + esc(m.cod) + '"' + (m.cod === S.cod ? ' checked' : '') + '>' +
+        '<span class="box"><span class="ver-name">' + esc(m.versiune) +
+        (m.mentiune ? '<span class="chip">' + esc(mentOf(m)) + '</span>' : '') + '</span>' +
+        '<span class="ver-price">' + eur(p.net) + '<small>' + L('fără TVA', 'excl. VAT') + '</small></span>' +
+        '<span class="ver-meta">' + esc(meta) + '</span></span></label>';
+    }).join('') || '<p class="hint-text">' + L('Momentan nu avem versiuni în această stare.', 'We currently have no versions in this condition.') + '</p>';
+  }
+
+  function renderPanel() {
+    const notes = [];
+    if (S.mode === 'other') {
+      $('p-car').textContent = L('Altă mașină', 'Another car');
+      $('p-body').innerHTML =
+        '<div class="big wait"><span>' + L('Preț', 'Price') + '</span><b>' + L('Estimare la cerere', 'Estimate on request') + '</b>' +
+        '<small>' + L('Un consultant BADSI caută mașina pe piața din China și revine cu prețul livrat în București.', 'A BADSI consultant looks for the car on the Chinese market and gets back to you with the price delivered in Bucharest.') + '</small></div>';
+      notes.push(tx('nota_livrare'));
+      $('mb-label').textContent = L('Altă mașină', 'Another car');
+      $('mb-price').textContent = L('Estimare la cerere', 'Estimate on request');
+    } else {
+      const m = car();
+      if (!m) {
+        $('p-car').textContent = L('Alege o versiune.', 'Choose a version.');
+        $('p-body').innerHTML = '';
+        $('mb-price').textContent = '—';
+      } else {
+        const p = priceOf(m);
+        const n = qty();
+        $('p-car').innerHTML = esc(carLabel(m)) + '<span>' + esc(L('Mașină ' + stareLabel(m.stare) + ', ' + kmOf(m), (m.stare === 'nou' ? 'New' : 'Used') + ' car, ' + kmOf(m))) + '</span>';
+        let html = '<div class="blk">' +
+          '<div class="ln"><span>' + L('Mașina (preț de listă)', 'Car (list price)') + '</span><span class="v">' + eur(p.list) + '</span></div>' +
+          (p.disc ? '<div class="ln"><span>' + L('Reducere B2B ', 'B2B discount ') + pct() + '</span><span class="v">−' + eur(p.disc) + '</span></div>' : '') +
+          '<div class="ln"><span>' + L('Servicii BADSI', 'BADSI services') + '<span class="d">' + esc(svcNames().join(', ') || L('niciunul', 'none')) + '</span></span><span class="v">' + (p.svc ? '+' + eur(p.svc) : eur(0)) + '</span></div>' +
+          (termOf(m) ? '<div class="ln"><span>' + L('Livrare', 'Delivery') + '</span><span class="v">' + L('aprox. ', 'approx. ') + esc(termOf(m)) + '</span></div>' : '') +
+          '</div>' +
+          '<div class="big"><span>' + L('Preț estimativ fără TVA', 'Estimated price excl. VAT') + (n > 1 ? L(' / mașină', ' / car') : '') + '</span><b class="num"><span class="cur">€</span>' + group3(p.net) + '</b>' +
+          '<small>' + L('cu TVA: ', 'incl. VAT: ') + eur(p.gross) + '</small></div>' +
+          (n > 1 ? '<div class="blk"><div class="ln"><span><b>' + L('Total pentru ' + n + ' mașini', 'Total for ' + n + ' cars') + '</b></span><span class="v"><b>' + eur(p.net * n) + '</b></span></div>' +
+            '<div class="ln"><span>' + L('cu TVA', 'incl. VAT') + '</span><span class="v">' + eur(p.gross * n) + '</span></div></div>' : '');
+        if (m.mentiune) html += '<p class="warn">' + esc(mentOf(m)) + '</p>';
+        $('p-body').innerHTML = html;
+        $('mb-label').textContent = L('Preț estimativ fără TVA', 'Estimated price excl. VAT');
+        $('mb-price').textContent = eur(n > 1 ? p.net * n : p.net);
+      }
+      if (RED) notes.push(tx('nota_reducere').replace('{p}', pct()));
+      notes.push(tx('nota_livrare'), tx('nota_estimare'));
+    }
+    $('p-notes').innerHTML = notes.map(n => '<p>' + esc(n) + '</p>').join('');
+    const sendLabel = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send request');
+    $('btn-panel').textContent = sendLabel;
+    $('mb-btn').textContent = sendLabel;
+  }
+
+  function renderMode() {
+    const other = S.mode === 'other';
+    $('catalog').hidden = other;
+    $('other').hidden = !other;
+    $('s-svc').hidden = other;
+    $('no-date').textContent = other ? '2' : '3';
+    $('fw-msg').hidden = other;   // la „Altă mașină” descrierea ține loc de mesaj
+  }
+
+  function renderAll() {
+    pickDefaultCar();
+    renderMode();
+    renderModels();
+    renderStare();
+    renderVersions();
+    renderPanel();
+  }
+
+  // evenimente
+  document.addEventListener('change', e => {
+    const t = e.target;
+    if (t.name === 'mode') { S.mode = t.value; renderMode(); renderPanel(); return; }
+    if (t.name === 'model') {
+      S.model = t.value;
+      if (!carsFor(S.model, S.stare).length) S.stare = S.stare === 'nou' ? 'rulat' : 'nou';
+      S.cod = null; renderAll(); return;
+    }
+    if (t.name === 'stare') { S.stare = t.value; S.cod = null; renderAll(); return; }
+    if (t.name === 'ver') { S.cod = t.value; renderPanel(); return; }
+    if (t.name === 'war') { S.war = t.value; renderModels(); renderVersions(); renderPanel(); return; }
+    if (t.name === 'extra') {
+      if (t.checked) S.extra.add(t.value); else S.extra.delete(t.value);
+      renderModels(); renderVersions(); renderPanel(); return;
+    }
+  });
+
+  // ---------- 5. trimitere ----------
+  // tipul clientului: PJ (implicit) cere CUI, firmă, funcție, nr. mașini; PF doar datele de contact
+  const isPJ = () => $('client-pj').checked;
+  const cuiDigits = v => { const s = String(v || '').replace(/^\s*RO/i, '').replace(/\D/g, ''); return s.length >= 2 && s.length <= 10 ? s : ''; };
+  const qty = () => (isPJ() ? Math.max(1, Math.min(999, Math.round(Number($('f-nr').value) || 1))) : 1);
+
+  const fields = {
+    cui: { el: $('f-cui'), wrap: $('fw-cui'), err: $('e-cui'), ok: v => cuiDigits(v) !== '', pj: true },
+    firma: { el: $('f-firma'), wrap: $('fw-firma'), err: $('e-firma'), ok: v => v.trim().length >= 2, pj: true },
+    nr: { el: $('f-nr'), wrap: $('fw-nr'), err: $('e-nr'), ok: v => { const x = Number(v); return Number.isInteger(x) && x >= 1 && x <= 999; }, pj: true },
+    nume: { el: $('f-nume'), wrap: $('fw-nume'), err: $('e-nume'), ok: v => v.trim().length >= 3 },
+    tel: { el: $('f-tel'), wrap: $('fw-tel'), err: $('e-tel'), ok: v => v.replace(/\D/g, '').length >= 9 },
+    email: { el: $('f-email'), wrap: $('fw-email'), err: $('e-email'), ok: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) }
+  };
+  const activeFields = () => Object.keys(fields).filter(k => !fields[k].pj || isPJ());
+
+  function renderClient() {
+    const pj = isPJ();
+    $('pj-box').hidden = !pj;
+    const l = $('l-nume');
+    l.dataset.ro = pj ? 'Persoană de contact' : 'Nume și prenume';
+    l.dataset.en = pj ? 'Contact person' : 'Full name';
+    l.innerHTML = UI.lang === 'en' ? l.dataset.en : l.dataset.ro;
+    if (!pj) Object.keys(fields).forEach(k => { if (fields[k].pj) { fields[k].wrap.classList.remove('is-bad'); fields[k].err.hidden = true; } });
+  }
+
+  // CUI → numele firmei de la ANAF, prin scriptul din Cereri B2B (merge pe GitHub; în artefactul claude.ai e blocat și se completează de mână)
+  let anafFor = '';
+  async function lookupCui() {
+    const cui = cuiDigits($('f-cui').value);
+    const msg = $('anaf-msg');
+    if (!cui || cui === anafFor || !D.endpoint) return;
+    anafFor = cui;
+    msg.className = ''; msg.textContent = L('Se caută firma la ANAF…', 'Looking up the company at ANAF…');
+    try {
+      const res = await fetch(D.endpoint + '?cui=' + encodeURIComponent(cui), { signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined });
+      const r = await res.json();
+      if (cuiDigits($('f-cui').value) !== cui) return;
+      if (r && r.ok && r.gasit) {
+        if (!$('f-firma').value.trim()) { $('f-firma').value = r.denumire; $('f-firma').dispatchEvent(new Event('input')); }
+        msg.textContent = L('Găsit la ANAF: ', 'Found at ANAF: ') + r.denumire + (r.platitorTva ? L(' (plătitor de TVA)', ' (VAT registered)') : '');
+      } else if (r && r.ok) {
+        msg.className = 'err'; msg.textContent = L('CUI-ul nu apare la ANAF. Verificați-l.', 'This tax ID is not listed at ANAF. Please check it.');
+      } else { msg.textContent = ''; anafFor = ''; }
+    } catch (e) { msg.textContent = ''; anafFor = ''; }
+  }
+
+  function validate() {
+    let first = null;
+    const bad = (wrap, err, isBad, el) => {
+      wrap.classList.toggle('is-bad', isBad);
+      if (err) err.hidden = !isBad;
+      if (isBad && !first) first = el;
+    };
+    if (S.mode === 'other') bad($('fw-desc'), $('e-desc'), $('o-desc').value.trim().length < 3, $('o-desc'));
+    activeFields().forEach(k => { const f = fields[k]; bad(f.wrap, f.err, !f.ok(f.el.value), f.el); });
+    bad($('fw-gdpr'), null, !$('f-gdpr').checked, $('f-gdpr'));
+    return first;
+  }
+
+  function payload() {
+    const m = car();
+    const base = {
+      nume: $('f-nume').value.trim(),
+      telefon: $('f-tel').value.trim(),
+      email: $('f-email').value.trim(),
+      acord: $('f-gdpr').checked,
+      website: $('f-website').value,
+      tipClient: isPJ() ? 'PJ' : 'PF',
+      firma: isPJ() ? $('f-firma').value.trim() : '',
+      cui: isPJ() ? cuiDigits($('f-cui').value) : '',
+      functie: isPJ() ? $('f-functie').value.trim() : '',
+      nrMasini: qty(),
+      sursa: (location.hostname || 'pagină locală') + ' · configurator B2B ' + D.generat
+    };
+    if (S.mode === 'other') {
+      return Object.assign(base, { tip: 'Altă mașină', masina: '', stare: '', servicii: '', mesaj: $('o-desc').value.trim(), link: $('o-link').value.trim() });
+    }
+    const p = priceOf(m);
+    return Object.assign(base, {
+      tip: 'Catalog', masina: carLabel(m), stare: m.stare, servicii: svcNames().join(', '),
+      pretLista: p.list + p.svc, reducere: p.disc, pretFaraTva: p.net, pretCuTva: p.gross, mesaj: $('f-msg').value.trim(), link: ''
+    });
+  }
+
+  // textul pentru WhatsApp / copiere, în limba aleasă (d = datele cererii, mereu în română, ca în Cereri B2C;
+  // snap = mașina și serviciile în ambele limbi, fixate în momentul trimiterii)
+  function messageText(d, withContact, snap) {
+    const lines = [L('Bună ziua! Aș dori o ofertă de la BADSI Automotive.', 'Hello! I would like an offer from BADSI Automotive.')];
+    if (d.tip === 'Catalog') {
+      const m = snap.m;
+      lines.push(L('Mașina: ', 'Car: ') + d.masina + ' (' + stareLabel(m.stare) + ', ' + kmOf(m) + ')');
+      lines.push(L('Servicii BADSI: ', 'BADSI services: ') + (L(snap.svcRo, snap.svcEn) || L('niciunul', 'none')));
+      lines.push(L('Preț estimativ din configurator (cu reducerea B2B): ', 'Estimated price from the configurator (B2B discount included): ') + eur(d.pretFaraTva) + L(' fără TVA (', ' excl. VAT (') + eur(d.pretCuTva) + L(' cu TVA) / mașină', ' incl. VAT) / car'));
+      if (d.nrMasini > 1) lines.push(L('Număr de mașini: ', 'Number of cars: ') + d.nrMasini);
+    } else {
+      lines.push(L('Caut: ', 'Looking for: ') + d.mesaj);
+      if (d.link) lines.push(L('Anunț: ', 'Listing: ') + d.link);
+    }
+    if (d.tip === 'Catalog' && d.mesaj) lines.push(L('Mesaj: ', 'Message: ') + d.mesaj);
+    if (d.tipClient === 'PJ') lines.push(L('Firma: ', 'Company: ') + d.firma + ', CUI ' + d.cui + (d.functie ? ' · ' + d.functie : ''));
+    lines.push(L('Nume: ', 'Name: ') + d.nume);
+    if (withContact) { lines.push(L('Telefon: ', 'Phone: ') + d.telefon); lines.push('Email: ' + d.email); }
+    return lines.join('\n');
+  }
+
+  let doneNr = null;
+  let manualArgs = null;   // ultima cerere pregătită pentru WhatsApp / copiere, ca să se poată reface în cealaltă limbă
+  function renderDone() {
+    $('done').innerHTML = '<b>' + esc(tx('confirmare')) + '</b>' + (doneNr ? '<p>' + L('Numărul cererii: ', 'Request number: ') + '<strong>' + esc(doneNr) + '</strong></p>' : '');
+  }
+  function showDone(nr) {
+    S.sent = true;
+    doneNr = nr || null;
+    manualArgs = null;
+    $('send-msg').textContent = '';
+    $('form').hidden = true;
+    $('manual').hidden = true;
+    $('done').hidden = false;
+    renderDone();
+    renderPanel();
+    $('done').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function renderManual() {
+    const d = manualArgs.d;
+    const full = messageText(d, true, manualArgs.snap);
+    const wa = D.contact.whatsapp ? 'https://wa.me/' + encodeURIComponent(D.contact.whatsapp) + '?text=' + encodeURIComponent(messageText(d, false, manualArgs.snap)) : '';
+    const box = $('manual');
+    box.hidden = false;
+    box.innerHTML =
+      '<p><b>' + (manualArgs.reason ? L('Nu am putut trimite cererea automat.', 'We could not send the request automatically.') : L('Cererea ta e pregătită.', 'Your request is ready.')) + '</b> ' +
+        L('Trimite-ne-o pe WhatsApp sau pe email; textul e mai jos.', 'Send it to us on WhatsApp or by email; the text is below.') + '</p>' +
+      '<div class="row-actions">' +
+        (wa ? '<a class="btn" href="' + esc(wa) + '" target="_blank" rel="noopener">' + L('Deschide WhatsApp ↗', 'Open WhatsApp ↗') + '</a>' : '') +
+        '<button class="btn ghost" type="button" id="btn-copy">' + L('Copiază textul', 'Copy the text') + '</button>' +
+        '<span class="msg" id="copy-msg" aria-live="polite"></span>' +
+      '</div>' +
+      '<p class="hint-text">Email: <span class="addr">' + esc(D.contact.email) + '</span> · ' + L('Telefon', 'Phone') + ': <span class="addr">' + esc(D.contact.telefon) + '</span></p>' +
+      '<label class="field"><span>' + L('Textul cererii', 'Request text') + '</span><textarea id="manual-text" readonly rows="7"></textarea></label>';
+    $('manual-text').value = full;
+    $('btn-copy').addEventListener('click', () => {
+      const ta = $('manual-text');
+      const fallback = () => { ta.focus(); ta.select(); $('copy-msg').textContent = L('Textul e selectat: apasă Ctrl+C.', 'The text is selected: press Ctrl+C.'); };
+      try {
+        navigator.clipboard.writeText(full).then(() => { $('copy-msg').textContent = L('Copiat.', 'Copied.'); }, fallback);
+      } catch (err) { fallback(); }
+    });
+  }
+  function showManual(d, reason) {
+    const names = () => svcNames().join(', ');
+    manualArgs = { d, reason, snap: { m: car(), svcRo: withLang('ro', names), svcEn: withLang('en', names) } };
+    renderManual();
+    $('manual').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  async function send() {
+    if (S.sent) { $('done').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    if (S.mode === 'catalog' && !car()) { $('versions').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    const first = validate();
+    if (first) {
+      $('send-msg').textContent = L('Completează câmpurile marcate.', 'Fill in the marked fields.');
+      $('send-msg').className = 'msg is-error';
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      first.focus({ preventScroll: true });
+      return;
+    }
+    $('send-msg').textContent = '';
+    $('send-msg').className = 'msg';
+    const d = withLang('ro', payload);   // în Cereri B2B totul rămâne în română; limba clientului se vede la „sursa”
+    if (UI.lang === 'en') d.sursa += ' · EN';
+    if (!D.endpoint) { showManual(d, false); return; }
+    // trimiterea se face doar din butonul panoului (și din bara de jos pe telefon)
+    const btns = [$('btn-panel'), $('mb-btn')];
+    btns.forEach(b => { b.disabled = true; b.textContent = L('Se trimite…', 'Sending…'); });
+    // scriptul Google poate răspunde greu la primul apel (s-a văzut ~20 s): clientul vede că se lucrează
+    $('send-msg').textContent = L('Se trimite cererea; poate dura până la 30 de secunde.', 'Sending your request; it can take up to 30 seconds.');
+    $('send-msg').className = 'msg';
+    let reached = false;   // false = cererea n-a plecat deloc (ex. pagina e un artefact claude.ai, unde trimiterea e blocată)
+    try {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 60000);   // 60 s: altfel o cerere ajunsă în sheet putea apărea ca netrimisă
+      const res = await fetch(D.endpoint, { method: 'POST', body: JSON.stringify(d), signal: ctl.signal });
+      clearTimeout(timer);
+      reached = true;
+      const r = await res.json();
+      if (r && r.ok) { showDone(r.nr); return; }
+      if (r && r.error === 'email') { fields.email.wrap.classList.add('is-bad'); fields.email.err.hidden = false; $('send-msg').textContent = L('Verifică adresa de email.', 'Check the email address.'); $('send-msg').className = 'msg is-error'; return; }
+      throw new Error((r && r.error) || 'raspuns');
+    } catch (err) {
+      $('send-msg').textContent = '';
+      showManual(d, reached);
+    } finally {
+      btns.forEach(b => { b.disabled = false; });
+      renderPanel();   // pune la loc eticheta butoanelor („Trimite cererea” / „Cerere trimisă”)
+    }
+  }
+
+  $('form').addEventListener('submit', e => { e.preventDefault(); send(); });
+  $('btn-panel').addEventListener('click', send);
+  $('mb-btn').addEventListener('click', send);   // pe telefon: același buton; dacă lipsesc date, duce la primul câmp necompletat
+  document.querySelectorAll('input[name="client"]').forEach(i => i.addEventListener('change', () => { renderClient(); renderPanel(); }));
+  $('f-nr').addEventListener('input', () => renderPanel());
+  $('f-cui').addEventListener('change', lookupCui);
+  $('f-cui').addEventListener('blur', lookupCui);
+  Object.keys(fields).forEach(k => fields[k].el.addEventListener('input', () => {
+    if (fields[k].wrap.classList.contains('is-bad') && fields[k].ok(fields[k].el.value)) { fields[k].wrap.classList.remove('is-bad'); fields[k].err.hidden = true; }
+  }));
+  $('f-gdpr').addEventListener('change', () => { if ($('f-gdpr').checked) $('fw-gdpr').classList.remove('is-bad'); });
+  $('o-desc').addEventListener('input', () => { if ($('o-desc').value.trim().length >= 3) { $('fw-desc').classList.remove('is-bad'); $('e-desc').hidden = true; } });
+
+  // ---------- 6. bara BADSI: limba și tema ----------
+  function setLang(lang) {
+    UI.lang = lang === 'en' ? 'en' : 'ro';
+    document.documentElement.lang = UI.lang;
+    uiSave('badsi-ui-lang', UI.lang);
+    applyStatic();
+    renderClient();
+    fillStatic();
+    renderAll();
+    if (S.sent) renderDone();
+    if (manualArgs && !$('manual').hidden) renderManual();
+    if ($('send-msg').textContent) $('send-msg').textContent = '';
+  }
+  function setScheme(dark) {
+    if (dark) document.documentElement.setAttribute('data-scheme', 'dark');
+    else document.documentElement.removeAttribute('data-scheme');
+    $('ui-theme').setAttribute('aria-pressed', dark ? 'true' : 'false');
+    uiSave('badsi-ui-theme', dark ? 'dark' : 'light');
+  }
+  document.querySelectorAll('input[name="ui-lang"]').forEach(i => i.addEventListener('change', () => { if (i.checked) setLang(i.value); }));
+  $('ui-theme').addEventListener('click', () => setScheme(document.documentElement.getAttribute('data-scheme') !== 'dark'));
+  $('ui-theme').setAttribute('aria-pressed', document.documentElement.getAttribute('data-scheme') === 'dark' ? 'true' : 'false');
+
+  applyStatic();
+  renderClient();
+  fillStatic();
+  renderAll();
+})();
+</script>
+</body></html>

@@ -6,5 +6,6 @@ Configuratoarele online BADSI Automotive, publicate cu GitHub Pages.
 |---|---|
 | `b2c/` | Configurator pentru clienți: alegi mașina și serviciile, vezi prețul estimat și trimiți cererea către un consultant BADSI. |
 | `zeekr/` | Configurator Zeekr 9X și 8X: versiune, culori, dotări opționale, mașină rulată și servicii, cu prețul estimat și cererea către un consultant BADSI. |
+| `b2b/` | Configurator pentru firme: aceleași mașini și servicii, prețuri fără TVA cu reducerea B2B, date de firmă (CUI) sau persoană fizică și cererea către un consultant BADSI. |
 
 Prețurile afișate sunt estimări, confirmate de un consultant BADSI.
