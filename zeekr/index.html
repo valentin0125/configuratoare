@@ -12,54 +12,73 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Michroma&display=swap">
 <style>
-/* Layout: bara neagra BADSI sus (ca pe badsi.ro: limba + tema in dreapta); cardul de configurare in stanga; scena + sumarul raman lipite in dreapta. Pe telefon: o coloana + bara de pret jos.
-   Paleta badsi.ro: fond crem #fdf8f4, carduri albe, text #212529, negru pentru actiuni si pret. Luminos implicit; intunecat doar din butonul din bara (data-scheme="dark"). */
+/* Aspect (11.11.2026, dupa logica configuratoarelor raceiq.eu):
+   - bara neagra BADSI sus: „BADSI | CONFIGURATOR › ZEEKR 8X” + limba + tema;
+   - stanga: scena mare cu masina in culoarea aleasa (randari oficiale Zeekr), sageti si miniaturi pe unghiuri (fata, profil, spate, frontal, interior);
+   - dreapta: panou cu pasi (Model, Versiune, Culoare, Optionale, Rulata, Servicii, Sumar), un pas pe ecran;
+   - jos in panou: pretul fara TVA (+ cu TVA), detaliile pretului la cerere, „Inapoi” si butonul principal (Continua / Trimite cererea).
+   Pe telefon: scena sus, pasii lipiti sus la derulare, pretul si butonul intr-o bara fixa jos.
+   Paleta badsi.ro (crem, alb, text #212529, negru pentru actiuni). Luminos implicit; intunecat doar din butonul din bara. */
 :root {
   --bg: #fdf8f4;
   --card: #ffffff;
   --ink: #212529;
   --muted: #6b6f75;
   --line: #e7e1db;
+  --line-strong: #d6cfc8;
   --soft: #f8f4f0;
   --tile: #f4f1ee;
-  --tile-deep: #e4e0db;
   --sel: #000000;
   --accent: #000000;
   --accent-ink: #ffffff;
-  --panel: #ffffff;
-  --panel-ink: #212529;
-  --panel-muted: #6b6f75;
-  --panel-line: #e7e1db;
   --warn-ink: #8a4f08;
   --warn-bg: #fcf0dc;
   --ok: #1f7a4d;
+  --ok-bg: #e2f3ea;
+  --err-ink: #a3261b;
   --bar: #000000;
   --bar-ink: #ffffff;
   --bar-muted: #a9a9a9;
   --bar-edge: #3d3d3d;
-  --bar-line: #000000;
-  --shadow: 0 1px 2px rgba(33, 37, 41, .05), 0 6px 20px rgba(33, 37, 41, .05);
+  --stage-a: #dcdde2;
+  --stage-b: #eceef1;
+  --stage-ink: #15171a;
+  --stage-muted: #50545b;
+  --shadow-up: 0 -10px 30px rgba(33, 37, 41, .08);
   --font-display: "Michroma", "Arial Black", system-ui, sans-serif;
   --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 :root[data-scheme="dark"] {
-  --bg: #0b0c0e; --card: #15171a; --ink: #f2efeb; --muted: #9da0a6; --line: #2a2c30;
-  --soft: #1d1f23; --tile: #e8e5e1; --tile-deep: #d5d1cc; --sel: #f2efeb; --accent: #ffffff; --accent-ink: #000000;
-  --panel: #15171a; --panel-ink: #f2efeb; --panel-muted: #9da0a6; --panel-line: #2a2c30;
-  --warn-ink: #f0b45a; --warn-bg: #2e2416; --ok: #5cc196;
-  --bar: #000000; --bar-ink: #ffffff; --bar-muted: #9a9a9a; --bar-edge: #3d3d3d; --bar-line: #26282c;
-  --shadow: none;
+  --bg: #0b0c0e; --card: #15171a; --ink: #f2efeb; --muted: #9da0a6; --line: #2a2c30; --line-strong: #3a3d42;
+  --soft: #1d1f23; --tile: #e8e5e1; --sel: #f2efeb; --accent: #ffffff; --accent-ink: #000000;
+  --warn-ink: #f0b45a; --warn-bg: #2e2416; --ok: #5cc196; --ok-bg: #15281f; --err-ink: #ff9a8f;
+  --bar: #000000; --bar-ink: #ffffff; --bar-muted: #9a9a9a; --bar-edge: #3d3d3d;
+  --shadow-up: 0 -10px 30px rgba(0, 0, 0, .45);
   color-scheme: dark;
 }
 
-/* bara BADSI: limba (RO/EN) si tema (luminos/intunecat) */
-.topbar { background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--bar-line); }
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* altfel display:flex/grid anuleaza atributul hidden */
+html, body { background: var(--bg); }
+body { margin: 0; color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.45; }
+h1, h2, h3, p { margin: 0; }
+.num { font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- bara BADSI ---------- */
+.topbar { background: var(--bar); color: var(--bar-ink); flex: none; }
 .topbar-in {
-  max-width: 1160px; margin: 0 auto; padding-block: 10px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
   display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap;
 }
+.crumbs { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .wordmark { font-family: var(--font-display); font-size: 16px; letter-spacing: .32em; margin-right: -.32em; }
+.crumb-sep { width: 1px; height: 18px; background: var(--bar-edge); }
+.crumb { font-size: 10.5px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--bar-muted); white-space: nowrap; }
+.crumb b { color: var(--bar-ink); font-weight: 700; }
+.crumb i { font-style: normal; margin: 0 8px; color: var(--bar-edge); }
 .ui-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .lang { display: inline-flex; border: 1px solid var(--bar-edge); border-radius: 999px; padding: 2px; }
 .lang label { cursor: pointer; }
@@ -68,7 +87,7 @@
 .lang input:checked + span { background: var(--bar-ink); color: var(--bar); }
 .lang input:focus-visible + span { outline: 2px solid var(--bar-ink); outline-offset: 2px; }
 .theme-btn {
-  display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12px; font-weight: 700; color: var(--bar-ink);
+  display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--bar-ink);
   background: transparent; border: 1px solid var(--bar-edge); border-radius: 999px; padding: 5px 12px 5px 9px; cursor: pointer;
 }
 .theme-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -78,175 +97,151 @@
 .theme-btn:hover { border-color: var(--bar-muted); }
 .theme-btn:focus-visible { outline: 2px solid var(--bar-ink); outline-offset: 2px; }
 
-*, *::before, *::after { box-sizing: border-box; }
-[hidden] { display: none !important; }   /* altfel display:flex/grid anuleaza atributul hidden */
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.45;
-}
-.page {
-  max-width: 1160px;
-  margin: 0 auto;
-  padding-block: 24px 40px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 390px);
-  gap: 24px;
-  align-items: start;
-}
-h1, h2, p { margin: 0; }
-.num { font-variant-numeric: tabular-nums; }
+/* ---------- cadrul: scena (stanga) + panoul cu pasi (dreapta) ---------- */
+.shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); min-width: 0; }
 
-/* ---------- card configurare ---------- */
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 22px 26px 18px;
-  display: grid;
-  gap: 26px;
-  min-width: 0;
-  box-shadow: var(--shadow);
+/* scena */
+.stage { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--card); }
+/* fundalul = culorile de la marginea randarilor (sus #dadde2, podeaua #dde5ed): cand scena e mai inalta decat poza (16:10),
+   poza se arata intreaga (contain) si benzile de sus/jos se pierd in fundal; cand e mai lata, poza umple scena (cover) */
+.stage-view {
+  position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: pan-y; container-type: size;
+  background: linear-gradient(180deg, #dadde2 0 50%, #dde5ed 50% 100%);
 }
-.app { display: grid; gap: 26px; min-width: 0; }
-.card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--line);
+.stage-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 56%; transition: opacity .28s ease; }
+@container (max-aspect-ratio: 8 / 5) { .stage-img:not(.is-cabin) { object-fit: contain; } }
+.stage-img.is-loading { opacity: .35; }
+.stage-img.is-cabin { object-position: 50% 50%; }
+.stage-head { position: absolute; top: 28px; left: 32px; right: 32px; z-index: 2; color: var(--stage-ink); pointer-events: none; }
+.stage.is-cabin .stage-head { color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .45); }
+.stage.is-cabin .stage-eyebrow, .stage.is-cabin .stage-meta { color: rgba(255, 255, 255, .85); }
+.stage-eyebrow { display: flex; align-items: center; gap: 10px; font-size: 10.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--stage-muted); }
+.stage-eyebrow::before { content: ""; width: 26px; height: 1px; background: currentColor; }
+.stage-model { font-family: var(--font-display); font-size: clamp(26px, 2.9vw, 40px); letter-spacing: .06em; line-height: 1.15; margin: 10px 0 4px; }
+.stage-version { font-size: 15px; font-weight: 700; }
+.stage-meta { font-size: 12.5px; color: var(--stage-muted); margin-top: 2px; max-width: 52ch; }
+.stage-chips { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; max-width: 520px; }
+.stage-chips li { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 2px; background: rgba(255, 255, 255, .72); border: 1px solid rgba(0, 0, 0, .07); color: var(--stage-ink); text-shadow: none; }
+.stage-nav {
+  position: absolute; top: 52%; z-index: 3; transform: translateY(-50%);
+  width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer;
+  background: rgba(255, 255, 255, .88); color: #15171a; border: 1px solid rgba(0, 0, 0, .08); border-radius: 2px;
 }
-.brand { font-size: 18px; font-weight: 800; letter-spacing: .01em; }
-.head-note { color: var(--muted); font-size: 13px; }
-.step { display: grid; gap: 10px; min-width: 0; }
-.label {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--muted);
+.stage-nav svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.stage-nav:hover { background: #fff; }
+.stage-nav:focus-visible { outline: 2px solid #15171a; outline-offset: 2px; }
+.stage-prev { left: 24px; }
+.stage-next { right: 24px; }
+.views {
+  flex: none; display: flex; justify-content: center; gap: 12px; overflow-x: auto; scrollbar-width: none;
+  padding: 12px 16px 14px; background: var(--card); border-top: 1px solid var(--line);
 }
-.label-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.views::-webkit-scrollbar { display: none; }
+.view {
+  flex: 0 0 auto; width: 104px; padding: 0; border: 0; background: none; cursor: pointer;
+  display: grid; gap: 7px; justify-items: center;
+  font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+}
+.view img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; background: var(--stage-a); border: 1px solid var(--line); }
+.view.is-on { color: var(--ink); }
+.view.is-on img { border-color: var(--sel); box-shadow: 0 0 0 1px var(--sel); }
+.view:focus-visible { outline: 2px solid var(--sel); outline-offset: 3px; }
 
-/* starea citirii din Baza date */
-.status {
-  display: grid;
-  gap: 12px;
-  padding: 18px;
-  border: 1px dashed var(--line);
-  border-radius: 10px;
-  color: var(--muted);
+/* panoul cu pasi */
+.panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--card); border-left: 1px solid var(--line); }
+.steps { flex: none; display: flex; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); padding: 0 14px; background: var(--card); }
+.steps::-webkit-scrollbar { display: none; }
+.tab {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; cursor: pointer;
+  padding: 16px 7px 13px; border: 0; border-bottom: 2px solid transparent; background: none;
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
 }
-.status.is-error { border-style: solid; color: var(--warn-ink); background: var(--warn-bg); border-color: transparent; }
-.status a { color: inherit; font-weight: 700; }
-.status-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.status-actions:empty { display: none; }
-.btn {
-  font: inherit;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 9px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--sel);
-  background: var(--sel);
-  color: var(--card);
-  cursor: pointer;
-}
-.btn:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
-.stale { color: var(--warn-ink); font-size: 12px; }
+.tab .tab-ok { font-size: 11px; letter-spacing: 0; }
+.tab.is-done { color: var(--ink); }
+.tab.is-on { color: var(--ink); border-bottom-color: var(--sel); }
+.tab:focus-visible { outline: 2px solid var(--sel); outline-offset: -4px; }
+.panel-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 26px 28px 28px; display: grid; gap: 18px; align-content: start; }
+.pane { display: grid; gap: 16px; min-width: 0; }
+.pane-title { font-size: 24px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.pane-title:focus { outline: none; }
+.intro { color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+.label { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.hint { color: var(--muted); font-size: 12px; }
+.hint:empty { display: none; }
+.tax-hint { font-size: 12.5px; line-height: 1.5; }
+.foot { color: var(--muted); font-size: 11px; line-height: 1.5; padding-top: 14px; border-top: 1px solid var(--line); }
+.empty { padding: 14px; border: 1px dashed var(--line-strong); color: var(--muted); font-size: 13px; }
 
-/* alegeri cu radio ascuns (model, versiune, culori) */
+/* alegeri cu radio ascuns (model, versiune, culori, rulate, garantie) */
 .pick { position: relative; cursor: pointer; display: block; min-width: 0; }
 .pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.pick-body {
-  display: grid;
-  height: 100%;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--card);
-}
-.pick input:checked + .pick-body { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); background: var(--soft); }
+.pick-body { display: grid; height: 100%; border: 1px solid var(--line-strong); border-radius: 2px; background: var(--card); }
+.pick:hover .pick-body { border-color: var(--muted); }
+.pick input:checked + .pick-body { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
 .pick input:focus-visible + .pick-body { outline: 2px solid var(--sel); outline-offset: 2px; }
+.pick input:disabled + .pick-body { cursor: not-allowed; }
 
-.models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.model-body { padding: 20px 22px; gap: 4px; }
-.model-name { font-family: var(--font-display); font-size: 28px; letter-spacing: .06em; }
-.model-sub { color: var(--muted); font-size: 13px; }
+/* model */
+.models { display: grid; gap: 12px; }
+.model-body { grid-template-columns: minmax(0, 1fr) 46%; align-items: center; overflow: hidden; }
+.model-text { display: grid; gap: 6px; padding: 18px 0 18px 20px; }
+.model-name { font-family: var(--font-display); font-size: 26px; letter-spacing: .06em; line-height: 1.1; }
+.model-name small { display: block; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; letter-spacing: .2em; color: var(--muted); margin-bottom: 4px; }
+.model-sub { color: var(--muted); font-size: 12.5px; }
+.model-photo { height: 100%; min-height: 104px; background: linear-gradient(180deg, var(--stage-a), var(--stage-b)); display: grid; place-items: center; overflow: hidden; }
+.model-photo img { width: 112%; max-width: none; height: auto; display: block; }
 
-.versions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.ver-body { padding: 14px 16px; gap: 4px; align-content: start; }
-.ver-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.ver-name { font-size: 16px; font-weight: 800; }
-.ver-spec { font-size: 12px; color: var(--muted); white-space: nowrap; }
-.ver-price { font-size: 18px; font-weight: 700; margin-top: 6px; }
+/* versiuni (ca „trim”-urile RaceIQ) */
+.versions { display: grid; gap: 12px; }
+.ver-body { padding: 16px 18px; gap: 6px; align-content: start; }
+.ver-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.ver-name { font-size: 17px; font-weight: 800; }
+.ver-price { font-size: 16px; font-weight: 700; white-space: nowrap; }
+.ver-spec { justify-self: start; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border: 1px solid var(--line-strong); border-radius: 2px; color: var(--ink); }
 .ver-sub { font-size: 12px; color: var(--muted); }
 .ver-note { font-size: 11.5px; font-weight: 700; color: var(--warn-ink); }
 
-.color-group { display: grid; gap: 8px; }
-.sub { font-size: 13px; font-weight: 600; }
-.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+/* culori */
+.color-group { display: grid; gap: 22px; }
+.color-block { display: grid; gap: 10px; }
+.color-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.color-sel { font-size: 15px; font-weight: 700; }
+.color-sel small { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+.swatches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .sw-body { overflow: hidden; }
-.sw-photo { aspect-ratio: 16 / 10; background: var(--tile); display: grid; place-items: center; }
-.sw-photo img { width: 100%; height: 100%; object-fit: cover; }
-/* mostra de culoare (cand in foaia Culori, la Imagine, e un cod #rrggbb in loc de poza) */
+.sw-photo { aspect-ratio: 16 / 9; background: linear-gradient(180deg, var(--stage-a), var(--stage-b)); display: grid; place-items: center; overflow: hidden; }
+.sw-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sw-chip { background: radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, .38), rgba(255, 255, 255, 0) 55%), var(--chip); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
 .sw-text { padding: 7px 9px 8px; display: grid; gap: 1px; }
-.sw-name { font-size: 12px; font-weight: 700; }
+.sw-name { font-size: 11.5px; font-weight: 700; line-height: 1.3; }
 .sw-price { font-size: 11px; color: var(--muted); }
-.empty {
-  padding: 14px;
-  border: 1px dashed var(--line);
-  border-radius: 10px;
-  color: var(--muted);
-  font-size: 13px;
-}
 
-/* opționale: rand cu checkbox, ca in poza de referinta */
+/* optionale (carduri ca la RaceIQ: nume, descriere, pret in dreapta) */
 .opt-list { display: grid; gap: 8px; }
 .opt {
-  display: grid;
-  grid-template-columns: auto 64px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  cursor: pointer;
+  display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; align-items: center; gap: 14px;
+  padding: 10px 14px 10px 10px; border: 1px solid var(--line-strong); border-radius: 2px; cursor: pointer; position: relative;
 }
-.opt:has(input:checked) { border-color: var(--sel); background: var(--soft); }
-.opt input { width: 17px; height: 17px; margin: 0; accent-color: var(--sel); }
-.opt input:focus-visible { outline: 2px solid var(--sel); outline-offset: 3px; }
-.thumb { width: 64px; height: 46px; border-radius: 6px; overflow: hidden; background: var(--tile); }
+.opt:hover { border-color: var(--muted); }
+.opt:has(input:checked) { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
+.opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.opt:has(input:focus-visible) { outline: 2px solid var(--sel); outline-offset: 2px; }
+.thumb { width: 72px; height: 50px; overflow: hidden; background: var(--tile); position: relative; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.opt-text { display: grid; gap: 1px; min-width: 0; }
-.opt-name { font-weight: 600; }
+.opt-text { display: grid; gap: 2px; min-width: 0; }
+.opt-name { font-weight: 700; font-size: 13.5px; }
 .opt-desc { color: var(--muted); font-size: 12px; }
-.opt-price { display: grid; justify-items: end; text-align: right; }
-.opt-price b { font-weight: 700; white-space: nowrap; }
-.opt-price small { color: var(--muted); font-size: 11px; }
-.hint { color: var(--muted); font-size: 12px; }
-.hint:empty { display: none; }
-.tax-hint { margin: 0 0 2px; font-size: 13px; }
+.opt-price { display: grid; justify-items: end; gap: 6px; text-align: right; }
+.opt-price b { font-weight: 700; white-space: nowrap; font-size: 13px; }
+.box { width: 18px; height: 18px; border: 1.5px solid var(--line-strong); border-radius: 2px; display: grid; place-items: center; }
+.box svg { width: 12px; height: 12px; fill: none; stroke: var(--accent-ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+.opt:has(input:checked) .box, .svc-check:has(input:checked) .box { background: var(--sel); border-color: var(--sel); }
+.opt:has(input:checked) .box svg, .svc-check:has(input:checked) .box svg { opacity: 1; }
 
-/* mașină rulată */
-.is-off { opacity: .45; }
-.is-off .pick, .is-off .opt { cursor: not-allowed; }
-.used-note {
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  color: var(--warn-ink);
-  background: var(--warn-bg);
-}
-.used-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* masina rulata */
+.is-off .pick, .is-off .opt { opacity: .45; cursor: not-allowed; }
+.used-note { padding: 11px 14px; font-size: 13px; color: var(--warn-ink); background: var(--warn-bg); border-radius: 2px; }
+.used-list { display: grid; gap: 10px; }
 .used-body { padding: 14px 16px; gap: 3px; align-content: start; }
 .used-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .used-name { font-size: 15px; font-weight: 800; }
@@ -254,173 +249,198 @@ h1, h2, p { margin: 0; }
 .used-price { font-size: 18px; font-weight: 700; margin-top: 6px; }
 .used-save { font-size: 12px; font-weight: 700; color: var(--ok); }
 .used-opts { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.tag { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+.tag { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 2px; background: var(--soft); color: var(--muted); white-space: nowrap; }
 
 /* servicii BADSI */
 .svc { display: grid; gap: 8px; }
 .svc-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  padding: 11px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  margin: 0;
-  min-width: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center;
+  padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 2px; margin: 0; min-width: 0;
 }
-.svc-text { display: grid; gap: 1px; }
-.svc-text strong { font-weight: 600; }
+.svc-text { display: grid; gap: 2px; }
+.svc-text strong { font-weight: 700; font-size: 13.5px; }
 .svc-text span { color: var(--muted); font-size: 12px; }
-.svc-check { grid-template-columns: auto minmax(0, 1fr) auto; cursor: pointer; }
-.svc-check input { width: 17px; height: 17px; margin: 0; accent-color: var(--sel); }
-.svc-check:has(input:checked) { border-color: var(--sel); background: var(--soft); }
+.svc-check { grid-template-columns: auto minmax(0, 1fr) auto; cursor: pointer; position: relative; }
+.svc-check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.svc-check:hover { border-color: var(--muted); }
+.svc-check:has(input:checked) { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); }
+.svc-check:has(input:focus-visible) { outline: 2px solid var(--sel); outline-offset: 2px; }
+.svc-check:has(input:disabled) { opacity: .5; cursor: not-allowed; }
 .svc-check b { white-space: nowrap; }
-.svc-warranty { grid-template-columns: minmax(0, 1fr); }
-.svc-warranty legend { float: left; width: 100%; padding: 0; margin-bottom: 8px; }
-.seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; clear: both; }
-.seg-body { padding: 9px 10px; gap: 1px; text-align: center; }
-.seg-body b { font-size: 14px; }
+.svc-warranty { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+.svc-warranty legend { float: left; width: 100%; padding: 0; margin-bottom: 10px; }
+.seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; clear: both; }
+.seg-body { padding: 10px; gap: 1px; text-align: center; }
+.seg-body b { font-size: 13px; letter-spacing: .06em; }
 .seg-body small { color: var(--muted); font-size: 12px; }
+.war-desc { margin-top: 10px; }
 
-/* ---------- coloana dreapta ---------- */
-.aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 16px; min-width: 0; }
-.stage { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
-.stage-photo {
-  aspect-ratio: 16 / 8;
-  max-width: 100%;
-  background: radial-gradient(120% 90% at 50% 100%, var(--tile-deep) 0%, var(--tile) 60%);
-  display: grid;
-  place-items: center;
-}
-.stage-photo img { width: 64%; max-width: 250px; mix-blend-mode: multiply; }
-.stage-body { padding: 14px 18px 18px; display: grid; gap: 4px; }
-.stage-model { font-family: var(--font-display); font-size: 22px; letter-spacing: .08em; }
-.stage-version { font-size: 15px; font-weight: 700; }
-.stage-meta { color: var(--muted); font-size: 12px; }
-.stage-chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.stage-chips li { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); }
-
-.summary {
-  background: var(--panel);
-  color: var(--panel-ink);
-  border: 1px solid var(--panel-line);
-  border-radius: 14px;
-  padding: 20px 22px;
-  display: grid;
-  gap: 12px;
-  scroll-margin-top: 16px;
-  box-shadow: var(--shadow);
-}
-.sum-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.sum-row > span { display: grid; gap: 1px; }
-.sum-row small { color: var(--panel-muted); font-size: 11px; }
-.sum-row b { font-weight: 700; white-space: nowrap; }
-.sum-line { border: 0; border-top: 1px solid var(--panel-line); margin: 2px 0; }
-.sum-total { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.sum-total span { font-size: 13px; font-weight: 700; letter-spacing: .06em; }
-.sum-total b { font-size: 30px; font-weight: 800; color: var(--accent); white-space: nowrap; }
-.sum-note { margin: -4px 0 0; color: var(--panel-muted); font-size: 11px; line-height: 1.45; }
-.btn-ghost {
-  font: inherit; font-weight: 700; font-size: 13px; padding: 9px 14px; border-radius: 8px;
-  border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer;
-}
-.btn-ghost:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
-.btn:disabled { opacity: .6; cursor: progress; }
-
-/* ---------- public: intro, formular, confirmare, trimitere manuală ---------- */
-:root { --ok-bg: #e2f3ea; --err-ink: #a3261b; }
-:root[data-scheme="dark"] { --ok-bg: #15281f; --err-ink: #ff9a8f; }
-.intro { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0; max-width: 70ch; }
+/* sumar + formular */
+.recap { border: 1px solid var(--line-strong); border-radius: 2px; }
+.recap h3 { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.recap dl { margin: 0; }
+.recap dl > div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+.recap dl > div:last-child { border-bottom: 0; }
+.recap dt { color: var(--muted); font-size: 12px; }
+.recap dd { margin: 0; font-size: 13px; font-weight: 600; text-align: right; }
+.recap .recap-total dt, .recap .recap-total dd { color: var(--ink); font-weight: 800; font-size: 14px; }
 .form { display: grid; gap: 12px; }
 .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .field { display: grid; gap: 5px; min-width: 0; }
-.field > span { font-size: 12px; font-weight: 700; color: var(--muted); }
+.field > span { font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .field input, .field textarea {
-  width: 100%; min-width: 0; font: inherit; font-size: 14px; color: var(--ink); background: var(--soft);
-  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+  width: 100%; min-width: 0; font: inherit; font-size: 14px; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line-strong); border-radius: 2px; padding: 10px 11px;
 }
 .field textarea { resize: vertical; min-height: 64px; }
 .field input:focus-visible, .field textarea:focus-visible, .agree input:focus-visible { outline: 2px solid var(--sel); outline-offset: 1px; }
 .field.is-bad input, .field.is-bad textarea { border-color: var(--err-ink); }
 .field .err { color: var(--err-ink); font-size: 11.5px; }
-.agree { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; cursor: pointer; }
+.agree { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; cursor: pointer; }
 .agree input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--sel); flex: none; }
 .agree a { color: inherit; font-weight: 700; }
 .agree.is-bad { color: var(--err-ink); }
 .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-.send-msg { margin: 0; font-size: 13px; color: var(--muted); }
+.send-msg { font-size: 13px; color: var(--muted); }
 .send-msg:empty { display: none; }
 .send-msg.is-error { color: var(--err-ink); }
-.done { display: grid; gap: 8px; padding: 16px 18px; border-radius: 12px; background: var(--ok-bg); color: var(--ok); }
-.done p { margin: 0; color: var(--ink); }
-.manual-send { display: grid; gap: 12px; padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--soft); }
-.manual-send p { margin: 0; }
+.done { display: grid; gap: 8px; padding: 16px 18px; border-radius: 2px; background: var(--ok-bg); color: var(--ok); }
+.done p { color: var(--ink); }
+.manual-send { display: grid; gap: 12px; padding: 16px 18px; border: 1px solid var(--line-strong); border-radius: 2px; background: var(--soft); }
 .row-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 .manual-send textarea {
   width: 100%; font: inherit; font-size: 12.5px; min-height: 140px; background: var(--card); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+  border: 1px solid var(--line-strong); border-radius: 2px; padding: 9px 11px;
 }
 .addr { font-weight: 700; user-select: all; }
+
+/* butoane */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  padding: 12px 18px; border-radius: 2px; border: 1px solid var(--sel); background: var(--sel); color: var(--card); cursor: pointer;
+}
 .btn:hover { opacity: .88; }
-.btn-wide { width: 100%; padding: 12px 14px; font-size: 14px; }
-.bar .bar-send { margin-left: auto; padding: 9px 14px; white-space: nowrap; }
-.sum-notes { display: grid; gap: 4px; }
-.sum-notes p { margin: 0; color: var(--panel-muted); font-size: 11px; line-height: 1.45; }
-.war-desc { margin: 0; }
-.foot { color: var(--muted); font-size: 11.5px; margin: 4px 0 0; max-width: 90ch; }
-@media (max-width: 560px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.btn:disabled { opacity: .6; cursor: progress; }
+.btn:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  padding: 12px 18px; border-radius: 2px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--ink); }
+.btn-ghost:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.btn-ghost svg, .btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* bara de pret pe telefon */
-.bar { display: none; }
+/* ---------- pretul (jos in panou; pe telefon bara fixa) ---------- */
+.checkout { flex: none; display: grid; gap: 12px; padding: 16px 28px 20px; background: var(--card); border-top: 1px solid var(--line); box-shadow: var(--shadow-up); position: relative; z-index: 3; }
+.breakdown { display: none; gap: 9px; padding-bottom: 12px; border-bottom: 1px solid var(--line); max-height: 42vh; overflow-y: auto; }
+.checkout.is-open .breakdown { display: grid; }
+.sum-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; }
+.sum-row > span { display: grid; gap: 1px; }
+.sum-row small { color: var(--muted); font-size: 11px; }
+.sum-row b { font-weight: 700; white-space: nowrap; }
+.total-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.total-l { display: grid; gap: 4px; }
+.total-l > span { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.bd-toggle {
+  display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; cursor: pointer;
+  font-size: 11.5px; font-weight: 600; color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+}
+.bd-toggle svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; transform: rotate(180deg); }
+.checkout.is-open .bd-toggle svg { transform: none; }
+.bd-toggle:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.total-r { display: grid; justify-items: end; gap: 2px; text-align: right; }
+.total-r b { font-size: 28px; font-weight: 800; letter-spacing: -.01em; line-height: 1.05; color: var(--accent); white-space: nowrap; }
+.total-r small { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.total-r small b { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: 0; }
+.sum-notes { display: grid; gap: 3px; }
+.sum-notes p { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.save-row b { color: var(--ok); }
+.cta { display: flex; gap: 10px; }
+.cta .btn { flex: 1; min-height: 48px; }
+.cta .btn-ghost { flex: none; min-height: 48px; }
+.cta-next { font-weight: 700; }
 
-@media (max-width: 900px) {
-  .layout { grid-template-columns: minmax(0, 1fr); }
-  .aside { position: static; }
-  .page { padding-block-end: 96px; }
-  .bar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 5;
-    background: var(--panel);
-    color: var(--panel-ink);
-    border-top: 1px solid var(--panel-line);
-    box-shadow: 0 -6px 20px rgba(0, 0, 0, .08);
+/* ---------- ecran mare: aplicatie pe toata inaltimea (scena fixa, panoul se deruleaza) ---------- */
+@media (min-width: 900px) and (min-height: 600px) {
+  body { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .shell { flex: 1; min-height: 0; }
+}
+@media (min-width: 900px) and (max-width: 1180px) {
+  .shell { grid-template-columns: minmax(0, 1fr) minmax(0, 400px); }
+  .panel-body { padding-inline: 22px; }
+  .checkout { padding-inline: 22px; }
+  .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .view { width: 88px; }
+}
+
+/* ---------- telefon / ecran scund: o coloana + bara de pret fixa jos ---------- */
+@media (max-width: 899px), (max-height: 599px) {
+  .shell { display: block; padding-bottom: 132px; }
+  .stage-view { flex: none; aspect-ratio: 16 / 10; max-height: 64vh; width: 100%; }
+  /* pe telefon titlul sta deasupra pozei, nu peste masina */
+  .stage-head, .stage.is-cabin .stage-head { position: static; order: -1; padding: 16px 16px 12px; color: var(--ink); text-shadow: none; background: var(--card); }
+  .stage-eyebrow, .stage.is-cabin .stage-eyebrow { font-size: 9.5px; color: var(--muted); }
+  .stage-model { font-size: 22px; margin: 6px 0 2px; }
+  .stage-version { font-size: 13px; }
+  .stage-meta, .stage.is-cabin .stage-meta { font-size: 11.5px; color: var(--muted); }
+  .stage-chips li { background: var(--soft); border-color: var(--line); color: var(--ink); }
+  .stage-nav { width: 34px; height: 34px; top: 60%; }
+  .stage-prev { left: 10px; }
+  .stage-next { right: 10px; }
+  .views { justify-content: flex-start; gap: 8px; padding: 10px 16px; }
+  .view { width: 74px; font-size: 9px; letter-spacing: .12em; gap: 5px; }
+  .panel { border-left: 0; }
+  .steps { position: sticky; top: 0; z-index: 4; padding: 0 8px; border-top: 1px solid var(--line); }
+  .panel-body { overflow: visible; padding: 22px 16px 26px; }
+  .pane-title { font-size: 21px; }
+  .checkout {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; gap: 8px;
     padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   }
-  .bar div { display: grid; }
-  .bar small { color: var(--panel-muted); font-size: 11px; }
-  .bar b { font-size: 16px; white-space: nowrap; }
-  .bar .bar-net b { color: var(--accent); font-size: 18px; }
-  .bar a { margin-left: auto; color: var(--panel-ink); font-weight: 700; font-size: 13px; padding: 8px 12px; border: 1px solid var(--panel-line); border-radius: 8px; text-decoration: none; }
+  .breakdown { max-height: 46vh; }
+  .sum-notes { display: none; }
+  .checkout.is-open .sum-notes { display: grid; }
+  .total-r b { font-size: 21px; }
+  .total-l > span { font-size: 9.5px; }
+  .cta .btn, .cta .btn-ghost { min-height: 44px; }
+  .cta-next, .back-txt { display: none; }
 }
 @media (max-width: 560px) {
-  .card { padding: 18px 16px 16px; }
-  .versions, .used-list { grid-template-columns: minmax(0, 1fr); }
-  .opt { grid-template-columns: auto 52px minmax(0, 1fr); }
-  .thumb { width: 52px; height: 40px; }
-  .opt-price { grid-column: 3; justify-items: start; text-align: left; display: flex; gap: 8px; align-items: baseline; }
-  .model-body { padding: 16px; }
-  .model-name { font-size: 23px; }
+  .crumb > span:first-child, .crumb i, .theme-btn > span { display: none; }
+  .crumbs { gap: 10px; }
+  .theme-btn { padding: 6px 8px; }
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .opt { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; }
+  .thumb { width: 56px; height: 42px; }
+  .model-body { grid-template-columns: minmax(0, 1fr) 44%; }
+  .model-name { font-size: 21px; }
+  .model-text { padding: 14px 0 14px 14px; }
+  .recap dl > div { grid-template-columns: 92px minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .pick-body, .opt, .svc-check { transition: border-color .15s, background-color .15s; }
+  .pick-body, .opt, .svc-check, .tab, .view img { transition: border-color .15s, box-shadow .15s, color .15s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-img { transition: none; }
 }
 </style>
 
 <header class="topbar">
   <div class="topbar-in">
-    <span class="wordmark" aria-hidden="true">BADSI</span>
+    <div class="crumbs">
+      <span class="wordmark" aria-hidden="true">BADSI</span>
+      <span class="crumb-sep" aria-hidden="true"></span>
+      <span class="crumb"><span data-en="Configurator">Configurator</span><i aria-hidden="true">›</i><b id="crumb-model"></b></span>
+    </div>
     <div class="ui-tools">
       <div class="lang" role="radiogroup" aria-label="Limba / Language">
         <label><input type="radio" name="ui-lang" id="ui-lang-ro" value="ro"><span lang="ro">RO</span></label>
         <label><input type="radio" name="ui-lang" id="ui-lang-en" value="en"><span lang="en">EN</span></label>
       </div>
-      <button class="theme-btn" type="button" id="ui-theme" aria-pressed="false">
+      <button class="theme-btn" type="button" id="ui-theme" aria-pressed="false" aria-label="Mod întunecat" data-en-aria="Dark mode">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
         <span data-en="Dark mode">Mod întunecat</span>
       </button>
@@ -428,130 +448,133 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   </div>
 </header>
 
-<div class="page">
-  <div class="layout">
-    <main class="card" aria-labelledby="brand">
-      <header class="card-head">
-        <h1 class="brand" id="brand">BADSI AUTOMOTIVE</h1>
-        <span class="head-note" data-en="Zeekr configurator">Configurator Zeekr</span>
-      </header>
-      <p class="intro" id="intro"></p>
+<div class="shell">
+  <section class="stage" id="stage" aria-label="Mașina configurată" data-en-aria="Your configured car">
+    <div class="stage-head">
+      <p class="stage-eyebrow"><span>BADSI Automotive · <span data-en="Zeekr configurator">Configurator Zeekr</span></span></p>
+      <h1 class="stage-model" id="stage-model"></h1>
+      <p class="stage-version" id="stage-version"></p>
+      <p class="stage-meta" id="stage-meta"></p>
+      <ul class="stage-chips" id="stage-chips"></ul>
+    </div>
+    <div class="stage-view" id="stage-view">
+      <img class="stage-img" id="stage-img" alt="">
+      <button class="stage-nav stage-prev" type="button" id="view-prev" aria-label="Unghiul anterior" data-en-aria="Previous view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="stage-nav stage-next" type="button" id="view-next" aria-label="Unghiul următor" data-en-aria="Next view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="views" id="views" role="group" aria-label="Unghiuri" data-en-aria="Views"></div>
+  </section>
 
-      <div class="app" id="app">
-        <section class="step">
-          <h2 class="label" id="l-model">Model</h2>
-          <div class="models" id="models" role="radiogroup" aria-labelledby="l-model"></div>
-        </section>
+  <aside class="panel" id="aside" aria-label="Configurația aleasă" data-en-aria="Your configuration">
+    <nav class="steps" id="steps" aria-label="Pași" data-en-aria="Steps"></nav>
 
-        <p class="used-note" id="used-note" hidden data-en="You chose a used car. The version, colour and options below no longer apply: the price and equipment are those of the car chosen under “Used car”.">Ai ales o mașină rulată. Versiunea, culoarea și opționalele de mai jos nu se mai aplică: prețul și dotările sunt ale mașinii alese la „Mașină rulată”.</p>
+    <div class="panel-body" id="panel-body">
+      <p class="used-note" id="used-note" hidden data-en="You chose a used car. The version, colour and options below no longer apply: the price and equipment are those of the car chosen under “Used car”.">Ai ales o mașină rulată. Versiunea, culoarea și opționalele de mai jos nu se mai aplică: prețul și dotările sunt ale mașinii alese la „Mașină rulată”.</p>
 
-        <section class="step" id="step-ver">
-          <h2 class="label" id="l-ver" data-en="Version">Versiune</h2>
-          <div class="versions" id="versions" role="radiogroup" aria-labelledby="l-ver"></div>
-        </section>
+      <section class="pane" data-step="model">
+        <h2 class="pane-title" id="l-model" tabindex="-1">Model</h2>
+        <p class="intro" id="intro"></p>
+        <div class="models" id="models" role="radiogroup" aria-labelledby="l-model"></div>
+      </section>
 
-        <section class="step" id="step-color">
-          <h2 class="label" data-en="Colour">Culoare</h2>
-          <div id="colors" class="color-group"></div>
-        </section>
+      <section class="pane" data-step="ver" id="step-ver" hidden>
+        <h2 class="pane-title" id="l-ver" tabindex="-1" data-en="Version">Versiune</h2>
+        <div class="versions" id="versions" role="radiogroup" aria-labelledby="l-ver"></div>
+      </section>
 
-        <section class="step" id="step-opt">
-          <h2 class="label" data-en="Optional equipment">Dotări opționale</h2>
-          <div class="opt-list" id="options"></div>
-          <p class="hint" id="opt-hint"></p>
-        </section>
+      <section class="pane" data-step="color" id="step-color" hidden>
+        <h2 class="pane-title" tabindex="-1" data-en="Colour">Culoare</h2>
+        <div id="colors" class="color-group"></div>
+      </section>
 
-        <section class="step">
-          <h2 class="label" data-en="Used car">Mașină rulată</h2>
-          <p class="hint tax-hint" id="t-antidumping"></p>
-          <label class="svc-row svc-check" for="used">
-            <input type="checkbox" id="used">
-            <span class="svc-text">
-              <strong data-en="I want a used car">Vreau o mașină rulată</strong>
-              <span data-en="Cars with 6,000–10,000 km, about 6 months after first registration in China, cheaper than new ones. They come with their own equipment instead of the choices above.">Mașini cu 6.000–10.000 km, la circa 6 luni de la prima înmatriculare în China, mai ieftine decât cele noi. Vin cu dotările lor, în locul selecțiilor de mai sus.</span>
-            </span>
-            <span class="tag num" id="used-from"></span>
-          </label>
-          <div class="used-list" id="used-list" role="radiogroup" aria-label="Mașini rulate disponibile" data-en-aria="Available used cars" hidden></div>
-          <p class="hint" id="used-hint" hidden></p>
-        </section>
+      <section class="pane" data-step="opt" id="step-opt" hidden>
+        <h2 class="pane-title" tabindex="-1" data-en="Optional equipment">Dotări opționale</h2>
+        <div class="opt-list" id="options"></div>
+        <p class="hint" id="opt-hint"></p>
+      </section>
 
-        <section class="step">
-          <div class="label-row">
-            <h2 class="label" data-en="BADSI services">Servicii BADSI</h2>
+      <section class="pane" data-step="used" hidden>
+        <h2 class="pane-title" tabindex="-1" data-en="Used car">Mașină rulată</h2>
+        <p class="hint tax-hint" id="t-antidumping"></p>
+        <label class="svc-row svc-check" for="used">
+          <input type="checkbox" id="used">
+          <span class="box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <span class="svc-text">
+            <strong data-en="I want a used car">Vreau o mașină rulată</strong>
+            <span data-en="Cars with 6,000–10,000 km, about 6 months after first registration in China, cheaper than new ones. They come with their own equipment instead of the choices above.">Mașini cu 6.000–10.000 km, la circa 6 luni de la prima înmatriculare în China, mai ieftine decât cele noi. Vin cu dotările lor, în locul selecțiilor de mai sus.</span>
+          </span>
+          <span class="tag num" id="used-from"></span>
+        </label>
+        <div class="used-list" id="used-list" role="radiogroup" aria-label="Mașini rulate disponibile" data-en-aria="Available used cars" hidden></div>
+        <p class="hint" id="used-hint" hidden></p>
+      </section>
+
+      <section class="pane" data-step="svc" hidden>
+        <h2 class="pane-title" tabindex="-1" data-en="BADSI services">Servicii BADSI</h2>
+        <div class="svc" id="svc"></div>
+      </section>
+
+      <section class="pane" data-step="cerere" id="cerere" hidden>
+        <h2 class="pane-title" tabindex="-1" data-en="Your details">Datele tale</h2>
+        <div class="recap" id="recap"></div>
+        <p class="hint" data-en="Send us the configuration and a BADSI consultant will contact you with the final offer.">Trimite-ne configurația și un consultant BADSI te contactează cu oferta finală.</p>
+        <form id="form" class="form" novalidate>
+          <div class="grid2">
+            <label class="field" id="fw-nume"><span data-en="Full name">Nume și prenume</span>
+              <input type="text" id="f-nume" autocomplete="name" maxlength="120" required>
+              <small class="err" id="e-nume" hidden data-en="Write your name.">Scrie-ți numele.</small>
+            </label>
+            <label class="field" id="fw-tel"><span data-en="Phone">Telefon</span>
+              <input type="tel" id="f-tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="07xx xxx xxx" data-en-ph="+40 7xx xxx xxx" required>
+              <small class="err" id="e-tel" hidden data-en="Write a valid phone number.">Scrie un număr de telefon valid.</small>
+            </label>
           </div>
-          <div class="svc" id="svc"></div>
-        </section>
+          <label class="field" id="fw-email"><span>Email</span>
+            <input type="email" id="f-email" autocomplete="email" maxlength="160" placeholder="nume@exemplu.ro" data-en-ph="name@example.com" required>
+            <small class="err" id="e-email" hidden data-en="Write a valid email address.">Scrie o adresă de email validă.</small>
+          </label>
+          <label class="field" id="fw-msg"><span data-en="Message (optional)">Mesaj (opțional)</span>
+            <textarea id="f-msg" rows="2" maxlength="1500" placeholder="ex.: când ai vrea mașina, întrebări despre dotări" data-en-ph="e.g. when you would like the car, questions about equipment"></textarea>
+          </label>
+          <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
+          <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
+          <p class="send-msg" id="send-msg" aria-live="polite"></p>
+        </form>
+        <div class="done" id="done" hidden role="status"></div>
+        <div class="manual-send" id="manual" hidden></div>
+      </section>
 
-        <section class="step" id="cerere">
-          <h2 class="label" data-en="Your details">Datele tale</h2>
-          <p class="hint" data-en="Send us the configuration and a BADSI consultant will contact you with the final offer.">Trimite-ne configurația și un consultant BADSI te contactează cu oferta finală.</p>
-          <form id="form" class="form" novalidate>
-            <div class="grid2">
-              <label class="field" id="fw-nume"><span data-en="Full name">Nume și prenume</span>
-                <input type="text" id="f-nume" autocomplete="name" maxlength="120" required>
-                <small class="err" id="e-nume" hidden data-en="Write your name.">Scrie-ți numele.</small>
-              </label>
-              <label class="field" id="fw-tel"><span data-en="Phone">Telefon</span>
-                <input type="tel" id="f-tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="07xx xxx xxx" data-en-ph="+40 7xx xxx xxx" required>
-                <small class="err" id="e-tel" hidden data-en="Write a valid phone number.">Scrie un număr de telefon valid.</small>
-              </label>
-            </div>
-            <label class="field" id="fw-email"><span>Email</span>
-              <input type="email" id="f-email" autocomplete="email" maxlength="160" placeholder="nume@exemplu.ro" data-en-ph="name@example.com" required>
-              <small class="err" id="e-email" hidden data-en="Write a valid email address.">Scrie o adresă de email validă.</small>
-            </label>
-            <label class="field" id="fw-msg"><span data-en="Message (optional)">Mesaj (opțional)</span>
-              <textarea id="f-msg" rows="2" maxlength="1500" placeholder="ex.: când ai vrea mașina, întrebări despre dotări" data-en-ph="e.g. when you would like the car, questions about equipment"></textarea>
-            </label>
-            <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
-            <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
-            <p class="send-msg" id="send-msg" aria-live="polite"></p>
-          </form>
-          <div class="done" id="done" hidden role="status"></div>
-          <div class="manual-send" id="manual" hidden></div>
-        </section>
-      </div>
-    </main>
+      <p class="foot" id="foot"></p>
+    </div>
 
-    <aside class="aside" id="aside" aria-label="Configurația aleasă" data-en-aria="Your configuration">
-      <div class="stage">
-        <div class="stage-photo"><img id="stage-img" alt=""></div>
-        <div class="stage-body">
-          <p class="stage-model" id="stage-model"></p>
-          <p class="stage-version" id="stage-version"></p>
-          <p class="stage-meta" id="stage-meta"></p>
-          <ul class="stage-chips" id="stage-chips"></ul>
-        </div>
-      </div>
-
-      <section class="summary" id="sumar" aria-live="polite" aria-label="Preț" data-en-aria="Price">
+    <section class="checkout" id="sumar" aria-label="Preț" data-en-aria="Price">
+      <div class="breakdown" id="breakdown">
         <div class="sum-row"><span><span id="s-base-l"></span> <small id="s-ver"></small></span><b class="num" id="s-base"></b></div>
         <div class="sum-row"><span><span id="s-opts-l"></span> <small id="s-optn"></small></span><b class="num" id="s-opts"></b></div>
         <div class="sum-row"><span><span data-en="BADSI services">Servicii BADSI</span> <small id="s-svcn"></small></span><b class="num" id="s-svc"></b></div>
-        <hr class="sum-line">
-        <div class="sum-total"><span data-en="ESTIMATED PRICE EXCL. VAT">PREȚ ESTIMATIV FĂRĂ TVA</span><b class="num" id="s-net"></b></div>
-        <div class="sum-row"><span data-en="Price incl. VAT">Preț cu TVA</span><b class="num" id="s-gross"></b></div>
-        <div class="sum-row" id="s-save-row" hidden><span><span data-en="Saving vs. the new car">Economie față de mașina nouă</span> <small id="s-save-n"></small></span><b class="num" id="s-save"></b></div>
-        <div class="sum-notes" id="s-notes"></div>
-        <button class="btn btn-wide" type="button" id="btn-panel"></button>
-      </section>
-    </aside>
-  </div>
-  <p class="foot" id="foot"></p>
-</div>
-
-<div class="bar" id="bar">
-  <div class="bar-net"><small data-en="Excl. VAT">Fără TVA</small><b class="num" id="b-net"></b></div>
-  <div><small data-en="Incl. VAT">Cu TVA</small><b class="num" id="b-gross"></b></div>
-  <button class="btn bar-send" type="button" id="mb-btn"></button>
+        <div class="sum-row save-row" id="s-save-row" hidden><span><span data-en="Saving vs. the new car">Economie față de mașina nouă</span> <small id="s-save-n"></small></span><b class="num" id="s-save"></b></div>
+      </div>
+      <div class="total-row" aria-live="polite">
+        <div class="total-l">
+          <span data-en="ESTIMATED PRICE EXCL. VAT">PREȚ ESTIMATIV FĂRĂ TVA</span>
+          <button class="bd-toggle" type="button" id="bd-toggle" aria-expanded="false" aria-controls="breakdown"><span data-en="Price details">Detalii preț</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+        </div>
+        <div class="total-r"><b class="num" id="s-net"></b><small><span data-en="Price incl. VAT">Preț cu TVA</span> <b class="num" id="s-gross"></b></small></div>
+      </div>
+      <div class="sum-notes" id="s-notes"></div>
+      <div class="cta">
+        <button class="btn-ghost" type="button" id="btn-back" hidden aria-label="Înapoi" data-en-aria="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span class="back-txt" data-en="Back">Înapoi</span></button>
+        <button class="btn" type="button" id="btn-panel"></button>
+      </div>
+    </section>
+  </aside>
 </div>
 
 <!-- DATE ZEEKR (public): generate cu genereaza-date-zeekr.ps1 din datele B2C (prețuri, servicii, texte, contact)
      și din opționalele / culorile Zeekr. Nu se editează de mână. Conține doar ce vede clientul. -->
 <script type="application/json" id="zeekr-data">
 {
-    "generat":  "09.11.2026",
+    "generat":  "11.11.2026",
     "tva":  0.21,
     "endpoint":  "https://script.google.com/macros/s/AKfycby5cfoqKTZzM_MaasYkrxgLj64Z4tlet8u0VnNnmxY3KGLA23zm-H6KU3w0AtXYoXc/exec",
     "contact":  {
@@ -997,8 +1020,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
                                             "pret":  132500,
                                             "termen":  "5 luni",
                                             "termen_en":  "5 months",
-                                            "mentiune":  "Momentan nu se poate comanda",
-                                            "mentiune_en":  "Currently not available to order"
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
                                         },
                                         {
                                             "cod":  "9x-obsidian-nou",
@@ -1348,7 +1371,9 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
                     opționale și culori în EUR, servicii BADSI, texte, contact
      2. Calcul    - preț = mașina + opționale + culoare + servicii; TVA peste. Prețurile afișate sunt FĂRĂ TVA
                     (ca la B2C și B2B); prețul cu TVA apare doar mic, sub total.
-     3. Interfață - model -> versiune -> culoare -> opționale (sau mașină rulată) -> servicii -> datele clientului
+     3. Interfață - pași, ca la configuratoarele raceiq.eu: model -> versiune -> culoare -> opționale -> mașină rulată
+                    -> servicii -> sumar + datele clientului. Scena din stânga arată mașina în culoarea aleasă
+                    (randări oficiale Zeekr, 4 unghiuri + interiorul ales).
      4. Trimitere - POST JSON la scriptul din „Cereri Zeekr” (CONF ZEEKR); dacă nu merge: WhatsApp + text de copiat.
      Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
      ===================================================================== */
@@ -1365,6 +1390,34 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     exterior: ['Pachetul exterior negru e inclus în Gloss Black Package, așa că se alege doar unul dintre ele.', 'The black exterior package is included in the Gloss Black Package, so only one of them can be chosen.'],
     jante: ['Se alege un singur set de jante de 22".', 'Only one set of 22" wheels can be chosen.']
   };
+
+  // ---------- imagini oficiale Zeekr (doar afișare; datele și prețurile nu depind de ele) ----------
+  // cheia = codul culorii din date. În img/: <nume>-v1..v4 = unghiurile exterioare (față, profil, spate, frontal),
+  // <nume>-sw = miniatura culorii, <nume>-hq = interiorul mare. O culoare nouă, fără poze aici, folosește poza din date.
+  const HQ = {
+    '8x': {
+      def: 'red',
+      ext: { black: '8x-black', red: '8x-red', lunar: '8x-lunar', basalt: '8x-basalt', white: '8x-white', blue: '8x-blue', matte: '8x-matte' },
+      int: { brown: '8x-int-brown', white: '8x-int-white', red: '8x-int-red', black: '8x-int-black' }
+    },
+    '9x': {
+      def: 'phantom',
+      ext: { crystal: '9x-crystal', silver: '9x-silver', lava: '9x-lava', phantom: '9x-phantom', purple: '9x-purple', obsidian: '9x-phantom' },
+      int: { moonglade: '9x-int-moonglade', caramel: '9x-int-caramel', polar: '9x-int-polar', obsidian: '9x-int-obsidian' }
+    }
+  };
+  const VIEWS = [['v1', 'Față', 'Front'], ['v2', 'Profil', 'Side'], ['v3', 'Spate', 'Rear'], ['v4', 'Frontal', 'Head-on'], ['int', 'Interior', 'Cabin']];
+  const STEPS = [
+    { id: 'model', ro: 'Model', en: 'Model' },
+    { id: 'ver', ro: 'Versiune', en: 'Version' },
+    { id: 'color', ro: 'Culoare', en: 'Colour' },
+    { id: 'opt', ro: 'Opționale', en: 'Options' },
+    { id: 'used', ro: 'Rulată', en: 'Used' },
+    { id: 'svc', ro: 'Servicii', en: 'Services' },
+    { id: 'cerere', ro: 'Sumar', en: 'Summary' }
+  ];
+  const LAST = STEPS.length - 1;
+  const CHECK = '<span class="box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
 
   // ---------- limba (RO/EN) ----------
   const UI = { lang: document.documentElement.lang === 'en' ? 'en' : 'ro' };
@@ -1397,12 +1450,37 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   const colorsFor = (m, v, tip) => (tip === 'ext' ? m.exterior : m.interior).filter((c) => !c.doar.length || c.doar.includes(v.ver));
   const verLabel = (c) => c.nume + (c.baterie && !/kwh/i.test(c.nume) ? ' ' + c.baterie : '');
 
+  // poze: miniatura culorii și imaginea de pe scenă
+  const hqKey = (m, tip, cod) => { const h = HQ[m.cod]; return h && h[tip] ? h[tip][cod] || null : null; };
+  function swatchSrc(m, tip, c) {
+    const k = hqKey(m, tip, c.cod);
+    return k ? 'img/' + k + '-sw.jpg' : (photoOf(c) ? 'img/' + c.img + '.jpg' : null);
+  }
+  function modelSrc(m) {
+    const h = HQ[m.cod];
+    const k = (h && (hqKey(m, 'ext', S.ext[m.cod]) || h.ext[h.def])) || null;
+    return k ? 'img/' + k + '-sw.jpg' : 'img/' + m.img + '.jpg';
+  }
+  function stageSrc(r, view) {
+    const m = r.m;
+    const h = HQ[m.cod];
+    if (view === 'int') {
+      const ic = r.used ? null : r.int;
+      const k = (ic && hqKey(m, 'int', ic.cod)) || (h ? Object.values(h.int)[0] : null);
+      return k ? 'img/' + k + '-hq.jpg' : 'img/' + ((ic && photoOf(ic)) || m.img) + '.jpg';
+    }
+    const ec = r.used ? null : r.ext;
+    const k = (ec && hqKey(m, 'ext', ec.cod)) || (h ? h.ext[h.def] : null);
+    return k ? 'img/' + k + '-' + view + '.jpg' : 'img/' + ((ec && photoOf(ec)) || m.img) + '.jpg';
+  }
+
   // ---------- stare ----------
   const S = {
     model: D.modele[0].cod, ver: {}, ext: {}, int: {}, opts: new Set(),
     war: (WAR.find((s) => s.implicit) || WAR[WAR.length - 1] || {}).cod,
     extra: new Set(OTHER.filter((s) => s.implicit).map((s) => s.cod)),
-    usedOn: false, used: null, sent: false
+    usedOn: false, used: null, sent: false,
+    step: 0, seen: new Set([0]), view: 'v1'
   };
 
   function current() {
@@ -1460,9 +1538,9 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   const usedMeta = (u) => u.baterie + ' · ' + kmOf(u);
   const svcNote = (svc) => (svc > 0 ? L('cu Serviciile BADSI alese', 'with the selected BADSI services') : L('fără Servicii BADSI', 'without BADSI services'));
 
-  function swatch(name, c, priceText, checked) {
-    const img = isChip(c.img) ? `<span class="sw-photo sw-chip" style="--chip:${c.img}"></span>`
-      : c.img ? `<span class="sw-photo"><img src="img/${esc(c.img)}.jpg" alt="" loading="lazy"></span>` : '';
+  function swatch(name, c, priceText, checked, src) {
+    const img = isChip(c.img) && !src ? `<span class="sw-photo sw-chip" style="--chip:${c.img}"></span>`
+      : src ? `<span class="sw-photo"><img src="${esc(src)}" alt="" loading="lazy"></span>` : '';
     return `<label class="pick" for="${name}-${esc(c.cod)}">
       <input type="radio" name="${name}" id="${name}-${esc(c.cod)}" value="${esc(c.cod)}"${checked ? ' checked' : ''}>
       <span class="pick-body sw-body">${img}
@@ -1477,9 +1555,15 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 
     const ext = colorsFor(m, v, 'ext'), int = colorsFor(m, v, 'int');
     const colorPrice = (c) => (c.pret ? '+ ' + eur(c.pret) : L('Inclus', 'Included'));
+    const block = (title, tip, list, selCod) => {
+      const sel = list.find((c) => c.cod === selCod);
+      return `<div class="color-block">
+        <div class="color-head"><p class="label">${title}</p>${sel ? `<p class="color-sel">${esc(sel.nume)}<small class="num">${colorPrice(sel)}</small></p>` : ''}</div>
+        <div class="swatches">${list.map((c) => swatch(tip, c, colorPrice(c), c.cod === selCod, swatchSrc(m, tip, c))).join('')}</div>
+      </div>`;
+    };
     $('colors').innerHTML = ext.length || int.length
-      ? (ext.length ? `<p class="sub">Exterior</p><div class="swatches">${ext.map((c) => swatch('ext', c, colorPrice(c), c.cod === S.ext[m.cod])).join('')}</div>` : '')
-        + (int.length ? `<p class="sub">Interior</p><div class="swatches">${int.map((c) => swatch('int', c, colorPrice(c), c.cod === S.int[m.cod])).join('')}</div>` : '')
+      ? (ext.length ? block('Exterior', 'ext', ext, S.ext[m.cod]) : '') + (int.length ? block('Interior', 'int', int, S.int[m.cod]) : '')
       : `<p class="empty">${L('Culorile se stabilesc împreună cu consultantul BADSI.', 'Colours are agreed with your BADSI consultant.')}</p>`;
 
     const tbd = S.usedOn && S.used;
@@ -1488,7 +1572,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
         <input type="checkbox" id="o-${m.cod}-${esc(o.cod)}" data-opt="${esc(o.cod)}"${S.opts.has(o.cod) ? ' checked' : ''}>
         <span class="thumb">${o.img ? `<img src="img/${esc(o.img)}.jpg" alt="" loading="lazy">` : ''}</span>
         <span class="opt-text"><span class="opt-name">${esc(o.nume)}</span><span class="opt-desc">${esc(oDesc(o))}</span></span>
-        <span class="opt-price num"><b>${tbd ? TBD() : o.pret ? '+ ' + eur(o.pret) : L('Fără cost', 'No cost')}</b></span>
+        <span class="opt-price num"><b>${tbd ? TBD() : o.pret ? '+ ' + eur(o.pret) : L('Fără cost', 'No cost')}</b>${CHECK}</span>
       </label>`).join('') : `<p class="empty">${L('Versiunea aleasă nu are dotări opționale de ales.', 'The selected version has no optional equipment to choose.')}</p>`;
 
     const groups = {};
@@ -1499,7 +1583,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     renderUsed();
     renderServices();
     update();
-    if (focusId && $(focusId)) $(focusId).focus();
+    if (focusId && $(focusId)) $(focusId).focus({ preventScroll: true });
   }
 
   function renderModels(svc) {
@@ -1509,8 +1593,11 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       return `<label class="pick" for="m-${x.cod}">
         <input type="radio" name="model" id="m-${x.cod}" value="${x.cod}"${x.cod === m.cod ? ' checked' : ''}>
         <span class="pick-body model-body">
-          <span class="model-name">${esc(x.nume.replace('Zeekr ', ''))}</span>
-          <span class="model-sub num">${L('de la', 'from')} ${eur(cheapest)} ${L('fără TVA', 'excl. VAT')} · ${x.versiuni.length} ${L('versiuni', 'versions')}</span>
+          <span class="model-text">
+            <span class="model-name"><small>Zeekr</small>${esc(x.nume.replace('Zeekr ', ''))}</span>
+            <span class="model-sub num">${L('de la', 'from')} ${eur(cheapest)} ${L('fără TVA', 'excl. VAT')} · ${x.versiuni.length} ${L('versiuni', 'versions')}</span>
+          </span>
+          <span class="model-photo"><img src="${esc(modelSrc(x))}" alt="" loading="lazy"></span>
         </span>
       </label>`;
     }).join('');
@@ -1530,8 +1617,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       <label class="pick" for="v-${m.cod}-${esc(x.ver)}">
         <input type="radio" name="ver" id="v-${m.cod}-${esc(x.ver)}" value="${esc(x.ver)}"${x.ver === v.ver ? ' checked' : ''}>
         <span class="pick-body ver-body">
-          <span class="ver-top"><span class="ver-name">${esc(x.nume)}</span><span class="ver-spec">${esc(x.baterie)}</span></span>
-          <span class="ver-price num">${eur(price)}</span>
+          <span class="ver-top"><span class="ver-name">${esc(x.nume)}</span><span class="ver-price num">${eur(price)}</span></span>
+          <span class="ver-spec">${esc(x.baterie)}</span>
           <span class="ver-sub num">${sub}${term(x) ? ' · ' + L('livrare în ', 'delivery in ') + esc(term(x)) : ''}</span>
           ${note(x) ? `<span class="ver-note">${esc(note(x))}</span>` : ''}
         </span>
@@ -1589,10 +1676,77 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       }
       return `<label class="svc-row svc-check" for="s-${esc(s.cod)}">
         <input type="checkbox" id="s-${esc(s.cod)}" data-svc="${esc(s.cod)}"${S.extra.has(s.cod) ? ' checked' : ''}>
+        ${CHECK}
         <span class="svc-text"><strong>${esc(sName(s))}</strong>${s.descriere ? `<span>${esc(sDesc(s))}</span>` : ''}</span>
         <b class="num">+ ${eur(s.pret)}</b>
       </label>`;
     }).join('');
+  }
+
+  // ---------- pași (ca la RaceIQ: un pas pe ecran, bifă pe pașii văzuți) ----------
+  const stepName = (i) => L(STEPS[i].ro, STEPS[i].en);
+  function renderSteps() {
+    $('steps').innerHTML = STEPS.map((s, i) => {
+      const on = i === S.step, ok = !on && S.seen.has(i);
+      return `<button type="button" class="tab${on ? ' is-on' : ''}${ok ? ' is-done' : ''}" data-step-i="${i}"${on ? ' aria-current="step"' : ''}>${ok ? '<span class="tab-ok" aria-hidden="true">✓</span>' : ''}${esc(stepName(i))}</button>`;
+    }).join('');
+    const id = STEPS[S.step].id;
+    document.querySelectorAll('.pane').forEach((p) => { p.hidden = p.dataset.step !== id; });
+    $('btn-back').hidden = S.step === 0;
+  }
+  const flowMode = () => window.matchMedia('(max-width: 899px), (max-height: 599px)').matches;
+  function goStep(i) {
+    S.step = Math.max(0, Math.min(LAST, i));
+    S.seen.add(S.step);
+    renderSteps();
+    update();
+    $('panel-body').scrollTop = 0;
+    const tab = document.querySelector('.tab.is-on');
+    if (tab) tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    if (flowMode()) {
+      const top = $('steps').getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(document.documentElement).paddingTop) || 0);
+      if (window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
+    }
+    const title = document.querySelector('.pane:not([hidden]) .pane-title');
+    if (title) title.focus({ preventScroll: true });
+  }
+
+  // ---------- scena: unghiuri + interior ----------
+  let viewsKey = '';
+  function setStage(src, alt, cabin) {
+    const img = $('stage-img');
+    img.alt = alt;
+    $('stage').classList.toggle('is-cabin', cabin);
+    img.classList.toggle('is-cabin', cabin);
+    if (img.dataset.src === src) return;
+    img.dataset.src = src;
+    img.classList.add('is-loading');
+    const pre = new Image();
+    pre.onload = pre.onerror = () => { if (img.dataset.src !== src) return; img.src = src; img.classList.remove('is-loading'); };
+    pre.src = src;
+  }
+  function renderViews(r) {
+    const key = VIEWS.map((v) => stageSrc(r, v[0])).join('|') + UI.lang;
+    if (key !== viewsKey) {
+      viewsKey = key;
+      $('views').innerHTML = VIEWS.map((v) => `<button type="button" class="view" data-view="${v[0]}"><img src="${esc(stageSrc(r, v[0]))}" alt="" loading="lazy"><span>${L(v[1], v[2])}</span></button>`).join('');
+    }
+    document.querySelectorAll('.view').forEach((b) => { const on = b.dataset.view === S.view; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  }
+  function moveView(d) {
+    const i = VIEWS.findIndex((v) => v[0] === S.view);
+    S.view = VIEWS[(i + d + VIEWS.length) % VIEWS.length][0];
+    update();
+  }
+
+  function renderRecap(r) {
+    const rows = [[L('Mașina', 'Car'), carText(r)]];
+    if (!r.used) rows.push([L('Opționale', 'Options'), optsText(r) || L('niciuna', 'none')]);
+    rows.push([L('Servicii BADSI', 'BADSI services'), svcNames().join(', ') || L('niciunul', 'none')]);
+    $('recap').innerHTML = `<h3>${L('Configurația ta', 'Your configuration')}</h3><dl>`
+      + rows.map((x) => `<div><dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd></div>`).join('')
+      + `<div class="recap-total"><dt>${L('Preț estimativ fără TVA', 'Estimated price excl. VAT')}</dt><dd class="num">${eur(r.net)}</dd></div>`
+      + `<div><dt>${L('Preț cu TVA', 'Price incl. VAT')}</dt><dd class="num">${eur(g(r.net))}</dd></div></dl>`;
   }
 
   function update() {
@@ -1606,24 +1760,25 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       s.classList.toggle('is-off', !!r.used);
       s.querySelectorAll('input').forEach((i) => { i.disabled = !!r.used; });
     });
-    $('used-note').hidden = !r.used;
+    $('used-note').hidden = !(r.used && ['ver', 'color', 'opt'].includes(STEPS[S.step].id));
 
     // scena
     $('stage-model').textContent = m.nume.toUpperCase();
-    const img = $('stage-img');
+    $('crumb-model').textContent = m.nume.toUpperCase();
+    const cabin = S.view === 'int';
+    const viewName = L(VIEWS.find((v) => v[0] === S.view)[1], VIEWS.find((v) => v[0] === S.view)[2]).toLowerCase();
     if (r.used) {
       $('stage-version').textContent = r.u.nume + ' · ' + r.u.baterie + ' · ' + L('rulată', 'used');
-      img.src = 'img/' + m.img + '.jpg';
-      img.alt = m.nume + ' ' + r.u.nume + L(', imagine generică', ', generic image');
+      setStage(stageSrc(r, S.view), m.nume + ' ' + r.u.nume + L(', imagine generică', ', generic image'), cabin);
       $('stage-meta').textContent = usedMeta(r.u) + L(' · imagine generică', ' · generic image');
       $('stage-chips').innerHTML = '<li>' + L('Mașină rulată', 'Used car') + '</li><li>' + L('Dotări: ', 'Equipment: ') + TBD() + '</li>';
     } else {
       $('stage-version').textContent = r.v.nume + ' · ' + r.v.baterie;
-      img.src = 'img/' + (photoOf(r.ext) || m.img) + '.jpg';
-      img.alt = m.nume + ' ' + r.v.nume + (r.ext ? ', exterior ' + r.ext.nume : '');
+      setStage(stageSrc(r, S.view), m.nume + ' ' + r.v.nume + (cabin ? (r.int ? ', interior ' + r.int.nume : '') : (r.ext ? ', exterior ' + r.ext.nume : '')) + ' (' + viewName + ')', cabin);
       $('stage-meta').textContent = [r.ext && 'Exterior ' + r.ext.nume, r.int && 'Interior ' + r.int.nume].filter(Boolean).join(' · ');
       $('stage-chips').innerHTML = r.opts.map((o) => '<li>' + esc(o.nume) + '</li>').join('');
     }
+    renderViews(r);
 
     // sumar (sumele afișate sunt fără TVA; cu TVA doar totalul, pe rândul mic)
     $('s-save-row').hidden = !r.used || r.newEur === null;
@@ -1653,11 +1808,12 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     $('s-svc').textContent = '+ ' + eur(r.svc);
     $('s-gross').textContent = eur(g(r.net));
     $('s-net').textContent = eur(r.net);
-    $('b-gross').textContent = eur(g(r.net));
-    $('b-net').textContent = eur(r.net);
     $('s-notes').innerHTML = ['nota_livrare', 'nota_estimare'].map((k) => tx(k)).filter(Boolean).map((t) => '<p>' + esc(t) + '</p>').join('');
-    // un singur buton de trimitere: în panoul de preț și, pe telefon, în bara de jos (formularul nu are buton propriu)
-    ['btn-panel', 'mb-btn'].forEach((id) => { $(id).textContent = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send the request'); });
+    renderRecap(r);
+    // un singur buton principal, în panoul de preț (pe telefon: bara de jos): „Continuă” pe pași, „Trimite cererea” la sumar
+    $('btn-panel').innerHTML = S.step < LAST
+      ? '<span>' + esc(L('Continuă', 'Continue')) + '<span class="cta-next">: ' + esc(stepName(S.step + 1)) + '</span></span>'
+      : esc(S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send the request'));
   }
 
   // ---------- evenimente: configurare ----------
@@ -1669,7 +1825,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     } else if (t.id === 'used') {
       S.usedOn = t.checked; if (!t.checked) S.used = null; render();
     } else if (t.name === 'usedcar') {
-      S.used = t.value; S.opts.clear(); render();   // selecțiile de mașină nouă nu mai sunt valabile
+      S.used = t.value; S.opts.clear(); S.view = 'v1'; render();   // selecțiile de mașină nouă nu mai sunt valabile
     } else if (t.name === 'ver') {
       S.ver[m.cod] = t.value; normalize(); render();
     } else if (t.dataset.opt) {
@@ -1691,9 +1847,9 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       }
       update();
     } else if (t.name === 'ext') {
-      S.ext[m.cod] = t.value; update();
+      S.ext[m.cod] = t.value; if (S.view === 'int') S.view = 'v1'; render();
     } else if (t.name === 'int') {
-      S.int[m.cod] = t.value; update();
+      S.int[m.cod] = t.value; S.view = 'int'; render();
     } else if (t.name === 'warranty') {
       S.war = t.value; renderUsed(); renderServices(); update();
     } else if (t.dataset.svc) {
@@ -1701,6 +1857,25 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       renderUsed(); update();
     }
   });
+
+  // pași, unghiuri, detaliile prețului
+  $('steps').addEventListener('click', (e) => { const b = e.target.closest('[data-step-i]'); if (b) goStep(Number(b.dataset.stepI)); });
+  $('views').addEventListener('click', (e) => { const b = e.target.closest('[data-view]'); if (b) { S.view = b.dataset.view; update(); } });
+  $('view-prev').addEventListener('click', () => moveView(-1));
+  $('view-next').addEventListener('click', () => moveView(1));
+  (function swipe() {
+    let x0 = null;
+    const el = $('stage-view');
+    el.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+    el.addEventListener('pointerup', (e) => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 45) moveView(dx < 0 ? 1 : -1); });
+    el.addEventListener('pointercancel', () => { x0 = null; });
+  })();
+  $('bd-toggle').addEventListener('click', () => {
+    const open = !$('sumar').classList.contains('is-open');
+    $('sumar').classList.toggle('is-open', open);
+    $('bd-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  $('btn-back').addEventListener('click', () => goStep(S.step - 1));
 
   // ---------- trimitere (scriptul din fișierul „Cereri Zeekr”, folderul CONF ZEEKR) ----------
   const fields = {
@@ -1835,7 +2010,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     const d = withLang('ro', payload);   // în Cereri Zeekr totul rămâne în română; limba clientului se vede la „sursa”
     if (UI.lang === 'en') d.sursa += ' · EN';
     if (!D.endpoint) { showManual(d, false); return; }
-    const btns = [$('btn-panel'), $('mb-btn')];
+    const btns = [$('btn-panel')];
     btns.forEach((b) => { b.disabled = true; b.textContent = L('Se trimite…', 'Sending…'); });
     // scriptul Google poate răspunde greu la primul apel (s-a văzut ~20 s): clientul vede că se lucrează
     $('send-msg').textContent = L('Se trimite cererea; poate dura până la 30 de secunde.', 'Sending your request; it can take up to 30 seconds.');
@@ -1862,8 +2037,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   }
 
   $('form').addEventListener('submit', (e) => { e.preventDefault(); send(); });
-  $('btn-panel').addEventListener('click', send);
-  $('mb-btn').addEventListener('click', send);   // pe telefon: același buton; dacă lipsesc date, duce la primul câmp necompletat
+  // un singur buton: pe pași duce la pasul următor, la „Sumar” trimite cererea (dacă lipsesc date, duce la primul câmp necompletat)
+  $('btn-panel').addEventListener('click', () => { if (S.step < LAST) goStep(S.step + 1); else send(); });
   Object.keys(fields).forEach((k) => fields[k].el.addEventListener('input', () => {
     if (fields[k].wrap.classList.contains('is-bad') && fields[k].ok(fields[k].el.value)) { fields[k].wrap.classList.remove('is-bad'); fields[k].err.hidden = true; }
   }));
@@ -1889,6 +2064,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     uiSave('badsi-ui-lang', UI.lang);
     applyStatic();
     renderTexts();
+    renderSteps();
     render();
     if (!$('done').hidden) renderDone();
     if (manualArgs && !$('manual').hidden) renderManual();
@@ -1906,6 +2082,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   applyStatic();
   renderTexts();
   normalize();
+  renderSteps();
   render();
 })();
 </script>
