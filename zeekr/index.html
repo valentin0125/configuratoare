@@ -530,8 +530,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
         <div class="sum-row"><span><span id="s-opts-l"></span> <small id="s-optn"></small></span><b class="num" id="s-opts"></b></div>
         <div class="sum-row"><span><span data-en="BADSI services">Servicii BADSI</span> <small id="s-svcn"></small></span><b class="num" id="s-svc"></b></div>
         <hr class="sum-line">
-        <div class="sum-total"><span data-en="ESTIMATED PRICE INCL. VAT">PREȚ ESTIMATIV CU TVA</span><b class="num" id="s-gross"></b></div>
-        <div class="sum-row"><span data-en="Price excl. VAT">Preț fără TVA</span><b class="num" id="s-net"></b></div>
+        <div class="sum-total"><span data-en="ESTIMATED PRICE EXCL. VAT">PREȚ ESTIMATIV FĂRĂ TVA</span><b class="num" id="s-net"></b></div>
+        <div class="sum-row"><span data-en="Price incl. VAT">Preț cu TVA</span><b class="num" id="s-gross"></b></div>
         <div class="sum-row" id="s-save-row" hidden><span><span data-en="Saving vs. the new car">Economie față de mașina nouă</span> <small id="s-save-n"></small></span><b class="num" id="s-save"></b></div>
         <div class="sum-notes" id="s-notes"></div>
         <button class="btn btn-wide" type="button" id="btn-panel"></button>
@@ -542,8 +542,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 </div>
 
 <div class="bar" id="bar">
-  <div class="bar-net"><small data-en="Incl. VAT">Cu TVA</small><b class="num" id="b-gross"></b></div>
-  <div><small data-en="Excl. VAT">Fără TVA</small><b class="num" id="b-net"></b></div>
+  <div class="bar-net"><small data-en="Excl. VAT">Fără TVA</small><b class="num" id="b-net"></b></div>
+  <div><small data-en="Incl. VAT">Cu TVA</small><b class="num" id="b-gross"></b></div>
   <button class="btn bar-send" type="button" id="mb-btn"></button>
 </div>
 
@@ -1346,7 +1346,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
      CONFIGURATOR ZEEKR (public)
      1. Date      - blocul JSON de mai sus: prețurile mașinilor fără servicii (aceleași ca în B2C),
                     opționale și culori în EUR, servicii BADSI, texte, contact
-     2. Calcul    - preț = mașina + opționale + culoare + servicii; TVA peste. Prețurile afișate sunt cu TVA.
+     2. Calcul    - preț = mașina + opționale + culoare + servicii; TVA peste. Prețurile afișate sunt FĂRĂ TVA
+                    (ca la B2C și B2B); prețul cu TVA apare doar mic, sub total.
      3. Interfață - model -> versiune -> culoare -> opționale (sau mașină rulată) -> servicii -> datele clientului
      4. Trimitere - POST JSON la scriptul din Cereri B2C (același ca la B2C); dacă nu merge: WhatsApp + text de copiat.
      Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
@@ -1389,7 +1390,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 
   const group3 = (n) => String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, L('.', ','));
   const eur = (n) => (n < 0 ? '− ' : '') + '€ ' + group3(n);   // spațiu care nu se rupe între € și sumă
-  const g = (n) => n * T;   // cu TVA
+  const g = (n) => n * T;   // cu TVA (doar totalul și cererea; restul sumelor se afișează fără TVA)
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const isChip = (s) => /^#[0-9a-f]{3,8}$/i.test(String(s || ''));
   const photoOf = (c) => (c && c.img && !isChip(c.img) ? c.img : null);
@@ -1423,7 +1424,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     if (S.used && !m.rulate.some((u) => u.cod === S.used)) S.used = null;
   }
 
-  // ---------- calcul (sume fără TVA; afișarea adaugă TVA) ----------
+  // ---------- calcul (sume fără TVA; TVA se adaugă doar la total) ----------
   function svcNet() {
     const w = WAR.find((s) => s.cod === S.war);
     return (w ? w.pret : 0) + OTHER.filter((s) => S.extra.has(s.cod)).reduce((a, s) => a + s.pret, 0);
@@ -1475,7 +1476,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     const { m, v } = current();
 
     const ext = colorsFor(m, v, 'ext'), int = colorsFor(m, v, 'int');
-    const colorPrice = (c) => (c.pret ? '+ ' + eur(g(c.pret)) : L('Inclus', 'Included'));
+    const colorPrice = (c) => (c.pret ? '+ ' + eur(c.pret) : L('Inclus', 'Included'));
     $('colors').innerHTML = ext.length || int.length
       ? (ext.length ? `<p class="sub">Exterior</p><div class="swatches">${ext.map((c) => swatch('ext', c, colorPrice(c), c.cod === S.ext[m.cod])).join('')}</div>` : '')
         + (int.length ? `<p class="sub">Interior</p><div class="swatches">${int.map((c) => swatch('int', c, colorPrice(c), c.cod === S.int[m.cod])).join('')}</div>` : '')
@@ -1487,7 +1488,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
         <input type="checkbox" id="o-${m.cod}-${esc(o.cod)}" data-opt="${esc(o.cod)}"${S.opts.has(o.cod) ? ' checked' : ''}>
         <span class="thumb">${o.img ? `<img src="img/${esc(o.img)}.jpg" alt="" loading="lazy">` : ''}</span>
         <span class="opt-text"><span class="opt-name">${esc(o.nume)}</span><span class="opt-desc">${esc(oDesc(o))}</span></span>
-        <span class="opt-price num"><b>${tbd ? TBD() : o.pret ? '+ ' + eur(g(o.pret)) : L('Fără cost', 'No cost')}</b></span>
+        <span class="opt-price num"><b>${tbd ? TBD() : o.pret ? '+ ' + eur(o.pret) : L('Fără cost', 'No cost')}</b></span>
       </label>`).join('') : `<p class="empty">${L('Versiunea aleasă nu are dotări opționale de ales.', 'The selected version has no optional equipment to choose.')}</p>`;
 
     const groups = {};
@@ -1509,7 +1510,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
         <input type="radio" name="model" id="m-${x.cod}" value="${x.cod}"${x.cod === m.cod ? ' checked' : ''}>
         <span class="pick-body model-body">
           <span class="model-name">${esc(x.nume.replace('Zeekr ', ''))}</span>
-          <span class="model-sub num">${L('de la', 'from')} ${eur(g(cheapest))} ${L('cu TVA', 'incl. VAT')} · ${x.versiuni.length} ${L('versiuni', 'versions')}</span>
+          <span class="model-sub num">${L('de la', 'from')} ${eur(cheapest)} ${L('fără TVA', 'excl. VAT')} · ${x.versiuni.length} ${L('versiuni', 'versions')}</span>
         </span>
       </label>`;
     }).join('');
@@ -1524,13 +1525,13 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     $('versions').innerHTML = m.versiuni.map((x) => {
       const mine = n > 0 && x.ver === v.ver;
       const price = x.pret + (mine ? r.optsEur : 0) + r.svc;
-      const sub = L('cu TVA, ', 'incl. VAT, ') + (mine ? L('cu ', 'with ') + what + ' (+ ' + eur(g(r.optsEur)) + '), ' : L('fără opționale, ', 'without options, ')) + svcNote(r.svc);
+      const sub = L('fără TVA, ', 'excl. VAT, ') + (mine ? L('cu ', 'with ') + what + ' (+ ' + eur(r.optsEur) + '), ' : L('fără opționale, ', 'without options, ')) + svcNote(r.svc);
       return `
       <label class="pick" for="v-${m.cod}-${esc(x.ver)}">
         <input type="radio" name="ver" id="v-${m.cod}-${esc(x.ver)}" value="${esc(x.ver)}"${x.ver === v.ver ? ' checked' : ''}>
         <span class="pick-body ver-body">
           <span class="ver-top"><span class="ver-name">${esc(x.nume)}</span><span class="ver-spec">${esc(x.baterie)}</span></span>
-          <span class="ver-price num">${eur(g(price))}</span>
+          <span class="ver-price num">${eur(price)}</span>
           <span class="ver-sub num">${sub}${term(x) ? ' · ' + L('livrare în ', 'delivery in ') + esc(term(x)) : ''}</span>
           ${note(x) ? `<span class="ver-note">${esc(note(x))}</span>` : ''}
         </span>
@@ -1542,7 +1543,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     const { m, v } = current();
     const svc = svcNet();
     const prices = m.rulate.map((u) => u.pret + svc);
-    $('used-from').textContent = prices.length ? L('de la ', 'from ') + eur(g(Math.min(...prices))) : L('indisponibil', 'unavailable');
+    $('used-from').textContent = prices.length ? L('de la ', 'from ') + eur(Math.min(...prices)) : L('indisponibil', 'unavailable');
     $('used').checked = S.usedOn;
     $('used').disabled = !m.rulate.length;
     $('used-list').hidden = !S.usedOn;
@@ -1559,10 +1560,10 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
         <span class="pick-body used-body">
           <span class="used-top"><span class="used-name">${esc(u.nume)}</span>${u.ver === v.ver ? `<span class="tag">${L('versiunea aleasă', 'selected version')}</span>` : ''}</span>
           <span class="used-meta num">${esc(usedMeta(u))}${term(u) ? ' · ' + L('livrare în ', 'delivery in ') + esc(term(u)) : ''}</span>
-          <span class="used-price num">${eur(g(prices[i]))}</span>
-          <span class="used-meta num">${L('cu TVA, ', 'incl. VAT, ') + svcNote(svc)}</span>
-          ${save !== null ? `<span class="used-save num">${L((save >= 0 ? 'cu ' + eur(g(save)) + ' sub ' : 'cu ' + eur(g(-save)) + ' peste ') + esc(nv.nume) + ' nou, fără opționale',
-            eur(g(Math.abs(save))) + (save >= 0 ? ' less than ' : ' more than ') + 'a new ' + esc(nv.nume) + ' without options')}</span>` : ''}
+          <span class="used-price num">${eur(prices[i])}</span>
+          <span class="used-meta num">${L('fără TVA, ', 'excl. VAT, ') + svcNote(svc)}</span>
+          ${save !== null ? `<span class="used-save num">${L((save >= 0 ? 'cu ' + eur(save) + ' sub ' : 'cu ' + eur(-save) + ' peste ') + esc(nv.nume) + ' nou, fără opționale',
+            eur(Math.abs(save)) + (save >= 0 ? ' less than ' : ' more than ') + 'a new ' + esc(nv.nume) + ' without options')}</span>` : ''}
           <span class="used-opts">${L('Dotări opționale', 'Optional equipment')}: ${TBD()}</span>
           ${note(u) ? `<span class="ver-note">${esc(note(u))}</span>` : ''}
         </span>
@@ -1581,7 +1582,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
           <legend class="svc-text"><strong>${L('Garanție BADSI', 'BADSI warranty')}</strong></legend>
           <div class="seg">${WAR.map((x) => `<label class="pick" for="w-${esc(x.cod)}">
               <input type="radio" name="warranty" id="w-${esc(x.cod)}" value="${esc(x.cod)}"${x.cod === S.war ? ' checked' : ''}>
-              <span class="pick-body seg-body"><b>${esc(sName(x))}</b><small class="num">${x.pret ? '+ ' + eur(g(x.pret)) : eur(0)}</small></span>
+              <span class="pick-body seg-body"><b>${esc(sName(x))}</b><small class="num">${x.pret ? '+ ' + eur(x.pret) : eur(0)}</small></span>
             </label>`).join('')}</div>
           ${w && w.descriere ? `<p class="hint war-desc">${esc(sDesc(w))}</p>` : ''}
         </fieldset>`;
@@ -1589,7 +1590,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       return `<label class="svc-row svc-check" for="s-${esc(s.cod)}">
         <input type="checkbox" id="s-${esc(s.cod)}" data-svc="${esc(s.cod)}"${S.extra.has(s.cod) ? ' checked' : ''}>
         <span class="svc-text"><strong>${esc(sName(s))}</strong>${s.descriere ? `<span>${esc(sDesc(s))}</span>` : ''}</span>
-        <b class="num">+ ${eur(g(s.pret))}</b>
+        <b class="num">+ ${eur(s.pret)}</b>
       </label>`;
     }).join('');
   }
@@ -1624,32 +1625,32 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       $('stage-chips').innerHTML = r.opts.map((o) => '<li>' + esc(o.nume) + '</li>').join('');
     }
 
-    // sumar (sumele afișate sunt cu TVA)
+    // sumar (sumele afișate sunt fără TVA; cu TVA doar totalul, pe rândul mic)
     $('s-save-row').hidden = !r.used || r.newEur === null;
     if (r.used) {
       $('s-base-l').textContent = L('Mașină rulată', 'Used car');
       $('s-ver').textContent = m.nume + ' ' + verLabel(r.u) + ', ' + kmOf(r.u);
-      $('s-base').textContent = eur(g(r.carEur));
+      $('s-base').textContent = eur(r.carEur);
       $('s-opts-l').textContent = L('Dotări opționale', 'Optional equipment');
       $('s-optn').textContent = L('ale mașinii rulate', 'of the used car');
       $('s-opts').textContent = TBD();
       if (r.newEur !== null) {
         $('s-save-n').textContent = L('față de ' + m.nume + ' ' + r.v.nume + ' nou, fără opționale', 'vs. a new ' + m.nume + ' ' + r.v.nume + ' without options');
-        $('s-save').textContent = eur(g(r.newEur - r.carEur));
+        $('s-save').textContent = eur(r.newEur - r.carEur);
       }
     } else {
       $('s-base-l').textContent = L('Mașina', 'Car');
       $('s-ver').textContent = m.nume + ' ' + verLabel(r.v) + L(', fără opționale', ', without options');
-      $('s-base').textContent = eur(g(r.carEur));
+      $('s-base').textContent = eur(r.carEur);
       $('s-opts-l').textContent = L('Opționale', 'Options');
       const n = r.opts.length + (r.paint ? 1 : 0);
       $('s-optn').textContent = n
         ? L(n + (n === 1 ? ' opțiune' : ' opțiuni') + (r.paint ? ', culoare cu cost inclusă' : ''), n + (n === 1 ? ' option' : ' options') + (r.paint ? ', paid colour included' : ''))
         : L('niciuna', 'none');
-      $('s-opts').textContent = '+ ' + eur(g(r.optsEur));
+      $('s-opts').textContent = '+ ' + eur(r.optsEur);
     }
     $('s-svcn').textContent = svcNames().join(', ') || L('niciunul', 'none');
-    $('s-svc').textContent = '+ ' + eur(g(r.svc));
+    $('s-svc').textContent = '+ ' + eur(r.svc);
     $('s-gross').textContent = eur(g(r.net));
     $('s-net').textContent = eur(r.net);
     $('b-gross').textContent = eur(g(r.net));
@@ -1756,7 +1757,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     lines.push(L('Mașina: ', 'Car: ') + L(snap.carRo, snap.carEn));
     if (snap.opts) lines.push(L('Opționale: ', 'Options: ') + snap.opts);
     lines.push(L('Servicii BADSI: ', 'BADSI services: ') + (L(snap.svcRo, snap.svcEn) || L('niciunul', 'none')));
-    lines.push(L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ') + eur(d.pretCuTva) + L(' cu TVA (', ' incl. VAT (') + eur(d.pretFaraTva) + L(' fără TVA)', ' excl. VAT)'));
+    lines.push(L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ') + eur(d.pretFaraTva) + L(' fără TVA (', ' excl. VAT (') + eur(d.pretCuTva) + L(' cu TVA)', ' incl. VAT)'));
     if (snap.msg) lines.push(L('Mesaj: ', 'Message: ') + snap.msg);
     lines.push(L('Nume: ', 'Name: ') + d.nume);
     if (withContact) { lines.push(L('Telefon: ', 'Phone: ') + d.telefon); lines.push('Email: ' + d.email); }

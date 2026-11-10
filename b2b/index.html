@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Michroma&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Configurator B2B (firme + persoane fizice, fără cont deocamdată): ca B2C, dar prețul mare e FĂRĂ TVA, cu reducerea B2B pe prețul mașinii, iar datele cer tipul clientului (PJ: CUI căutat la ANAF, firmă, funcție, nr. mașini).
+/* Configurator B2B (firme + persoane fizice, fără cont deocamdată): ca B2C, dar cu reducerea B2B pe prețul mașinii, DOAR pentru persoane juridice (PF plătește prețul de listă), iar datele cer tipul clientului (PJ: CUI căutat la ANAF, firmă, funcție, nr. mașini).
    Layout: bara neagră BADSI sus (ca pe badsi.ro: limba + tema în dreapta). Stânga: pașii clientului (mașina -> servicii -> datele lui); dreapta: panoul cu prețul, lipit. Pe telefon: o coloană + bară de preț jos.
    Paleta badsi.ro: fond crem #fdf8f4, carduri albe, text #212529, negru pentru acțiuni și preț. Luminos implicit; întunecat doar din butonul din bară (data-scheme="dark"). */
 :root {
@@ -419,8 +419,9 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   "texte": {
     "eticheta": "BADSI Automotive · import din China · pentru firme",
     "titlu": "Configurator pentru firme",
-    "intro": "Alege mașina și serviciile, vezi prețul estimativ fără TVA cu reducerea B2B inclusă și trimite-ne cererea. Un consultant BADSI te contactează cu oferta finală.",
+    "intro": "Alege mașina și serviciile, vezi prețul estimativ fără TVA (pentru persoane juridice, cu reducerea B2B inclusă) și trimite-ne cererea. Un consultant BADSI te contactează cu oferta finală.",
     "nota_reducere": "Prețul mașinii include reducerea B2B de {p}.",
+    "nota_reducere_pf": "Reducerea B2B de {p} se aplică doar persoanelor juridice.",
     "nota_livrare": "Livrat la sediul BADSI din București: transportul din China și vămuirea sunt incluse.",
     "nota_estimare": "Preț estimativ. Prețul final îți este confirmat de un consultant BADSI.",
     "nota_antidumping": "Posibil să apară taxe suplimentare la mașinile noi, inclusiv la cele hibride (taxa anti-dumping, până la 35%). Pentru a le evita, se recomandă mașina rulată.",
@@ -433,8 +434,9 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   "texte_en": {
     "eticheta": "BADSI Automotive · imported from China · for businesses",
     "titlu": "Configurator for businesses",
-    "intro": "Choose the car and services, see the estimated price excluding VAT with the B2B discount included, and send us your request. A BADSI consultant will contact you with the final offer.",
+    "intro": "Choose the car and services, see the estimated price excluding VAT (for companies, with the B2B discount included) and send us your request. A BADSI consultant will contact you with the final offer.",
     "nota_reducere": "The car price includes the {p} B2B discount.",
+    "nota_reducere_pf": "The {p} B2B discount applies to companies only.",
     "nota_livrare": "Delivered to the BADSI headquarters in Bucharest: transport from China and customs clearance are included.",
     "nota_estimare": "Estimated price. Your final price is confirmed by a BADSI consultant.",
     "nota_antidumping": "New cars may be subject to additional duties, including hybrids (anti-dumping duty of up to 35%). To avoid them, we recommend a used car.",
@@ -483,7 +485,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
      ARHITECTURA (configurator B2B, public, fără cont deocamdată)
      1. Date        - blocul JSON de mai sus
      2. Utilitare   - formatare bani, text
-     3. Calcul      - preț = mașina × (1 − reducere B2B) + servicii bifate; TVA peste (afișat mic)
+     3. Calcul      - preț = mașina × (1 − reducere B2B) + servicii bifate; TVA peste (afișat mic).
+                      Reducerea se aplică DOAR când clientul e persoană juridică; la persoană fizică prețul mașinii e cel de listă.
      4. Interfață   - stare + randare (model -> stare -> versiune -> servicii)
      5. Trimitere   - POST JSON la adresa din „endpoint” (scriptul din Cereri B2B; tot el caută CUI-ul la ANAF);
                       dacă nu există sau nu merge: WhatsApp + text de copiat.
@@ -495,7 +498,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   const SVC = D.servicii;
   const WAR = SVC.filter(s => s.tip === 'garanție');
   const OTHER = SVC.filter(s => s.tip !== 'garanție');
-  const RED = Number(D.reducere) || 0;   // reducerea B2B, pe prețul mașinii (din Baza date configurator B2B / Parametri)
+  const RED = Number(D.reducere) || 0;   // reducerea B2B, pe prețul mașinii, doar pentru PJ (din Baza date configurator B2B / Parametri)
 
   // ---------- 2. utilitare ----------
   const $ = id => document.getElementById(id);
@@ -564,9 +567,9 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     OTHER.forEach(s => { if (S.extra.has(s.cod) && s.cod !== 'omol') out.push(sNume(s)); });
     return out;
   }
-  // B2B: toate sumele sunt fără TVA; reducerea se aplică doar prețului mașinii
+  // B2B: toate sumele sunt fără TVA; reducerea se aplică doar prețului mașinii și doar persoanelor juridice
   function priceOf(m) {
-    const disc = Math.round(m.pret * RED);
+    const disc = isPJ() ? Math.round(m.pret * RED) : 0;
     const carNet = m.pret - disc;
     const svc = svcNet();
     const net = carNet + svc;
@@ -680,7 +683,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
         $('mb-label').textContent = L('Preț estimativ fără TVA', 'Estimated price excl. VAT');
         $('mb-price').textContent = eur(n > 1 ? p.net * n : p.net);
       }
-      if (RED) notes.push(tx('nota_reducere').replace('{p}', pct()));
+      if (RED) notes.push(tx(isPJ() ? 'nota_reducere' : 'nota_reducere_pf').replace('{p}', pct()));
       notes.push(tx('nota_livrare'), tx('nota_estimare'));
     }
     $('p-notes').innerHTML = notes.map(n => '<p>' + esc(n) + '</p>').join('');
@@ -818,7 +821,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
       const m = snap.m;
       lines.push(L('Mașina: ', 'Car: ') + d.masina + ' (' + stareLabel(m.stare) + ', ' + kmOf(m) + ')');
       lines.push(L('Servicii BADSI: ', 'BADSI services: ') + (L(snap.svcRo, snap.svcEn) || L('niciunul', 'none')));
-      lines.push(L('Preț estimativ din configurator (cu reducerea B2B): ', 'Estimated price from the configurator (B2B discount included): ') + eur(d.pretFaraTva) + L(' fără TVA (', ' excl. VAT (') + eur(d.pretCuTva) + L(' cu TVA) / mașină', ' incl. VAT) / car'));
+      lines.push((d.reducere ? L('Preț estimativ din configurator (cu reducerea B2B): ', 'Estimated price from the configurator (B2B discount included): ') : L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ')) + eur(d.pretFaraTva) + L(' fără TVA (', ' excl. VAT (') + eur(d.pretCuTva) + L(' cu TVA) / mașină', ' incl. VAT) / car'));
       if (d.nrMasini > 1) lines.push(L('Număr de mașini: ', 'Number of cars: ') + d.nrMasini);
     } else {
       lines.push(L('Caut: ', 'Looking for: ') + d.mesaj);
@@ -926,7 +929,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   $('form').addEventListener('submit', e => { e.preventDefault(); send(); });
   $('btn-panel').addEventListener('click', send);
   $('mb-btn').addEventListener('click', send);   // pe telefon: același buton; dacă lipsesc date, duce la primul câmp necompletat
-  document.querySelectorAll('input[name="client"]').forEach(i => i.addEventListener('change', () => { renderClient(); renderPanel(); }));
+  // PJ ↔ PF schimbă și prețurile (reducerea B2B e doar pentru PJ): se refac modelele, versiunile și panoul
+  document.querySelectorAll('input[name="client"]').forEach(i => i.addEventListener('change', () => { renderClient(); renderModels(); renderVersions(); renderPanel(); }));
   $('f-nr').addEventListener('input', () => renderPanel());
   $('f-cui').addEventListener('change', lookupCui);
   $('f-cui').addEventListener('blur', lookupCui);

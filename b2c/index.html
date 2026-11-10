@@ -324,7 +324,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 
       <!-- 2. servicii -->
       <section class="card" id="s-svc" aria-labelledby="h-svc">
-        <div class="step-head"><span class="step-no">2</span><h2 id="h-svc" data-en="BADSI services">Servicii BADSI</h2><span class="hint" data-en="Prices incl. VAT">Prețuri cu TVA</span></div>
+        <div class="step-head"><span class="step-no">2</span><h2 id="h-svc" data-en="BADSI services">Servicii BADSI</h2><span class="hint" data-en="Prices excl. VAT">Prețuri fără TVA</span></div>
         <fieldset class="group" id="g-war">
           <legend data-en="BADSI warranty package (DEFEND Car Protect DELUXE: 3 years, unlimited km, no excess, up to RON 40,000 per claim, battery included)">Pachet de garanție BADSI (DEFEND Car Protect DELUXE: 3 ani, km nelimitați, fără franșiză, până la 40.000 RON per eveniment, bateria inclusă)</legend>
           <div class="svc" id="svc-war"></div>
@@ -381,7 +381,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 </div>
 
 <div class="mbar" id="mbar" aria-hidden="true">
-  <div><span id="mb-label">Preț estimativ cu TVA</span><b id="mb-price"></b></div>
+  <div><span id="mb-label">Preț estimativ fără TVA</span><b id="mb-price"></b></div>
   <button class="btn" type="button" id="mb-btn" tabindex="-1">Trimite cererea</button>
 </div>
 
@@ -457,7 +457,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
      ARHITECTURA (configurator B2C, public)
      1. Date        - blocul JSON de mai sus
      2. Utilitare   - formatare bani, text
-     3. Calcul      - preț = mașina fără servicii + servicii bifate; TVA peste
+     3. Calcul      - preț = mașina fără servicii + servicii bifate; toate sumele afișate sunt FĂRĂ TVA
+                      (ca la B2B), iar prețul cu TVA apare doar mic, sub total
      4. Interfață   - stare + randare (model -> stare -> versiune -> servicii)
      5. Trimitere   - POST JSON la adresa din „endpoint” (scriptul din Cereri B2C);
                       dacă nu există sau nu merge: WhatsApp + text de copiat.
@@ -537,10 +538,11 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     OTHER.forEach(s => { if (S.extra.has(s.cod) && s.cod !== 'omol') out.push(sNume(s)); });
     return out;
   }
+  // toate sumele sunt fără TVA; TVA se adaugă doar la total (afișat mic)
   function priceOf(m) {
-    const net = m.pret + svcNet();
-    const g = gross(net);
-    return { net: net, gross: g, carGross: gross(m.pret), svcGross: g - gross(m.pret) };
+    const svc = svcNet();
+    const net = m.pret + svc;
+    return { car: m.pret, svc: svc, net: net, gross: gross(net) };
   }
   const car = () => D.masini.find(m => m.cod === S.cod) || null;
   const carsFor = (k, st) => D.masini.filter(m => keyOf(m) === k && m.stare === st);
@@ -566,12 +568,12 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     $('svc-war').innerHTML = WAR.map(s =>
       '<label class="svc-row"><input type="radio" name="war" value="' + esc(s.cod) + '">' +
       '<span class="svc-name">' + esc(sNume(s)) + '</span>' +
-      '<span class="svc-price">' + (s.pret ? '+' + eur(gross(s.pret)) : '—') + '</span>' +
+      '<span class="svc-price">' + (s.pret ? '+' + eur(s.pret) : '—') + '</span>' +
       '<span class="svc-desc">' + esc(sDesc(s)) + '</span></label>').join('');
     $('svc-other').innerHTML = OTHER.map(s =>
       '<label class="svc-row"><input type="checkbox" name="extra" value="' + esc(s.cod) + '">' +
       '<span class="svc-name">' + esc(sNume(s)) + '</span>' +
-      '<span class="svc-price">+' + eur(gross(s.pret)) + '</span>' +
+      '<span class="svc-price">+' + eur(s.pret) + '</span>' +
       '<span class="svc-desc">' + esc(sDesc(s)) + '</span></label>').join('');
     document.querySelectorAll('input[name="war"]').forEach(i => { i.checked = i.value === S.war; });
     document.querySelectorAll('input[name="extra"]').forEach(i => { i.checked = S.extra.has(i.value); });
@@ -584,10 +586,10 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 
   function renderModels() {
     $('models').innerHTML = MODELS.map(k => {
-      const from = Math.min.apply(null, D.masini.filter(m => keyOf(m) === k).map(m => priceOf(m).gross));
+      const from = Math.min.apply(null, D.masini.filter(m => keyOf(m) === k).map(m => priceOf(m).net));
       return '<label class="opt"><input type="radio" name="model" value="' + esc(k) + '"' + (k === S.model ? ' checked' : '') + '>' +
         '<span class="box"><span class="model-name">' + esc(k) + '</span>' +
-        '<span class="model-from">' + L('de la ', 'from ') + '<b>' + eur(from) + '</b>' + L(' cu TVA', ' incl. VAT') + '</span></span></label>';
+        '<span class="model-from">' + L('de la ', 'from ') + '<b>' + eur(from) + '</b>' + L(' fără TVA', ' excl. VAT') + '</span></span></label>';
     }).join('');
   }
 
@@ -609,7 +611,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
       return '<label class="opt ver"><input type="radio" name="ver" value="' + esc(m.cod) + '"' + (m.cod === S.cod ? ' checked' : '') + '>' +
         '<span class="box"><span class="ver-name">' + esc(m.versiune) +
         (m.mentiune ? '<span class="chip">' + esc(mentOf(m)) + '</span>' : '') + '</span>' +
-        '<span class="ver-price">' + eur(p.gross) + '<small>' + L('cu TVA', 'incl. VAT') + '</small></span>' +
+        '<span class="ver-price">' + eur(p.net) + '<small>' + L('fără TVA', 'excl. VAT') + '</small></span>' +
         '<span class="ver-meta">' + esc(meta) + '</span></span></label>';
     }).join('') || '<p class="hint-text">' + L('Momentan nu avem versiuni în această stare.', 'We currently have no versions in this condition.') + '</p>';
   }
@@ -634,16 +636,16 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
         const p = priceOf(m);
         $('p-car').innerHTML = esc(carLabel(m)) + '<span>' + esc(L('Mașină ' + stareLabel(m.stare) + ', ' + kmOf(m), (m.stare === 'nou' ? 'New' : 'Used') + ' car, ' + kmOf(m))) + '</span>';
         let html = '<div class="blk">' +
-          '<div class="ln"><span>' + L('Mașina', 'Car') + '</span><span class="v">' + eur(p.carGross) + '</span></div>' +
-          '<div class="ln"><span>' + L('Servicii BADSI', 'BADSI services') + '<span class="d">' + esc(svcNames().join(', ') || L('niciunul', 'none')) + '</span></span><span class="v">' + (p.svcGross ? '+' + eur(p.svcGross) : eur(0)) + '</span></div>' +
+          '<div class="ln"><span>' + L('Mașina', 'Car') + '</span><span class="v">' + eur(p.car) + '</span></div>' +
+          '<div class="ln"><span>' + L('Servicii BADSI', 'BADSI services') + '<span class="d">' + esc(svcNames().join(', ') || L('niciunul', 'none')) + '</span></span><span class="v">' + (p.svc ? '+' + eur(p.svc) : eur(0)) + '</span></div>' +
           (termOf(m) ? '<div class="ln"><span>' + L('Livrare', 'Delivery') + '</span><span class="v">' + L('aprox. ', 'approx. ') + esc(termOf(m)) + '</span></div>' : '') +
           '</div>' +
-          '<div class="big"><span>' + L('Preț estimativ cu TVA', 'Estimated price incl. VAT') + '</span><b class="num"><span class="cur">€</span>' + group3(p.gross) + '</b>' +
-          '<small>' + L('fără TVA: ', 'excl. VAT: ') + eur(p.net) + '</small></div>';
+          '<div class="big"><span>' + L('Preț estimativ fără TVA', 'Estimated price excl. VAT') + '</span><b class="num"><span class="cur">€</span>' + group3(p.net) + '</b>' +
+          '<small>' + L('cu TVA: ', 'incl. VAT: ') + eur(p.gross) + '</small></div>';
         if (m.mentiune) html += '<p class="warn">' + esc(mentOf(m)) + '</p>';
         $('p-body').innerHTML = html;
-        $('mb-label').textContent = L('Preț estimativ cu TVA', 'Estimated price incl. VAT');
-        $('mb-price').textContent = eur(p.gross);
+        $('mb-label').textContent = L('Preț estimativ fără TVA', 'Estimated price excl. VAT');
+        $('mb-price').textContent = eur(p.net);
       }
       notes.push(tx('nota_livrare'), tx('nota_estimare'));
     }
@@ -737,7 +739,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
       const m = snap.m;
       lines.push(L('Mașina: ', 'Car: ') + d.masina + ' (' + stareLabel(m.stare) + ', ' + kmOf(m) + ')');
       lines.push(L('Servicii BADSI: ', 'BADSI services: ') + (L(snap.svcRo, snap.svcEn) || L('niciunul', 'none')));
-      lines.push(L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ') + eur(d.pretCuTva) + L(' cu TVA (', ' incl. VAT (') + eur(d.pretFaraTva) + L(' fără TVA)', ' excl. VAT)'));
+      lines.push(L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ') + eur(d.pretFaraTva) + L(' fără TVA (', ' excl. VAT (') + eur(d.pretCuTva) + L(' cu TVA)', ' incl. VAT)'));
     } else {
       lines.push(L('Caut: ', 'Looking for: ') + d.mesaj);
       if (d.link) lines.push(L('Anunț: ', 'Listing: ') + d.link);
