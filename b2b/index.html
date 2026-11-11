@@ -1155,12 +1155,24 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     const box = $('manual');
     if (!offer) { box.hidden = true; box.innerHTML = ''; return; }
     box.hidden = false;
-    box.innerHTML = (offer.sent ? '' : '<p><b>' + L('Nu am putut trimite cererea automat.', 'We could not send the request automatically.') + '</b> '
+    // oferta pleacă pe email (din 12.11.2026); butonul de descărcare apare doar dacă cererea sau emailul n-au mers
+    const mail = '<b>' + esc(offer.client.email) + '</b>';
+    if (offer.mail === 'pending') {
+      box.innerHTML = '<p>' + L('Pregătim oferta PDF și v-o trimitem pe email la ', 'We are preparing your PDF offer and emailing it to ') + mail + '…</p>';
+      return;
+    }
+    if (offer.mail === 'ok') {
+      box.innerHTML = '<p>' + L('Oferta PDF a fost trimisă pe email la ', 'Your PDF offer has been emailed to ') + mail + '. '
+        + L('Dacă nu o găsiți, verificați și folderul Spam.', 'If you cannot find it, please also check your spam folder.') + '</p>'
+        + (offer.link ? '<p><a class="addr" href="' + esc(offer.link) + '" target="_blank" rel="noopener">' + L('Vedeți oferta online', 'View the offer online') + (offer.id ? ' (' + esc(offer.id) + ')' : '') + ' ↗</a></p>' : '');
+      return;
+    }
+    box.innerHTML = (offer.sent ? (offer.mail === 'fail' ? '<p><b>' + L('Nu am putut trimite oferta pe email.', 'We could not email your offer.') + '</b> ' + L('O puteți descărca de aici; consultantul BADSI are deja cererea dumneavoastră.', 'You can download it here; your BADSI consultant already has your request.') + '</p>' : '') : '<p><b>' + L('Nu am putut trimite cererea automat.', 'We could not send the request automatically.') + '</b> '
         + L('Trimiteți-ne oferta PDF pe email sau sunați-ne:', 'Email us the PDF offer or call us:') + '</p>'
         + '<p class="hint-text">Email: <span class="addr">' + esc(D.contact.email) + '</span> · ' + L('Telefon', 'Phone') + ': <span class="addr">' + esc(D.contact.telefon) + '</span></p>')
       + '<p>' + L('Oferta dumneavoastră în PDF cuprinde toată cererea: mașina, serviciile BADSI, prețurile și datele firmei.',
         'Your PDF offer contains the whole request: the car, BADSI services, prices and contact details.') + '</p>'
-      + '<div class="row-actions"><button class="btn ghost" type="button" id="btn-pdf">' + L('Descarcă oferta (PDF)', 'Download the offer (PDF)') + '</button>'
+      + '<div class="row-actions"><button class="btn ghost" type="button" id="btn-pdf">' + L('Descărcați oferta (PDF)', 'Download the offer (PDF)') + '</button>'
       + '<span class="msg" id="pdf-msg" aria-live="polite"></span></div>';
     $('btn-pdf').addEventListener('click', downloadOffer);
   }
@@ -1202,12 +1214,34 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     renderPanel();
     $('done').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-  // după trimitere (reușită sau nu): oferta PDF se descarcă singură și rămâne butonul pentru o nouă descărcare
-  function finishOffer(nr, sent) {
+  // după trimitere: oferta PDF pleacă pe EMAIL (scriptul Google o salvează în Drive și o trimite clientului, cu copie la echipă).
+  // Descărcarea rămâne doar rezervă: cererea n-a plecat (ex. artefactul claude.ai), scriptul e vechi (fără cheie) sau emailul n-a mers.
+  function finishOffer(nr, sent, r) {
     snapOffer(nr, sent);
+    offer.id = (r && r.id) || null;
+    offer.cheie = (r && r.cheie) || null;
+    offer.mail = sent && offer.cheie ? 'pending' : null;
     renderOfferBox();
+    if (offer.mail) { emailOffer(); return; }
     if (!sent) $('manual').scrollIntoView({ behavior: 'smooth', block: 'center' });
     downloadOffer();
+  }
+  const b64Of = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = () => rej(fr.error); fr.readAsDataURL(blob); });
+  async function emailOffer() {
+    try {
+      const pdf = await b64Of(await makePdf(offer));
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 90000);
+      const res = await fetch(D.endpoint, { method: 'POST', body: JSON.stringify({ actiune: 'pdf', id: offer.id, cheie: offer.cheie, lang: UI.lang, pdf }), signal: ctl.signal });
+      clearTimeout(timer);
+      const r = await res.json();
+      if (!r || !r.ok) throw new Error((r && r.error) || 'raspuns');
+      offer.mail = 'ok';
+      offer.link = r.link || '';
+    } catch (e) {
+      offer.mail = 'fail';
+    }
+    renderOfferBox();
   }
 
   async function send() {
@@ -1240,8 +1274,8 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       clearTimeout(timer);
       reached = true;
       const r = await res.json();
-      if (r && r.ok) { showDone(r.nr); finishOffer(r.nr, true); return; }
-      if (r && r.error === 'email') { fields.email.wrap.classList.add('is-bad'); fields.email.err.hidden = false; $('send-msg').textContent = L('Verifică adresa de email.', 'Check the email address.'); $('send-msg').className = 'msg is-error'; return; }
+      if (r && r.ok) { showDone(r.id || r.nr); finishOffer(r.id || r.nr, true, r); return; }
+      if (r && r.error === 'email') { fields.email.wrap.classList.add('is-bad'); fields.email.err.hidden = false; $('send-msg').textContent = L('Verificați adresa de email.', 'Check the email address.'); $('send-msg').className = 'msg is-error'; return; }
       throw new Error((r && r.error) || 'raspuns');
     } catch (err) {
       $('send-msg').textContent = '';

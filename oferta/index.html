@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Oferta BADSI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Gudea:wght@400;700&display=swap">
+<!-- Pagina ofertei (din 12.11.2026). Sursa: MEGA PROIECT\CONF COMUN\oferta.html → GitHub configuratoare/oferta/index.html
+     (build-oferta.ps1 pune logo-ul). Linkul vine în emailul cu oferta: oferta/?id=ZK-7 (B2C-…, ZK-…, B2B-…).
+     Citește rezumatul de la scriptul Google al configuratorului (GET ?oferta=ID): mașina, serviciile, prețul, statusul și
+     linkul PDF-ului; NU primește nume, telefon sau email. Decizie 11.11: deocamdată doar numărul cererii (test). -->
+<style>
+:root {
+  --bg: #f4f4f3; --card: #ffffff; --ink: #26262a; --muted: #5a5d69; --line: #e4e4e4; --line-strong: #c7c7c7;
+  --bar: #26262a; --bar-ink: #ffffff; --cyan: #0097db; --ok: #1f7a4d; --bad: #b42318;
+  --font: "Jost", system-ui, sans-serif; --font-data: "Gudea", "Jost", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-scheme="light"]) { --bg: #1a1a1d; --card: #33343b; --ink: #ffffff; --muted: #a9abb2; --line: rgba(255,255,255,.1); --line-strong: rgba(255,255,255,.22); --bar: #1a1a1d; }
+}
+:root[data-scheme="dark"] { --bg: #1a1a1d; --card: #33343b; --ink: #ffffff; --muted: #a9abb2; --line: rgba(255,255,255,.1); --line-strong: rgba(255,255,255,.22); --bar: #1a1a1d; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font); }
+.topbar { background: var(--bar); color: var(--bar-ink); border-bottom: 2px solid var(--cyan); }
+.topbar-in { max-width: 760px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+.wordmark-img { display: block; height: 20px; width: auto; }
+.lang { margin-left: auto; display: flex; border: 1px solid rgba(255,255,255,.22); border-radius: 4px; overflow: hidden; }
+.lang button { font: inherit; font-size: 12px; letter-spacing: .08em; background: none; color: #a9abb2; border: 0; padding: 4px 10px; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: #ffffff; color: #26262a; }
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 16px; }
+.eyebrow { margin: 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { margin: 2px 0 0; font-weight: 500; font-size: clamp(22px, 5vw, 30px); line-height: 1.2; overflow-wrap: anywhere; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+.card h2 { margin: 0 0 10px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+dl { margin: 0; display: grid; grid-template-columns: minmax(110px, auto) 1fr; gap: 6px 16px; }
+dt { color: var(--muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.svc { margin: 0; padding-left: 18px; }
+.price { display: grid; gap: 4px; }
+.price .row { display: flex; justify-content: space-between; gap: 12px; }
+.price .net { font-family: var(--font-data); font-size: 26px; font-weight: 700; }
+.num { font-family: var(--font-data); white-space: nowrap; }
+.note { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.steps li { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.steps li::before { content: ""; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line-strong); flex: none; }
+.steps li.done { color: var(--ink); }
+.steps li.done::before { background: var(--ink); border-color: var(--ink); }
+.steps li.now { color: var(--ink); font-weight: 600; }
+.steps li.now::before { background: var(--cyan); border-color: var(--cyan); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 4px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); font: inherit; font-weight: 500; text-decoration: none; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+form.find { display: flex; flex-wrap: wrap; gap: 10px; }
+form.find input { flex: 1 1 200px; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--card); color: var(--ink); font: inherit; text-transform: uppercase; }
+.msg { margin: 0; }
+.msg.bad { color: var(--bad); }
+.foot { font-size: 12.5px; color: var(--muted); }
+.foot a, a.addr { color: inherit; }
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.skel { color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <img class="wordmark-img" src="data:image/png;base64,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" alt="BADSI" width="65" height="20">
+    <div class="lang" role="group" aria-label="Limba / Language">
+      <button type="button" data-lang="ro" aria-pressed="true">RO</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+<main id="main" aria-live="polite">
+  <p class="skel">Se încarcă oferta…</p>
+</main>
+<script>
+(function () {
+  'use strict';
+  // scriptul Google al fiecărui configurator, după prefixul ID-ului
+  const SURSE = {
+    B2C: 'https://script.google.com/macros/s/AKfycbxKSF_l1I7rCWU3PU3Sz6nUjQPtYUeaf2NUhQmz5Va4SkOgCqNS1i6NrAL8mDy1r-M/exec',
+    ZK: 'https://script.google.com/macros/s/AKfycby5cfoqKTZzM_MaasYkrxgLj64Z4tlet8u0VnNnmxY3KGLA23zm-H6KU3w0AtXYoXc/exec',
+    B2B: 'https://script.google.com/macros/s/AKfycbzFpd0yA5lQlaoLJfXjEjqBVPY7w3wTYNt5c7yraCsdoRH7mMRDpbNzxgAD5BxAhBc/exec'
+  };
+  const CONTACT = { email: 'hello@badsi.ro', telefon: '+40 722 384 008' };
+  // statusurile din Cereri (vezi „Flux comandă configuratoare BADSI”), în ordine; „Refuzată” se arată separat
+  const PASI = [
+    ['Nouă', 'Cerere primită', 'Request received'],
+    ['Contactat', 'Consultantul te-a contactat', 'Your consultant has contacted you'],
+    ['Ofertă finală trimisă', 'Ofertă finală trimisă', 'Final offer sent'],
+    ['Comandă', 'Comandă confirmată', 'Order confirmed'],
+    ['Avans încasat', 'Avans încasat', 'Down payment received'],
+    ['În producție / în transport', 'În producție / în transport', 'In production / in transit'],
+    ['Omologare', 'Omologare și înmatriculare', 'Homologation and registration'],
+    ['Livrată', 'Livrată', 'Delivered']
+  ];
+  const q = new URLSearchParams(location.search);
+  let lang = q.get('lang') === 'en' ? 'en' : 'ro';
+  let data = null, err = null;
+  const L = (ro, en) => (lang === 'en' ? en : ro);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const eur = n => (n == null ? '–' : new Intl.NumberFormat(lang === 'en' ? 'en-GB' : 'ro-RO', { maximumFractionDigits: 0 }).format(n) + ' €');
+  const idOk = s => /^(B2C|ZK|B2B)-\d{1,7}$/.test(s);
+  const formal = () => data && /^B2B-/.test(data.id);
+
+  function findForm(msg, bad) {
+    return '<div class="card"><h2>' + L('Caută oferta', 'Find your offer') + '</h2>'
+      + (msg ? '<p class="msg' + (bad ? ' bad' : '') + '">' + esc(msg) + '</p>' : '')
+      + '<form class="find" id="find"><label class="sr" for="fid" hidden>' + L('Numărul ofertei', 'Offer number') + '</label>'
+      + '<input id="fid" name="id" placeholder="' + L('ex. ZK-12 sau B2C-15', 'e.g. ZK-12 or B2C-15') + '" autocomplete="off" aria-label="' + L('Numărul ofertei', 'Offer number') + '">'
+      + '<button class="btn" type="submit">' + L('Deschide', 'Open') + '</button></form>'
+      + '<p class="note">' + L('Numărul ofertei e în emailul cu oferta PDF și pe ecranul de după trimiterea cererii.', 'The offer number is in the email with your PDF offer and on the screen shown after you sent the request.') + '</p></div>';
+  }
+
+  function steps(status) {
+    if (/refuz/i.test(status)) return '<p>' + L('Cererea a fost închisă.', 'This request has been closed.') + '</p>';
+    let at = PASI.findIndex(p => p[0].toLowerCase() === String(status).toLowerCase());
+    if (at < 0) at = 0;
+    return '<ol class="steps">' + PASI.map((p, i) => '<li class="' + (i < at ? 'done' : i === at ? 'now' : '') + '"' + (i === at ? ' aria-current="step"' : '') + '>'
+      + esc(i === 1 && formal() ? L('Consultantul v-a contactat', p[2]) : L(p[1], p[2])) + '</li>').join('') + '</ol>';
+  }
+
+  function render() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    const main = $('main');
+    if (!data) {
+      document.title = L('Oferta BADSI', 'BADSI offer');
+      main.innerHTML = '<div><p class="eyebrow">BADSI Automotive</p><h1>' + L('Oferta ta BADSI', 'Your BADSI offer') + '</h1></div>' + findForm(err, !!err);
+      $('find').addEventListener('submit', e => {
+        e.preventDefault();
+        const v = $('fid').value.trim().toUpperCase().replace(/\s+/g, '');
+        if (!idOk(v)) { err = L('Numărul arată ca ZK-12, B2C-15 sau B2B-3.', 'The number looks like ZK-12, B2C-15 or B2B-3.'); render(); return; }
+        history.replaceState(null, '', '?id=' + encodeURIComponent(v) + (lang === 'en' ? '&lang=en' : ''));
+        load(v);
+      });
+      return;
+    }
+    const d = data;
+    const f = formal();
+    document.title = L('Oferta BADSI ', 'BADSI offer ') + d.id;
+    const stare = d.stare === 'nou' ? L('nouă', 'new') : d.stare === 'rulat' ? L('rulată', 'used') : d.stare;
+    const svc = String(d.servicii || '').split(/,\s*/).filter(Boolean);
+    const perCar = d.nrMasini ? L(' / mașină', ' / car') : '';
+    main.innerHTML = '<div><p class="eyebrow">' + L('Oferta estimativă nr. ', 'Estimated offer no. ') + esc(d.id) + (d.data ? ' · ' + esc(d.data) : '') + '</p>'
+      + '<h1>' + esc(d.masina || (d.tip === 'Altă mașină' ? L('Altă mașină – căutare la cerere', 'Another car – sourced on request') : L('Cerere BADSI', 'BADSI request'))) + '</h1></div>'
+      + '<div class="card"><h2>' + L('Unde este cererea', 'Where your request is') + '</h2>' + steps(d.status) + '</div>'
+      + (d.masina ? '<div class="card"><h2>' + L('Configurația', 'Configuration') + '</h2><dl>'
+        + (stare ? '<dt>' + L('Stare', 'Condition') + '</dt><dd>' + esc(stare) + '</dd>' : '')
+        + (d.nrMasini ? '<dt>' + L('Nr. mașini', 'Number of cars') + '</dt><dd>' + esc(d.nrMasini) + '</dd>' : '')
+        + '<dt>' + L('Servicii BADSI', 'BADSI services') + '</dt><dd>' + (svc.length ? '<ul class="svc">' + svc.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>' : L('niciunul', 'none')) + '</dd>'
+        + '</dl></div>' : '')
+      + (d.pretFaraTva ? '<div class="card"><h2>' + L('Preț estimativ', 'Estimated price') + '</h2><div class="price">'
+        + (d.reducere ? '<div class="row"><span>' + L('Reducere B2B inclusă', 'B2B discount included') + perCar + '</span><span class="num">− ' + eur(d.reducere) + '</span></div>' : '')
+        + '<div class="row"><span>' + L('Fără TVA', 'Excl. VAT') + perCar + '</span><span class="net">' + eur(d.pretFaraTva) + '</span></div>'
+        + (d.pretCuTva ? '<div class="row"><span>' + L('Cu TVA', 'Incl. VAT') + perCar + '</span><span class="num">' + eur(d.pretCuTva) + '</span></div>' : '')
+        + '</div><p class="note">' + (f ? L('Preț estimativ, livrat la sediul BADSI din București. Prețul final vă este confirmat de un consultant BADSI.', 'Estimated price, delivered to the BADSI headquarters in Bucharest. Your final price is confirmed by a BADSI consultant.')
+          : L('Preț estimativ, livrat la sediul BADSI din București. Prețul final îți este confirmat de un consultant BADSI.', 'Estimated price, delivered to the BADSI headquarters in Bucharest. Your final price is confirmed by a BADSI consultant.')) + '</p></div>' : '')
+      + '<div class="actions">' + (d.pdf ? '<a class="btn" href="' + esc(d.pdf) + '" target="_blank" rel="noopener">' + L('Deschide oferta PDF', 'Open the PDF offer') + ' ↗</a>' : '')
+      + '<a class="btn ghost" href="mailto:' + CONTACT.email + '?subject=' + encodeURIComponent(L('Oferta ', 'Offer ') + d.id) + '">' + (f ? L('Scrieți-ne', 'Email us') : L('Scrie-ne', 'Email us')) + '</a>'
+      + '<a class="btn ghost" href="tel:' + CONTACT.telefon.replace(/\s+/g, '') + '">' + esc(CONTACT.telefon) + '</a></div>'
+      + '<p class="foot">BADSI Automotive · ' + esc(CONTACT.email) + ' · ' + esc(CONTACT.telefon) + '<br>'
+      + L('Prețurile sunt estimative, fără obligații contractuale, și pot varia în funcție de cursul valutar și de disponibilitate.', 'Prices are estimates, non-binding, and may vary with the exchange rate and availability.') + '</p>';
+  }
+
+  async function load(id) {
+    data = null; err = null;
+    $('main').innerHTML = '<p class="skel">' + L('Se încarcă oferta…', 'Loading the offer…') + '</p>';
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 45000);   // scriptul Google răspunde uneori greu la primul apel
+      const res = await fetch(SURSE[id.split('-')[0]] + '?oferta=' + encodeURIComponent(id), { signal: ctl.signal });
+      clearTimeout(t);
+      const r = await res.json();
+      if (r && r.ok && r.id) data = r;   // fără id = scriptul nu e încă actualizat
+      else err = r && r.error === 'negasita' ? L('Nu am găsit oferta ', 'We could not find offer ') + id + '.' : L('Oferta nu poate fi afișată acum. Încearcă din nou mai târziu.', 'The offer cannot be shown right now. Please try again later.');
+    } catch (e) {
+      err = L('Oferta nu poate fi afișată acum. Încearcă din nou mai târziu.', 'The offer cannot be shown right now. Please try again later.');
+    }
+    render();
+  }
+
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
+    lang = b.dataset.lang;
+    const u = new URL(location.href);
+    if (lang === 'en') u.searchParams.set('lang', 'en'); else u.searchParams.delete('lang');
+    history.replaceState(null, '', u);
+    render();
+  }));
+
+  const id = String(q.get('id') || '').trim().toUpperCase();
+  if (idOk(id)) load(id);
+  else { if (id) err = L('Numărul ofertei nu e valid.', 'The offer number is not valid.'); render(); }
+})();
+</script>
+</body>
+</html>
