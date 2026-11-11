@@ -365,6 +365,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 .addr { font-weight: 700; user-select: all; }
 .btn:hover { opacity: .88; }
 .btn-wide { width: 100%; padding: 12px 14px; font-size: 14px; }
+.bar .bar-send { margin-left: auto; padding: 9px 14px; white-space: nowrap; }
 .sum-notes { display: grid; gap: 4px; }
 .sum-notes p { margin: 0; color: var(--panel-muted); font-size: 11px; line-height: 1.45; }
 .war-desc { margin: 0; }
@@ -505,10 +506,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
             </label>
             <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
             <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
-            <div class="row-actions">
-              <button class="btn" type="submit" id="btn-send" data-en="Send the request">Trimite cererea</button>
-              <p class="send-msg" id="send-msg" aria-live="polite"></p>
-            </div>
+            <p class="send-msg" id="send-msg" aria-live="polite"></p>
           </form>
           <div class="done" id="done" hidden role="status"></div>
           <div class="manual-send" id="manual" hidden></div>
@@ -546,7 +544,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 <div class="bar" id="bar">
   <div class="bar-net"><small data-en="Incl. VAT">Cu TVA</small><b class="num" id="b-gross"></b></div>
   <div><small data-en="Excl. VAT">Fără TVA</small><b class="num" id="b-net"></b></div>
-  <a href="#cerere" data-en="Request">Cerere</a>
+  <button class="btn bar-send" type="button" id="mb-btn"></button>
 </div>
 
 <!-- DATE ZEEKR (public): generate cu genereaza-date-zeekr.ps1 din datele B2C (prețuri, servicii, texte, contact)
@@ -1350,7 +1348,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
                     opționale și culori în EUR, servicii BADSI, texte, contact
      2. Calcul    - preț = mașina + opționale + culoare + servicii; TVA peste. Prețurile afișate sunt cu TVA.
      3. Interfață - model -> versiune -> culoare -> opționale (sau mașină rulată) -> servicii -> datele clientului
-     4. Trimitere - POST JSON la scriptul din Cereri BTC (același ca la B2C); dacă nu merge: WhatsApp + text de copiat.
+     4. Trimitere - POST JSON la scriptul din Cereri B2C (același ca la B2C); dacă nu merge: WhatsApp + text de copiat.
      Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
      ===================================================================== */
 
@@ -1657,7 +1655,8 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     $('b-gross').textContent = eur(g(r.net));
     $('b-net').textContent = eur(r.net);
     $('s-notes').innerHTML = ['nota_livrare', 'nota_estimare'].map((k) => tx(k)).filter(Boolean).map((t) => '<p>' + esc(t) + '</p>').join('');
-    $('btn-panel').textContent = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send the request');
+    // un singur buton de trimitere: în panoul de preț și, pe telefon, în bara de jos (formularul nu are buton propriu)
+    ['btn-panel', 'mb-btn'].forEach((id) => { $(id).textContent = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send the request'); });
   }
 
   // ---------- evenimente: configurare ----------
@@ -1702,7 +1701,7 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     }
   });
 
-  // ---------- trimitere (ca la B2C: același script, aceeași foaie Cereri BTC) ----------
+  // ---------- trimitere (ca la B2C: același script din Cereri B2C; cererile Zeekr intră în tab-ul „Cereri Zeekr”) ----------
   const fields = {
     nume: { el: $('f-nume'), wrap: $('fw-nume'), err: $('e-nume'), ok: (v) => v.trim().length >= 3 },
     tel: { el: $('f-tel'), wrap: $('fw-tel'), err: $('e-tel'), ok: (v) => v.replace(/\D/g, '').length >= 9 },
@@ -1832,15 +1831,18 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
     }
     $('send-msg').textContent = '';
     $('send-msg').className = 'send-msg';
-    const d = withLang('ro', payload);   // în Cereri BTC totul rămâne în română; limba clientului se vede la „sursa”
+    const d = withLang('ro', payload);   // în Cereri B2C totul rămâne în română; limba clientului se vede la „sursa”
     if (UI.lang === 'en') d.sursa += ' · EN';
     if (!D.endpoint) { showManual(d, false); return; }
-    const btns = [$('btn-send'), $('btn-panel')];
+    const btns = [$('btn-panel'), $('mb-btn')];
     btns.forEach((b) => { b.disabled = true; b.textContent = L('Se trimite…', 'Sending…'); });
+    // scriptul Google poate răspunde greu la primul apel (s-a văzut ~20 s): clientul vede că se lucrează
+    $('send-msg').textContent = L('Se trimite cererea; poate dura până la 30 de secunde.', 'Sending your request; it can take up to 30 seconds.');
+    $('send-msg').className = 'send-msg';
     let reached = false;   // false = cererea n-a plecat deloc (ex. pagina e un artefact claude.ai, unde trimiterea e blocată)
     try {
       const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 20000);
+      const timer = setTimeout(() => ctl.abort(), 60000);   // 60 s: altfel o cerere ajunsă în sheet putea apărea ca netrimisă
       const res = await fetch(D.endpoint, { method: 'POST', body: JSON.stringify(d), signal: ctl.signal });
       clearTimeout(timer);
       reached = true;
@@ -1853,13 +1855,14 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; }
       showManual(d, reached);
     } finally {
       btns.forEach((b) => { b.disabled = false; });
-      $('btn-send').textContent = L('Trimite cererea', 'Send the request');
+      if (!S.sent && $('send-msg').className === 'send-msg') $('send-msg').textContent = '';
       update();
     }
   }
 
   $('form').addEventListener('submit', (e) => { e.preventDefault(); send(); });
   $('btn-panel').addEventListener('click', send);
+  $('mb-btn').addEventListener('click', send);   // pe telefon: același buton; dacă lipsesc date, duce la primul câmp necompletat
   Object.keys(fields).forEach((k) => fields[k].el.addEventListener('input', () => {
     if (fields[k].wrap.classList.contains('is-bad') && fields[k].ok(fields[k].el.value)) { fields[k].wrap.classList.remove('is-bad'); fields[k].err.hidden = true; }
   }));

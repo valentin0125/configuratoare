@@ -358,10 +358,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
           </label>
           <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
           <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
-          <div class="row-actions">
-            <button class="btn" type="submit" id="btn-send" data-en="Send request">Trimite cererea</button>
-            <span class="msg" id="send-msg" aria-live="polite"></span>
-          </div>
+          <p class="msg" id="send-msg" aria-live="polite"></p>
         </form>
         <div class="done" id="done" hidden role="status"></div>
         <div class="manual-send" id="manual" hidden></div>
@@ -388,8 +385,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   <button class="btn" type="button" id="mb-btn" tabindex="-1">Trimite cererea</button>
 </div>
 
-<!-- DATE BTC: generate de Claude din „Baza date configurator BTC” (Drive VC MEGA PROIECT / CONF BTC). Nu se editează de mână: se schimbă baza, apoi se republică. Conține doar ce vede clientul. Varianta engleză: „texte_en” (Texte, coloana D) și câmpurile „*_en” (Catalog R–T, Servicii BADSI I–J). -->
-<script type="application/json" id="btc-data">
+<!-- DATE B2C: generate de Claude din „Baza date configurator B2C” (Drive VC MEGA PROIECT / CONF B2C). Nu se editează de mână: se schimbă baza, apoi se republică. Conține doar ce vede clientul. Varianta engleză: „texte_en” (Texte, coloana D) și câmpurile „*_en” (Catalog R–T, Servicii BADSI I–J). -->
+<script type="application/json" id="b2c-data">
 {
   "generat": "11.11.2026",
   "tva": 0.21,
@@ -457,18 +454,18 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   'use strict';
 
   /* =====================================================================
-     ARHITECTURA (configurator BTC, public)
+     ARHITECTURA (configurator B2C, public)
      1. Date        - blocul JSON de mai sus
      2. Utilitare   - formatare bani, text
      3. Calcul      - preț = mașina fără servicii + servicii bifate; TVA peste
      4. Interfață   - stare + randare (model -> stare -> versiune -> servicii)
-     5. Trimitere   - POST JSON la adresa din „endpoint” (scriptul din Cereri BTC);
+     5. Trimitere   - POST JSON la adresa din „endpoint” (scriptul din Cereri B2C);
                       dacă nu există sau nu merge: WhatsApp + text de copiat.
      Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
      ===================================================================== */
 
   // ---------- 1. date ----------
-  const D = JSON.parse(document.getElementById('btc-data').textContent);
+  const D = JSON.parse(document.getElementById('b2c-data').textContent);
   const SVC = D.servicii;
   const WAR = SVC.filter(s => s.tip === 'garanție');
   const OTHER = SVC.filter(s => s.tip !== 'garanție');
@@ -477,7 +474,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   const $ = id => document.getElementById(id);
 
   // limba (RO/EN): textele fixe au varianta engleză în data-en / data-en-ph / data-en-aria; cele generate folosesc L(ro, en);
-  // datele au câmpuri *_en (rezerva e româna). Ce ajunge în Cereri BTC rămâne în română.
+  // datele au câmpuri *_en (rezerva e româna). Ce ajunge în Cereri B2C rămâne în română.
   const UI = { lang: document.documentElement.lang === 'en' ? 'en' : 'ro' };
   const L = (ro, en) => (UI.lang === 'en' ? en : ro);
   const pick = (ro, en) => (UI.lang === 'en' && en ? en : ro);
@@ -720,7 +717,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
       email: $('f-email').value.trim(),
       acord: $('f-gdpr').checked,
       website: $('f-website').value,
-      sursa: (location.hostname || 'pagină locală') + ' · configurator BTC ' + D.generat
+      sursa: (location.hostname || 'pagină locală') + ' · configurator B2C ' + D.generat
     };
     if (S.mode === 'other') {
       return Object.assign(base, { tip: 'Altă mașină', masina: '', stare: '', servicii: '', mesaj: $('o-desc').value.trim(), link: $('o-link').value.trim() });
@@ -732,7 +729,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     });
   }
 
-  // textul pentru WhatsApp / copiere, în limba aleasă (d = datele cererii, mereu în română, ca în Cereri BTC;
+  // textul pentru WhatsApp / copiere, în limba aleasă (d = datele cererii, mereu în română, ca în Cereri B2C;
   // snap = mașina și serviciile în ambele limbi, fixate în momentul trimiterii)
   function messageText(d, withContact, snap) {
     const lines = [L('Bună ziua! Aș dori o ofertă de la BADSI Automotive.', 'Hello! I would like an offer from BADSI Automotive.')];
@@ -814,16 +811,19 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     }
     $('send-msg').textContent = '';
     $('send-msg').className = 'msg';
-    const d = withLang('ro', payload);   // în Cereri BTC totul rămâne în română; limba clientului se vede la „sursa”
+    const d = withLang('ro', payload);   // în Cereri B2C totul rămâne în română; limba clientului se vede la „sursa”
     if (UI.lang === 'en') d.sursa += ' · EN';
     if (!D.endpoint) { showManual(d, false); return; }
-    const btn = $('btn-send');
-    btn.disabled = true;
-    $('send-msg').textContent = L('Se trimite…', 'Sending…');
+    // trimiterea se face doar din butonul panoului (și din bara de jos pe telefon)
+    const btns = [$('btn-panel'), $('mb-btn')];
+    btns.forEach(b => { b.disabled = true; b.textContent = L('Se trimite…', 'Sending…'); });
+    // scriptul Google poate răspunde greu la primul apel (s-a văzut ~20 s): clientul vede că se lucrează
+    $('send-msg').textContent = L('Se trimite cererea; poate dura până la 30 de secunde.', 'Sending your request; it can take up to 30 seconds.');
+    $('send-msg').className = 'msg';
     let reached = false;   // false = cererea n-a plecat deloc (ex. pagina e un artefact claude.ai, unde trimiterea e blocată)
     try {
       const ctl = new AbortController();
-      const timer = setTimeout(() => ctl.abort(), 20000);
+      const timer = setTimeout(() => ctl.abort(), 60000);   // 60 s: altfel o cerere ajunsă în sheet putea apărea ca netrimisă
       const res = await fetch(D.endpoint, { method: 'POST', body: JSON.stringify(d), signal: ctl.signal });
       clearTimeout(timer);
       reached = true;
@@ -835,13 +835,14 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
       $('send-msg').textContent = '';
       showManual(d, reached);
     } finally {
-      btn.disabled = false;
+      btns.forEach(b => { b.disabled = false; });
+      renderPanel();   // pune la loc eticheta butoanelor („Trimite cererea” / „Cerere trimisă”)
     }
   }
 
   $('form').addEventListener('submit', e => { e.preventDefault(); send(); });
   $('btn-panel').addEventListener('click', send);
-  $('mb-btn').addEventListener('click', () => { $('s-date').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  $('mb-btn').addEventListener('click', send);   // pe telefon: același buton; dacă lipsesc date, duce la primul câmp necompletat
   Object.keys(fields).forEach(k => fields[k].el.addEventListener('input', () => {
     if (fields[k].wrap.classList.contains('is-bad') && fields[k].ok(fields[k].el.value)) { fields[k].wrap.classList.remove('is-bad'); fields[k].err.hidden = true; }
   }));
