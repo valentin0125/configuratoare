@@ -489,7 +489,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
               <label><input type="radio" name="stare" value="nou" id="stare-nou" checked><span data-en="New">Nouă</span></label>
               <label><input type="radio" name="stare" value="rulat" id="stare-rulat"><span data-en="Used">Rulată</span></label>
             </div>
-
+            <p class="hint-text stare-note" id="stare-note" hidden></p>
           </div>
           <div class="group" role="radiogroup" aria-labelledby="l-ver">
             <span class="lbl" id="l-ver" data-en="Version">Versiune</span>
@@ -595,7 +595,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     "zeekr_text": "Alege versiunea, culoarea, opționalele și serviciile BADSI în configuratorul Zeekr și vezi prețul pe loc, mașini noi sau rulate.",
     "zeekr_buton": "Deschide configuratorul Zeekr",
     "gdpr": "Sunt de acord ca BADSI Automotive să folosească datele mele pentru a mă contacta în legătură cu această cerere.",
-    "confirmare": "Mulțumim! Am primit cererea ta. Un consultant BADSI te contactează în curând.",
+    "confirmare": "Mulțumim! Am primit cererea ta. Un consultant BADSI te va contacta în cel mai scurt timp.",
     "subsol": "Prețurile sunt fără obligații contractuale și pot varia în funcție de cursul valutar și de disponibilitate."
   },
   "texte_en": {
@@ -612,7 +612,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     "zeekr_text": "Choose the version, colour, options and BADSI services in the Zeekr configurator and see the price instantly, new or used.",
     "zeekr_buton": "Open the Zeekr configurator",
     "gdpr": "I agree that BADSI Automotive may use my data to contact me about this request.",
-    "confirmare": "Thank you! We have received your request. A BADSI consultant will contact you shortly.",
+    "confirmare": "Thank you! We have received your request. A BADSI consultant will contact you as soon as possible.",
     "subsol": "Prices are non-binding and may vary with the exchange rate and availability."
   },
   "masini": [
@@ -640,7 +640,6 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     { "cod": "w-concierge", "nume": "GOLD", "nume_en": "GOLD", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat (un om de la noi, la care apelezi oricând)", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge (one person on our team you can call any time)", "pret": 5000, "tip": "garanție", "implicit": false },
     { "cod": "w-service", "nume": "PLATINUM", "nume_en": "PLATINUM", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat + 3 revizii periodice incluse", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge + 3 scheduled services included", "pret": 10000, "tip": "garanție", "implicit": true },
     { "cod": "soft", "nume": "Software", "nume_en": "Software", "descriere": "Pachet software BADSI", "descriere_en": "BADSI software package", "pret": 1500, "tip": "bifă", "implicit": true },
-    { "cod": "resoft", "nume": "Resoftare", "nume_en": "Software update", "descriere": "Actualizare la ultima versiune de software", "descriere_en": "Update to the latest software version", "pret": 700, "tip": "bifă", "implicit": false },
     { "cod": "lang", "nume": "Limba română, SIM și CarPlay", "nume_en": "Romanian language, SIM and CarPlay", "descriere": "Interfață în limba română, cartelă SIM locală și Apple CarPlay", "descriere_en": "Romanian-language interface, local SIM card and Apple CarPlay", "pret": 2500, "tip": "bifă", "implicit": false }
   ]
 }
@@ -808,7 +807,10 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       el.disabled = carsFor(S.model, st).length === 0;
       el.checked = S.stare === st;
     });
-    $('tip-stare').innerHTML = tipBtn(S.stare === 'nou' ? tx('nota_antidumping') : tx('nota_rulat'));   // nota stă în butonul (i)
+    $('tip-stare').innerHTML = S.stare === 'nou' ? '' : tipBtn(tx('nota_rulat'));   // la rulate nota stă în butonul (i)
+    const sn = $('stare-note');   // la mașini noi nota anti-dumping stă la vedere (decizie 11.11): e argumentul pentru rulate
+    sn.textContent = S.stare === 'nou' ? tx('nota_antidumping') : '';
+    sn.hidden = !sn.textContent;
   }
 
   function renderVersions() {

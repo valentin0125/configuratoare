@@ -478,7 +478,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
               <label><input type="radio" name="stare" value="nou" id="stare-nou" checked><span data-en="New">Nouă</span></label>
               <label><input type="radio" name="stare" value="rulat" id="stare-rulat"><span data-en="Used">Rulată</span></label>
             </div>
-
+            <p class="hint-text stare-note" id="stare-note" hidden></p>
           </div>
           <div class="group" role="radiogroup" aria-labelledby="l-ver">
             <span class="lbl" id="l-ver" data-en="Version">Versiune</span>
@@ -490,7 +490,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
           <p class="hint-text" id="t-alta"></p>
           <label class="field" id="fw-desc"><span data-en="Which car are you looking for">Ce mașină cauți</span>
             <textarea id="o-desc" rows="3" maxlength="2000" placeholder="ex.: Xiaomi SU7 Max, 2025, alb, sub 20.000 km, buget în jur de 60.000 €" data-en-ph="e.g. Xiaomi SU7 Max, 2025, white, under 20,000 km, budget around €60,000"></textarea>
-            <small class="err" id="e-desc" hidden data-en="Write a few words about the car you are looking for.">Scrie câteva cuvinte despre mașina pe care o cauți.</small>
+            <small class="err" id="e-desc" hidden data-en="Write a few words about the car you are looking for.">Scrieți câteva cuvinte despre mașina pe care o căutați.</small>
           </label>
           <label class="field"><span data-en="Link to a listing (optional)">Link către un anunț (opțional)</span>
             <input type="url" id="o-link" maxlength="500" inputmode="url" placeholder="https://…">
@@ -549,7 +549,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
             <small class="err" id="e-email" hidden data-en="Write a valid email address.">Scrieți o adresă de email validă.</small>
           </label>
           <label class="field" id="fw-msg"><span data-en="Message (optional)">Mesaj (opțional)</span>
-            <textarea id="f-msg" rows="2" maxlength="2000" placeholder="ex.: culoarea dorită, când ai vrea mașina" data-en-ph="e.g. the colour you want, when you would like the car"></textarea>
+            <textarea id="f-msg" rows="2" maxlength="2000" placeholder="ex.: culoarea dorită, termenul de livrare dorit" data-en-ph="e.g. preferred colour, desired delivery date"></textarea>
           </label>
           <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
           <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
@@ -563,7 +563,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     <!-- pretul -->
     <aside class="panel" aria-labelledby="h-calc">
       <div>
-        <h2 id="h-calc" data-en="Your estimate">Estimarea ta</h2>
+        <h2 id="h-calc" data-en="Your estimate">Estimarea dumneavoastră</h2>
         <p class="sub" id="p-car"></p>
       </div>
       <div id="p-body"></div>
@@ -596,12 +596,12 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     "nota_reducere": "Prețul mașinii include reducerea B2B de {p}.",
     "nota_pf": "Cumpărați ca persoană fizică? Folosiți configuratorul pentru clienți:",
     "nota_livrare": "Livrat la sediul BADSI din București: transportul din China și vămuirea sunt incluse.",
-    "nota_estimare": "Preț estimativ. Prețul final îți este confirmat de un consultant BADSI.",
+    "nota_estimare": "Preț estimativ. Prețul final vă este confirmat de un consultant BADSI.",
     "nota_antidumping": "Posibil să apară taxe suplimentare la mașinile noi, inclusiv la cele hibride (taxa anti-dumping, până la 35%). Pentru a le evita, se recomandă mașina rulată.",
     "nota_rulat": "Mașini rulate 6.000–10.000 km, la aproximativ 6 luni de la prima înmatriculare în China.",
     "alta_masina": "Nu găsiți mașina pe care o căutați? Descrieți-o (marcă, model, an, buget, număr de bucăți) sau lipiți linkul unui anunț și revenim cu o estimare.",
     "gdpr": "Sunt de acord ca BADSI Automotive să folosească datele introduse pentru a mă contacta în legătură cu această cerere.",
-    "confirmare": "Mulțumim! Am primit cererea. Un consultant BADSI vă contactează în curând.",
+    "confirmare": "Vă mulțumim! Am primit cererea dumneavoastră. Un consultant BADSI vă va contacta în cel mai scurt timp.",
     "subsol": "Prețurile sunt fără obligații contractuale și pot varia în funcție de cursul valutar și de disponibilitate."
   },
   "texte_en": {
@@ -616,7 +616,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     "nota_rulat": "Used cars with 6,000–10,000 km, about 6 months after first registration in China.",
     "alta_masina": "Can't find the car you're looking for? Describe it (make, model, year, budget, quantity) or paste a link to a listing and we'll get back to you with an estimate.",
     "gdpr": "I agree that BADSI Automotive may use the data entered to contact me about this request.",
-    "confirmare": "Thank you! We have received your request. A BADSI consultant will contact you shortly.",
+    "confirmare": "Thank you! We have received your request. A BADSI consultant will contact you as soon as possible.",
     "subsol": "Prices are non-binding and may vary with the exchange rate and availability."
   },
   "masini": [
@@ -641,10 +641,9 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     { "cod": "omol", "nume": "Omologare + înmatriculare", "nume_en": "Homologation + registration", "descriere": "Omologarea vehiculului și înmatricularea în România", "descriere_en": "Vehicle homologation and registration in Romania", "pret": 5000, "tip": "bifă", "implicit": true },
     { "cod": "w-none", "nume": "Fără garanție", "nume_en": "No warranty", "descriere": "Fără pachet de garanție", "descriere_en": "No warranty package", "pret": 0, "tip": "garanție", "implicit": false },
     { "cod": "w-base", "nume": "SILVER", "nume_en": "SILVER", "descriere": "Garanție DEFEND 3 ani", "descriere_en": "DEFEND 3-year warranty", "pret": 2000, "tip": "garanție", "implicit": false },
-    { "cod": "w-concierge", "nume": "GOLD", "nume_en": "GOLD", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat (un om de la noi, la care apelezi oricând)", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge (one person on our team you can call any time)", "pret": 5000, "tip": "garanție", "implicit": false },
+    { "cod": "w-concierge", "nume": "GOLD", "nume_en": "GOLD", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat (o persoană din echipa noastră, la care puteți apela oricând)", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge (one person on our team you can call any time)", "pret": 5000, "tip": "garanție", "implicit": false },
     { "cod": "w-service", "nume": "PLATINUM", "nume_en": "PLATINUM", "descriere": "Garanție DEFEND 3 ani + Concierge BADSI dedicat + 3 revizii periodice incluse", "descriere_en": "DEFEND 3-year warranty + dedicated BADSI Concierge + 3 scheduled services included", "pret": 10000, "tip": "garanție", "implicit": true },
     { "cod": "soft", "nume": "Software", "nume_en": "Software", "descriere": "Pachet software BADSI", "descriere_en": "BADSI software package", "pret": 1500, "tip": "bifă", "implicit": true },
-    { "cod": "resoft", "nume": "Resoftare", "nume_en": "Software update", "descriere": "Actualizare la ultima versiune de software", "descriere_en": "Update to the latest software version", "pret": 700, "tip": "bifă", "implicit": false },
     { "cod": "lang", "nume": "Limba română, SIM și CarPlay", "nume_en": "Romanian language, SIM and CarPlay", "descriere": "Interfață în limba română, cartelă SIM locală și Apple CarPlay", "descriere_en": "Romanian-language interface, local SIM card and Apple CarPlay", "pret": 2500, "tip": "bifă", "implicit": false }
   ]
 }
@@ -804,7 +803,10 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       el.disabled = carsFor(S.model, st).length === 0;
       el.checked = S.stare === st;
     });
-    $('tip-stare').innerHTML = tipBtn(S.stare === 'nou' ? tx('nota_antidumping') : tx('nota_rulat'));   // nota stă în butonul (i)
+    $('tip-stare').innerHTML = S.stare === 'nou' ? '' : tipBtn(tx('nota_rulat'));   // la rulate nota stă în butonul (i)
+    const sn = $('stare-note');   // la mașini noi nota anti-dumping stă la vedere (decizie 11.11): e argumentul pentru rulate
+    sn.textContent = S.stare === 'nou' ? tx('nota_antidumping') : '';
+    sn.hidden = !sn.textContent;
   }
 
   function renderVersions() {
@@ -834,7 +836,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     } else {
       const m = car();
       if (!m) {
-        $('p-car').textContent = L('Alege o versiune.', 'Choose a version.');
+        $('p-car').textContent = L('Alegeți o versiune.', 'Choose a version.');
         $('p-body').innerHTML = '';
         $('mb-price').textContent = '—';
       } else {
@@ -860,7 +862,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       notes.push(tx('nota_livrare'), tx('nota_estimare'));
     }
     // notele (livrare, estimare, reducere) stau într-un singur buton (i)
-    $('p-notes').innerHTML = notes.length ? '<p>' + L('Ce trebuie să știi despre preț', 'What to know about the price') + tipBtn(notes.join('\n\n')) + '</p>' : '';
+    $('p-notes').innerHTML = notes.length ? '<p>' + L('Ce trebuie să știți despre preț', 'What to know about the price') + tipBtn(notes.join('\n\n')) + '</p>' : '';
     const sendLabel = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send request');
     $('btn-panel').textContent = sendLabel;
     $('mb-btn').textContent = sendLabel;
@@ -1213,7 +1215,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     if (S.mode === 'catalog' && !car()) { $('versions').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     const first = validate();
     if (first) {
-      $('send-msg').textContent = L('Completează câmpurile marcate.', 'Fill in the marked fields.');
+      $('send-msg').textContent = L('Completați câmpurile marcate.', 'Fill in the marked fields.');
       $('send-msg').className = 'msg is-error';
       first.scrollIntoView({ behavior: 'smooth', block: 'center' });
       first.focus({ preventScroll: true });

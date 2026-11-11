@@ -670,7 +670,8 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       </section>
 
       <section class="pane" data-step="used" hidden>
-        <h2 class="pane-title" tabindex="-1"><span data-en="Used car">Mașină rulată</span><span id="tip-antidumping"></span></h2>
+        <h2 class="pane-title" tabindex="-1" data-en="Used car">Mașină rulată</h2>
+        <p class="hint tax-hint" id="t-antidumping"></p>
 
         <label class="svc-row svc-check" for="used">
           <input type="checkbox" id="used">
@@ -762,28 +763,36 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
                 },
     "texte":  {
                   "eticheta":  "BADSI Automotive · import din China",
-                  "titlu":  "Configurează-ți mașina",
+                  "titlu":  "Comandă-ți mașina din China",
                   "intro":  "Alege mașina și serviciile, vezi prețul estimativ livrat în București și trimite-ne cererea. Un consultant BADSI te contactează pentru oferta finală.",
+                  "intro_zeekr":  "Alege mașina și serviciile, vezi prețul estimativ livrat în București și trimite-ne cererea. Un consultant BADSI te contactează pentru oferta finală.",
                   "nota_livrare":  "Livrat la sediul BADSI din București: transportul din China și vămuirea sunt incluse.",
                   "nota_estimare":  "Preț estimativ. Prețul final îți este confirmat de un consultant BADSI.",
                   "nota_antidumping":  "Posibil să apară taxe suplimentare la mașinile noi, inclusiv la cele hibride (taxa anti-dumping, până la 35%). Pentru a le evita, se recomandă mașina rulată.",
                   "nota_rulat":  "Mașini rulate 6.000–10.000 km, la aproximativ 6 luni de la prima înmatriculare în China.",
-                  "alta_masina":  "Nu găsești mașina pe care o cauți? Descrie-ne-o (marcă, model, an, buget) sau lipește linkul unui anunț și revenim cu o estimare.",
+                  "alta_masina":  "Descrie-ne mașina pe care o cauți (marcă, model, an, buget) sau lipește linkul unui anunț și revenim cu o estimare.",
+                  "zeekr_titlu":  "Cauți un Zeekr 9X sau 8X?",
+                  "zeekr_text":  "Alege versiunea, culoarea, opționalele și serviciile BADSI în configuratorul Zeekr și vezi prețul pe loc, mașini noi sau rulate.",
+                  "zeekr_buton":  "Deschide configuratorul Zeekr",
                   "gdpr":  "Sunt de acord ca BADSI Automotive să folosească datele mele pentru a mă contacta în legătură cu această cerere.",
-                  "confirmare":  "Mulțumim! Am primit cererea ta. Un consultant BADSI te contactează în curând.",
+                  "confirmare":  "Mulțumim! Am primit cererea ta. Un consultant BADSI te va contacta în cel mai scurt timp.",
                   "subsol":  "Prețurile sunt fără obligații contractuale și pot varia în funcție de cursul valutar și de disponibilitate."
               },
     "texte_en":  {
                      "eticheta":  "BADSI Automotive · imported from China",
-                     "titlu":  "Configure your car",
+                     "titlu":  "Order your car from China",
                      "intro":  "Choose the car and services, see the estimated price delivered in Bucharest and send us your request. A BADSI consultant will contact you with the final offer.",
+                     "intro_zeekr":  "Choose the car and services, see the estimated price delivered in Bucharest and send us your request. A BADSI consultant will contact you with the final offer.",
                      "nota_livrare":  "Delivered to the BADSI headquarters in Bucharest: transport from China and customs clearance are included.",
                      "nota_estimare":  "Estimated price. Your final price is confirmed by a BADSI consultant.",
                      "nota_antidumping":  "New cars may be subject to additional duties, including hybrids (anti-dumping duty of up to 35%). To avoid them, we recommend a used car.",
                      "nota_rulat":  "Used cars with 6,000–10,000 km, about 6 months after first registration in China.",
-                     "alta_masina":  "Can\u0027t find the car you\u0027re looking for? Describe it (make, model, year, budget) or paste a link to a listing and we\u0027ll get back to you with an estimate.",
+                     "alta_masina":  "Describe the car you are looking for (make, model, year, budget) or paste a link to a listing and we will get back to you with an estimate.",
+                     "zeekr_titlu":  "Looking for a Zeekr 9X or 8X?",
+                     "zeekr_text":  "Choose the version, colour, options and BADSI services in the Zeekr configurator and see the price instantly, new or used.",
+                     "zeekr_buton":  "Open the Zeekr configurator",
                      "gdpr":  "I agree that BADSI Automotive may use my data to contact me about this request.",
-                     "confirmare":  "Thank you! We have received your request. A BADSI consultant will contact you shortly.",
+                     "confirmare":  "Thank you! We have received your request. A BADSI consultant will contact you as soon as possible.",
                      "subsol":  "Prices are non-binding and may vary with the exchange rate and availability."
                  },
     "servicii":  [
@@ -846,16 +855,6 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
                          "pret":  1500,
                          "tip":  "bifă",
                          "implicit":  true
-                     },
-                     {
-                         "cod":  "resoft",
-                         "nume":  "Resoftare",
-                         "nume_en":  "Software update",
-                         "descriere":  "Actualizare la ultima versiune de software",
-                         "descriere_en":  "Update to the latest software version",
-                         "pret":  700,
-                         "tip":  "bifă",
-                         "implicit":  false
                      },
                      {
                          "cod":  "lang",
@@ -2385,7 +2384,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
   // ---------- texte din date, limba și tema ----------
   function renderTexts() {
     $('intro').textContent = tx('intro');
-    $('tip-antidumping').innerHTML = tipBtn(tx('nota_antidumping'));   // nota stă în butonul (i)
+    $('t-antidumping').textContent = tx('nota_antidumping');   // la vedere (decizie 11.11): e argumentul pentru rulate
     $('foot').textContent = tx('subsol');
     const gd = $('t-gdpr');
     gd.textContent = tx('gdpr') + ' ';
