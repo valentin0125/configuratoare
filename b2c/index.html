@@ -192,7 +192,6 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 .done b { font-size: 15px; }
 .done p { color: var(--ink); }
 .manual-send { display: grid; gap: 12px; padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--soft); }
-.manual-send textarea { background: var(--card); font-size: 12.5px; min-height: 150px; }
 .manual-send .addr { font-family: var(--font-data); font-weight: 600; user-select: all; }
 
 /* ---------- panoul de preț ---------- */
@@ -252,7 +251,38 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   .ver-price small { display: inline; margin-left: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
-</style>
+/* oferta PDF: se deseneaza in afara ecranului, mereu pe alb (si in tema intunecata), apoi devine PDF A4 */
+#pdf-root { position: fixed; left: -12000px; top: 0; width: 720px; pointer-events: none; }
+.pdf-blk { width: 720px; background: #fff; color: #212529; font-family: Manrope, system-ui, sans-serif; font-size: 12px; line-height: 1.45; padding: 0 0 10px; }
+.pdf-blk * { box-sizing: border-box; }
+.pdf-band { display: flex; justify-content: space-between; align-items: center; background: #000; color: #fff; padding: 14px 18px; }
+.pdf-logo { font-family: Michroma, Manrope, sans-serif; font-size: 17px; letter-spacing: .12em; }
+.pdf-band-r { text-align: right; font-size: 11px; line-height: 1.5; }
+.pdf-band-r b { font-size: 13px; }
+.pdf-title { font-family: Michroma, Manrope, sans-serif; font-size: 22px; font-weight: 400; letter-spacing: .04em; margin: 16px 0 2px; }
+.pdf-sub { color: #6b6f75; font-size: 12.5px; margin: 0; }
+.pdf-hero { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #f4f1ee; }
+.pdf-thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+.pdf-thumbs figure { margin: 0; }
+.pdf-thumbs img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; background: #f4f1ee; }
+.pdf-thumbs figcaption, .pdf-cap { font-size: 10px; color: #6b6f75; margin: 3px 0 0; }
+.pdf-h { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; border-bottom: 2px solid #000; padding: 0 0 5px; margin: 6px 0 4px; }
+.pdf-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.pdf-kv { display: grid; grid-template-columns: 120px 1fr; gap: 3px 10px; margin: 0; }
+.pdf-kv dt { color: #6b6f75; }
+.pdf-kv dd { margin: 0; font-weight: 600; word-break: break-word; }
+.pdf-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid #e7e1db; }
+.pdf-row b { font-weight: 700; }
+.pdf-row p { margin: 1px 0 0; color: #6b6f75; font-size: 11px; }
+.pdf-row .pdf-amt { font-weight: 700; white-space: nowrap; text-align: right; }
+.pdf-tot { width: 100%; border-collapse: collapse; }
+.pdf-tot td { padding: 6px 0; border-bottom: 1px solid #e7e1db; }
+.pdf-tot td:last-child { text-align: right; font-weight: 700; white-space: nowrap; }
+.pdf-tot .pdf-net td { border-top: 2px solid #000; border-bottom: 0; font-size: 15px; font-weight: 800; padding-top: 9px; }
+.pdf-tot .pdf-small td { color: #6b6f75; font-size: 11.5px; }
+.pdf-tot .pdf-gross td { font-size: 13px; font-weight: 700; border-bottom: 0; }
+.pdf-notes p { margin: 0 0 5px; color: #4b4f55; font-size: 11px; }
+.pdf-msg { white-space: pre-wrap; margin: 0; }</style>
 
 <header class="topbar">
   <div class="topbar-in">
@@ -386,6 +416,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 </div>
 
 <!-- DATE B2C: generate de Claude din „Baza date configurator B2C” (Drive VC MEGA PROIECT / CONF B2C). Nu se editează de mână: se schimbă baza, apoi se republică. Conține doar ce vede clientul. Varianta engleză: „texte_en” (Texte, coloana D) și câmpurile „*_en” (Catalog R–T, Servicii BADSI I–J). -->
+<div id="pdf-root" aria-hidden="true"></div>
 <script type="application/json" id="b2c-data">
 {
   "generat": "09.11.2026",
@@ -461,7 +492,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
                       (ca la B2B), iar prețul cu TVA apare doar mic, sub total
      4. Interfață   - stare + randare (model -> stare -> versiune -> servicii)
      5. Trimitere   - POST JSON la adresa din „endpoint” (scriptul din Cereri B2C);
-                      dacă nu există sau nu merge: WhatsApp + text de copiat.
+                      după trimitere (reușită sau nu) clientul primește oferta PDF; dacă trimiterea nu merge, și emailul/telefonul BADSI. (Ulterior: cererea devine lead în Workleto CRM.)
      Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
      ===================================================================== */
 
@@ -731,73 +762,217 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     });
   }
 
-  // textul pentru WhatsApp / copiere, în limba aleasă (d = datele cererii, mereu în română, ca în Cereri B2C;
-  // snap = mașina și serviciile în ambele limbi, fixate în momentul trimiterii)
-  function messageText(d, withContact, snap) {
-    const lines = [L('Bună ziua! Aș dori o ofertă de la BADSI Automotive.', 'Hello! I would like an offer from BADSI Automotive.')];
-    if (d.tip === 'Catalog') {
-      const m = snap.m;
-      lines.push(L('Mașina: ', 'Car: ') + d.masina + ' (' + stareLabel(m.stare) + ', ' + kmOf(m) + ')');
-      lines.push(L('Servicii BADSI: ', 'BADSI services: ') + (L(snap.svcRo, snap.svcEn) || L('niciunul', 'none')));
-      lines.push(L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ') + eur(d.pretFaraTva) + L(' fără TVA (', ' excl. VAT (') + eur(d.pretCuTva) + L(' cu TVA)', ' incl. VAT)'));
-    } else {
-      lines.push(L('Caut: ', 'Looking for: ') + d.mesaj);
-      if (d.link) lines.push(L('Anunț: ', 'Listing: ') + d.link);
+  const pdfClientRows = o => [[L('Nume', 'Name'), o.client.nume], [L('Telefon', 'Phone'), o.client.tel], ['Email', o.client.email]];
+  function pdfPriceRows(o, m, svc, tr) {
+    const net = m.pret + svc;
+    return tr(L('Mașina ', 'Car ') + carLabel(m), eur(m.pret))
+      + tr(L('Servicii BADSI', 'BADSI services'), '+ ' + eur(svc))
+      + tr(L('PREȚ ESTIMATIV FĂRĂ TVA', 'ESTIMATED PRICE EXCL. VAT'), eur(net), 'pdf-net')
+      + tr(L('TVA ', 'VAT ') + Math.round(D.tva * 100) + '%', eur(gross(net) - net), 'pdf-small')
+      + tr(L('Preț cu TVA', 'Price incl. VAT'), eur(gross(net)), 'pdf-gross');
+  }
+  // ---------- oferta PDF: centralizatorul cererii (poze, mașina, servicii, prețuri, note) ----------
+  // Se face în browserul clientului (html2canvas + jsPDF de pe cdnjs), în limba aleasă, din configurația de la trimitere.
+  // În claude.ai descărcarea trece prin capabilitatea „downloads”; pe GitHub e o descărcare obișnuită.
+  // Poze: randările oficiale din configuratorul Zeekr (../zeekr/img pe GitHub); unde nu se încarcă, PDF-ul iese fără ele.
+  const PDF_LIBS = [
+    'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+  ];
+  const PDF_IMG = { '9x': ['9x-phantom', '9x-int-moonglade'], '8x': ['8x-red', '8x-int-brown'] };
+  const PDF_VIEWS = [['v2', 'Profil', 'Side'], ['v3', 'Spate', 'Rear'], ['v4', 'Frontal', 'Head-on'], ['int', 'Interior', 'Cabin']];
+  let libsP = null;
+  function loadLibs() {
+    if (!libsP) {
+      libsP = Promise.all(PDF_LIBS.map(src => new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = res;
+        s.onerror = () => rej(new Error('pdf-libs'));
+        document.head.appendChild(s);
+      }))).catch(e => { libsP = null; throw e; });
     }
-    if (d.tip === 'Catalog' && d.mesaj) lines.push(L('Mesaj: ', 'Message: ') + d.mesaj);
-    lines.push(L('Nume: ', 'Name: ') + d.nume);
-    if (withContact) { lines.push(L('Telefon: ', 'Phone: ') + d.telefon); lines.push('Email: ' + d.email); }
-    return lines.join('\n');
+    return libsP;
+  }
+  let dlNs = null;
+  if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then(ns => { dlNs = ns; }, () => { dlNs = null; });
+  const pad2 = n => String(n).padStart(2, '0');
+
+  // serviciile alese, în ordinea din panou (omologare, garanție, restul)
+  function svcItems() {
+    const out = [];
+    const w = WAR.find(s => s.cod === S.war);
+    OTHER.forEach(s => { if (S.extra.has(s.cod) && s.cod === 'omol') out.push(s); });
+    if (w) out.push(w);
+    OTHER.forEach(s => { if (S.extra.has(s.cod) && s.cod !== 'omol') out.push(s); });
+    return out;
+  }
+
+  let offer = null;   // cererea din momentul trimiterii
+  function snapOffer(nr, sent) {
+    const now = new Date();
+    offer = {
+      mode: S.mode, m: S.mode === 'other' ? null : car(), svcs: S.mode === 'other' ? [] : svcItems(), nr: nr || null, sent: !!sent,
+      date: pad2(now.getDate()) + '.' + pad2(now.getMonth() + 1) + '.' + now.getFullYear(),
+      desc: $('o-desc').value.trim(), link: $('o-link').value.trim(),
+      client: { nume: $('f-nume').value.trim(), tel: $('f-tel').value.trim(), email: $('f-email').value.trim(), msg: $('f-msg').value.trim() }
+    };
+  }
+
+  function pdfBlocks(o) {
+    const m = o.m;
+    const img = (src, cls) => `<img src="${esc(src)}" alt=""${cls ? ` class="${cls}"` : ''}>`;
+    const row = (title, desc, amt) => `<div class="pdf-row no-img"><div><b>${esc(title)}</b>${desc ? `<p>${esc(desc)}</p>` : ''}</div><span class="pdf-amt">${amt}</span></div>`;
+    const head = t => `<p class="pdf-h">${esc(t)}</p>`;
+    const kv = rows => '<dl class="pdf-kv">' + rows.filter(x => x[1]).map(x => `<dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd>`).join('') + '</dl>';
+    const B = [];
+    const title = m ? keyOf(m) : L('Altă mașină', 'Another car');
+    B.push(`<div class="pdf-band"><span class="pdf-logo">BADSI</span><span class="pdf-band-r">${L('OFERTĂ ESTIMATIVĂ', 'ESTIMATED OFFER')}<br>`
+      + (o.nr ? `<b>${L('Cererea nr. ', 'Request no. ')}${esc(o.nr)}</b><br>` : '') + `${esc(o.date)}</span></div>`
+      + `<h1 class="pdf-title">${esc(title.toUpperCase())}</h1>`
+      + (m ? `<p class="pdf-sub">${esc(verLabel(m))} · ${esc(stareLabel(m.stare))} · ${esc(kmOf(m))}</p>` : ''));
+
+    const set = m && PDF_IMG[String(m.model).toLowerCase()];
+    if (set) {
+      const base = '../zeekr/img/';
+      B.push(img(base + set[0] + '-v1.jpg', 'pdf-hero')
+        + `<div class="pdf-thumbs">${PDF_VIEWS.map(v => `<figure>${img(base + (v[0] === 'int' ? set[1] + '-hq' : set[0] + '-' + v[0]) + '.jpg')}<figcaption>${L(v[1], v[2])}</figcaption></figure>`).join('')}</div>`
+        + `<p class="pdf-cap">${L('Imagini de prezentare; culorile și dotările se stabilesc cu consultantul BADSI.', 'Presentation images; colours and equipment are agreed with your BADSI consultant.')}</p>`);
+    }
+
+    const carRows = m ? [
+      ['Model', keyOf(m)], [L('Versiune', 'Version'), m.versiune], [L('Baterie', 'Battery'), m.baterie], [L('Motorizare', 'Powertrain'), motOf(m)],
+      [L('Stare', 'Condition'), stareLabel(m.stare)], [L('Kilometraj', 'Mileage'), kmOf(m)], [L('An', 'Year'), m.an],
+      [L('Livrare', 'Delivery'), termOf(m) ? L('aprox. ', 'approx. ') + termOf(m) : L('de confirmat', 'to be confirmed')]
+    ] : [[L('Caut', 'Looking for'), o.desc], [L('Anunț', 'Listing'), o.link]];
+    B.push(`<div class="pdf-2col"><div>${head(L('Client', 'Client'))}${kv(pdfClientRows(o))}</div><div>${head(L('Mașina', 'Car'))}${kv(carRows)}</div></div>`);
+
+    if (m) {
+      const sTitle = s => (s.tip === 'garanție' ? L('Garanție BADSI ', 'BADSI warranty ') + sNume(s) : sNume(s));
+      if (o.svcs.length) o.svcs.forEach((s, i) => B.push((i ? '' : head(L('Servicii BADSI', 'BADSI services'))) + row(sTitle(s), sDesc(s), s.pret ? '+ ' + eur(s.pret) : eur(0))));
+      else B.push(head(L('Servicii BADSI', 'BADSI services')) + `<p class="pdf-sub">${L('Niciun serviciu ales.', 'No services selected.')}</p>`);
+      const svc = o.svcs.reduce((a, s) => a + s.pret, 0);
+      const tr = (a, b, cls) => `<tr${cls ? ` class="${cls}"` : ''}><td>${esc(a)}</td><td>${esc(b)}</td></tr>`;
+      B.push(head(L('Preț', 'Price')) + `<table class="pdf-tot">${pdfPriceRows(o, m, svc, tr)}</table>`);
+    } else {
+      B.push(head(L('Preț', 'Price')) + `<p class="pdf-sub">${L('Un consultant BADSI caută mașina pe piața din China și revine cu prețul livrat în București.', 'A BADSI consultant looks for the car on the Chinese market and gets back to you with the price delivered in Bucharest.')}</p>`);
+    }
+
+    if (m && o.client.msg) B.push(head(L('Mesajul tău', 'Your message')) + `<p class="pdf-msg">${esc(o.client.msg)}</p>`);
+    const notes = (m ? ['nota_livrare', 'nota_estimare', m.stare === 'nou' ? 'nota_antidumping' : 'nota_rulat', 'subsol'] : ['nota_livrare', 'subsol']).map(tx).filter(Boolean);
+    B.push(head(L('De reținut', 'Good to know')) + '<div class="pdf-notes">' + notes.map(t => '<p>' + esc(t) + '</p>').join('')
+      + `<p><b>BADSI Automotive</b> · ${esc(D.contact.email)} · ${esc(D.contact.telefon)}</p></div>`);
+    return B;
+  }
+
+  async function makePdf(o) {
+    await loadLibs();
+    const root = $('pdf-root');
+    root.innerHTML = pdfBlocks(o).map(h => '<div class="pdf-blk">' + h + '</div>').join('');
+    const wait = (p, ms) => Promise.race([p, new Promise(res => setTimeout(res, ms))]);
+    await wait(Promise.all([...root.querySelectorAll('img')].map(i => (i.complete ? 0 : new Promise(res => { i.onload = res; i.onerror = res; })))), 8000);
+    // poze care nu s-au încărcat (ex. în claude.ai): fără ele; fără poza mare, scoatem tot blocul de poze
+    root.querySelectorAll('img').forEach(i => { if (!i.naturalWidth) { if (i.classList.contains('pdf-hero')) i.closest('.pdf-blk').remove(); else if (i.isConnected) i.closest('figure') ? i.closest('figure').remove() : i.remove(); } });
+    if (document.fonts && document.fonts.ready) await wait(document.fonts.ready, 3000);
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+      const M = 12, W = 210 - 2 * M, BOTTOM = 297 - 14;
+      let y = M;
+      for (const el of [...root.children]) {
+        const c = await window.html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false, windowWidth: 760 });
+        const h = c.height * W / c.width;
+        if (y + h > BOTTOM && y > M) { pdf.addPage(); y = M; }
+        pdf.addImage(c.toDataURL('image/jpeg', 0.88), 'JPEG', M, y, W, h);
+        y += h + 2;
+      }
+      const n = pdf.getNumberOfPages();
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8);
+      pdf.setTextColor(130);
+      for (let i = 1; i <= n; i++) {
+        pdf.setPage(i);
+        pdf.text('BADSI Automotive  |  ' + D.contact.email + '  |  ' + D.contact.telefon, M, 297 - 7);
+        pdf.text(i + ' / ' + n, 210 - M, 297 - 7, { align: 'right' });
+      }
+      pdf.setProperties({ title: L('Ofertă BADSI', 'BADSI offer') + (o.m ? ' - ' + keyOf(o.m) : ''), author: 'BADSI Automotive' });
+      return pdf.output('blob');
+    } finally {
+      root.innerHTML = '';
+    }
+  }
+
+  async function saveBlob(blob, name) {
+    if (dlNs) {
+      try { await dlNs.save({ filename: name, data: blob }); return 'ok'; } catch (e) { if (e && e.code === 'declined') return 'declined'; }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    return 'ok';
+  }
+
+  function renderOfferBox() {
+    const box = $('manual');
+    if (!offer) { box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = (offer.sent ? '' : '<p><b>' + L('Nu am putut trimite cererea automat.', 'We could not send the request automatically.') + '</b> '
+        + L('Trimite-ne oferta PDF pe email sau sună-ne:', 'Email us the PDF offer or call us:') + '</p>'
+        + '<p class="hint-text">Email: <span class="addr">' + esc(D.contact.email) + '</span> · ' + L('Telefon', 'Phone') + ': <span class="addr">' + esc(D.contact.telefon) + '</span></p>')
+      + '<p>' + L('Oferta ta în PDF cuprinde toată cererea: mașina, serviciile BADSI, prețurile și datele de contact.',
+        'Your PDF offer contains the whole request: the car, BADSI services, prices and contact details.') + '</p>'
+      + '<div class="row-actions"><button class="btn ghost" type="button" id="btn-pdf">' + L('Descarcă oferta (PDF)', 'Download the offer (PDF)') + '</button>'
+      + '<span class="msg" id="pdf-msg" aria-live="polite"></span></div>';
+    $('btn-pdf').addEventListener('click', downloadOffer);
+  }
+
+  let pdfBusy = false;
+  async function downloadOffer() {
+    if (!offer || pdfBusy) return;
+    pdfBusy = true;
+    const say = (t, bad) => { const el = $('pdf-msg'); if (el) { el.className = 'msg' + (bad ? ' is-error' : ''); el.textContent = t; } };
+    const btn = $('btn-pdf');
+    if (btn) btn.disabled = true;
+    say(L('Se pregătește oferta PDF…', 'Preparing the PDF offer…'));
+    try {
+      const name = (L('Oferta BADSI', 'BADSI offer') + ' - ' + (offer.m ? carLabel(offer.m) : L('alta masina', 'another car')) + (offer.nr ? ' - ' + L('cererea ', 'request ') + offer.nr : '') + ' - ' + offer.client.nume)
+        .replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() + '.pdf';
+      const res = await saveBlob(await makePdf(offer), name);
+      say(res === 'declined' ? L('Ai renunțat la descărcare. O poți descărca oricând din butonul de mai sus.', 'You cancelled the download. You can download it any time with the button above.')
+        : L('Oferta PDF a fost descărcată.', 'The PDF offer has been downloaded.'));
+    } catch (e) {
+      say(L('Nu am putut genera PDF-ul. Încearcă din nou.', 'We could not generate the PDF. Please try again.'), true);
+    } finally {
+      pdfBusy = false;
+      const b = $('btn-pdf');
+      if (b) b.disabled = false;
+    }
   }
 
   let doneNr = null;
-  let manualArgs = null;   // ultima cerere pregătită pentru WhatsApp / copiere, ca să se poată reface în cealaltă limbă
   function renderDone() {
     $('done').innerHTML = '<b>' + esc(tx('confirmare')) + '</b>' + (doneNr ? '<p>' + L('Numărul cererii: ', 'Request number: ') + '<strong>' + esc(doneNr) + '</strong></p>' : '');
   }
   function showDone(nr) {
     S.sent = true;
     doneNr = nr || null;
-    manualArgs = null;
     $('send-msg').textContent = '';
     $('form').hidden = true;
-    $('manual').hidden = true;
     $('done').hidden = false;
     renderDone();
     renderPanel();
     $('done').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-
-  function renderManual() {
-    const d = manualArgs.d;
-    const full = messageText(d, true, manualArgs.snap);
-    const wa = D.contact.whatsapp ? 'https://wa.me/' + encodeURIComponent(D.contact.whatsapp) + '?text=' + encodeURIComponent(messageText(d, false, manualArgs.snap)) : '';
-    const box = $('manual');
-    box.hidden = false;
-    box.innerHTML =
-      '<p><b>' + (manualArgs.reason ? L('Nu am putut trimite cererea automat.', 'We could not send the request automatically.') : L('Cererea ta e pregătită.', 'Your request is ready.')) + '</b> ' +
-        L('Trimite-ne-o pe WhatsApp sau pe email; textul e mai jos.', 'Send it to us on WhatsApp or by email; the text is below.') + '</p>' +
-      '<div class="row-actions">' +
-        (wa ? '<a class="btn" href="' + esc(wa) + '" target="_blank" rel="noopener">' + L('Deschide WhatsApp ↗', 'Open WhatsApp ↗') + '</a>' : '') +
-        '<button class="btn ghost" type="button" id="btn-copy">' + L('Copiază textul', 'Copy the text') + '</button>' +
-        '<span class="msg" id="copy-msg" aria-live="polite"></span>' +
-      '</div>' +
-      '<p class="hint-text">Email: <span class="addr">' + esc(D.contact.email) + '</span> · ' + L('Telefon', 'Phone') + ': <span class="addr">' + esc(D.contact.telefon) + '</span></p>' +
-      '<label class="field"><span>' + L('Textul cererii', 'Request text') + '</span><textarea id="manual-text" readonly rows="7"></textarea></label>';
-    $('manual-text').value = full;
-    $('btn-copy').addEventListener('click', () => {
-      const ta = $('manual-text');
-      const fallback = () => { ta.focus(); ta.select(); $('copy-msg').textContent = L('Textul e selectat: apasă Ctrl+C.', 'The text is selected: press Ctrl+C.'); };
-      try {
-        navigator.clipboard.writeText(full).then(() => { $('copy-msg').textContent = L('Copiat.', 'Copied.'); }, fallback);
-      } catch (err) { fallback(); }
-    });
-  }
-  function showManual(d, reason) {
-    const names = () => svcNames().join(', ');
-    manualArgs = { d, reason, snap: { m: car(), svcRo: withLang('ro', names), svcEn: withLang('en', names) } };
-    renderManual();
-    $('manual').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // după trimitere (reușită sau nu): oferta PDF se descarcă singură și rămâne butonul pentru o nouă descărcare
+  function finishOffer(nr, sent) {
+    snapOffer(nr, sent);
+    renderOfferBox();
+    if (!sent) $('manual').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    downloadOffer();
   }
 
   async function send() {
@@ -815,7 +990,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     $('send-msg').className = 'msg';
     const d = withLang('ro', payload);   // în Cereri B2C totul rămâne în română; limba clientului se vede la „sursa”
     if (UI.lang === 'en') d.sursa += ' · EN';
-    if (!D.endpoint) { showManual(d, false); return; }
+    if (!D.endpoint) { finishOffer(null, false); return; }
     // trimiterea se face doar din butonul panoului (și din bara de jos pe telefon)
     const btns = [$('btn-panel'), $('mb-btn')];
     btns.forEach(b => { b.disabled = true; b.textContent = L('Se trimite…', 'Sending…'); });
@@ -830,12 +1005,12 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
       clearTimeout(timer);
       reached = true;
       const r = await res.json();
-      if (r && r.ok) { showDone(r.nr); return; }
+      if (r && r.ok) { showDone(r.nr); finishOffer(r.nr, true); return; }
       if (r && r.error === 'email') { fields.email.wrap.classList.add('is-bad'); fields.email.err.hidden = false; $('send-msg').textContent = L('Verifică adresa de email.', 'Check the email address.'); $('send-msg').className = 'msg is-error'; return; }
       throw new Error((r && r.error) || 'raspuns');
     } catch (err) {
       $('send-msg').textContent = '';
-      showManual(d, reached);
+      finishOffer(null, false);
     } finally {
       btns.forEach(b => { b.disabled = false; });
       renderPanel();   // pune la loc eticheta butoanelor („Trimite cererea” / „Cerere trimisă”)
@@ -860,7 +1035,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     fillStatic();
     renderAll();
     if (S.sent) renderDone();
-    if (manualArgs && !$('manual').hidden) renderManual();
+    if (offer) renderOfferBox();
     if ($('send-msg').textContent) $('send-msg').textContent = '';
   }
   function setScheme(dark) {
