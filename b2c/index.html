@@ -293,6 +293,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 .pdf-notes p { margin: 0 0 5px; color: #4b4f55; font-size: 11px; }
 .pdf-msg { white-space: pre-wrap; margin: 0; }
 
+
+
 /* ==== BADSI DESIGN SYSTEM (din 11.11.2026; sursa: artefactul „Badsi Design System Default”) ====
    Suprascrie paleta veche (crem badsi.ro, Manrope/Michroma): gri închis #26262A, gri deschis #C7C7C7, alb, cyan #0097DB doar ca accent
    (linia de sub bară, focus), fonturi Jost (titluri + text) și Gudea (cifre), colțuri 4 px la butoane/câmpuri și 8 px la carduri.
@@ -350,6 +352,14 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="url"], i
 .svc-warranty .seg-body b { font-size: 10.5px; }
 .svc-warranty .seg-body small { font-size: 11px; }
 @media (max-width: 420px) { .svc-warranty .seg { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* butoane de informații (i): vezi info.js */
+.info { position: relative; display: inline-grid; place-items: center; width: 18px; height: 18px; padding: 0; margin: 0 0 0 5px; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--card); color: var(--muted); cursor: help; vertical-align: -3px; flex: none; font: inherit; line-height: 1; }
+.info::after { content: ""; position: absolute; inset: -9px; }
+.info svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.info:hover, .info[aria-expanded="true"] { color: #ffffff; background: var(--cyan); border-color: var(--cyan); }
+.tip-pop { position: fixed; z-index: 80; max-width: 320px; padding: 10px 12px; border-radius: 4px; background: #26262a; color: #ffffff; font-family: var(--font-body); font-size: 12.5px; font-weight: 400; line-height: 1.5; letter-spacing: 0; text-transform: none; text-align: left; white-space: pre-line; box-shadow: 0 8px 24px rgba(38, 38, 42, .2); pointer-events: none; }
+:root[data-scheme="dark"] .tip-pop { background: #ffffff; color: #26262a; }
+.svc-name .info, .seg-body b .info { vertical-align: -4px; }
 /* PDF: bandă gri închis cu logo-ul oficial, fonturile sistemului */
 .pdf-blk { font-family: Jost, system-ui, sans-serif !important; }
 .pdf-band { background: #26262a !important; border-bottom: 3px solid #0097db; }
@@ -359,6 +369,74 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
 .pdf-tier.t-platinum { background: #26262a; color: #fff; } .pdf-tier.t-gold { background: #d2b295; color: #26262a; } .pdf-tier.t-silver { background: #c7c7c7; color: #26262a; }
 /* ==== /BADSI DESIGN SYSTEM ==== */
 </style>
+<script>
+/* ==== BADSI INFO (i) (din 11.11.2026) ====
+   Butoane de informații: textul stă în data-tip. Pe calculator apare la trecerea mouse-ului și la focus (Tab);
+   pe telefon apare la atingere. Clic/atingere pe același buton sau în afară și Esc îl închid.
+   Paginile pun butonul cu window.tipBtn(text) (sau direct <button class="info" data-tip="…">). */
+(function () {
+  'use strict';
+  var SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.6v.2"/></svg>';
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  window.tipBtn = function (text, label) {
+    if (!text) return '';
+    var en = document.documentElement.lang === 'en';
+    return '<button type="button" class="info" data-tip="' + esc(text) + '" aria-label="' + esc(label || (en ? 'More information' : 'Detalii')) + '" aria-expanded="false">' + SVG + '</button>';
+  };
+  var pop = null, cur = null, pinned = false;
+  function ensure() {
+    if (pop) return pop;
+    pop = document.createElement('div');
+    pop.className = 'tip-pop'; pop.id = 'tip-pop'; pop.setAttribute('role', 'tooltip'); pop.hidden = true;
+    document.body.appendChild(pop);
+    return pop;
+  }
+  function place(b) {
+    var r = b.getBoundingClientRect();
+    pop.style.maxWidth = Math.min(320, innerWidth - 24) + 'px';
+    pop.style.left = '0px'; pop.style.top = '0px';
+    var p = pop.getBoundingClientRect();
+    var x = Math.max(12, Math.min(r.left + r.width / 2 - p.width / 2, innerWidth - p.width - 12));
+    var y = r.bottom + 8;
+    if (y + p.height > innerHeight - 12) y = r.top - p.height - 8;
+    pop.style.left = x + 'px'; pop.style.top = Math.max(8, y) + 'px';
+  }
+  function show(b, pin) {
+    ensure();
+    if (cur && cur !== b) cur.setAttribute('aria-expanded', 'false');
+    cur = b; pinned = !!pin;
+    pop.textContent = b.getAttribute('data-tip');
+    pop.hidden = false;
+    b.setAttribute('aria-expanded', 'true'); b.setAttribute('aria-describedby', 'tip-pop');
+    place(b);
+  }
+  function hide() {
+    if (!cur) return;
+    cur.setAttribute('aria-expanded', 'false'); cur.removeAttribute('aria-describedby');
+    cur = null; pinned = false; pop.hidden = true;
+  }
+  var btnOf = function (t) { return t && t.closest ? t.closest('.info[data-tip]') : null; };
+  var fine = window.matchMedia ? matchMedia('(hover: hover) and (pointer: fine)') : { matches: true };
+  document.addEventListener('mouseover', function (e) { var b = btnOf(e.target); if (b && fine.matches && !pinned) show(b); });
+  document.addEventListener('mouseout', function (e) { var b = btnOf(e.target); if (b && b === cur && fine.matches && !pinned && !b.contains(e.relatedTarget)) hide(); });
+  document.addEventListener('focusin', function (e) { var b = btnOf(e.target); if (b) { if (b !== cur) show(b); } else if (cur && !pinned) hide(); });
+  // capturare: butonul (i) dintr-o etichetă nu bifează/debifează opțiunea
+  document.addEventListener('click', function (e) {
+    var b = btnOf(e.target);
+    if (b) { e.preventDefault(); e.stopPropagation(); if (cur === b && pinned) hide(); else show(b, true); return; }
+    if (cur && !(pop && pop.contains(e.target))) hide();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur) { var b = cur; hide(); b.focus(); } });
+  // la derulare bula urmează butonul; dacă butonul iese din ecran (sau dispare), bula se închide
+  addEventListener('scroll', function () {
+    if (!cur) return;
+    var r = cur.getBoundingClientRect();
+    if (!cur.isConnected || r.bottom < 0 || r.top > innerHeight) hide(); else place(cur);
+  }, true);
+  addEventListener('resize', function () { if (cur) place(cur); });
+})();
+/* ==== /BADSI INFO ==== */
+</script>
 
 <header class="topbar">
   <div class="topbar-in">
@@ -406,12 +484,12 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
             <div class="models" id="models"></div>
           </div>
           <div class="group">
-            <span class="lbl" id="l-stare" data-en="Condition">Stare</span>
+            <span class="lbl"><span id="l-stare" data-en="Condition">Stare</span><span id="tip-stare"></span></span>
             <div class="seg" role="radiogroup" aria-labelledby="l-stare">
               <label><input type="radio" name="stare" value="nou" id="stare-nou" checked><span data-en="New">Nouă</span></label>
               <label><input type="radio" name="stare" value="rulat" id="stare-rulat"><span data-en="Used">Rulată</span></label>
             </div>
-            <p class="hint-text" id="stare-note"></p>
+
           </div>
           <div class="group" role="radiogroup" aria-labelledby="l-ver">
             <span class="lbl" id="l-ver" data-en="Version">Versiune</span>
@@ -435,7 +513,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       <section class="card" id="s-svc" aria-labelledby="h-svc">
         <div class="step-head"><span class="step-no">2</span><h2 id="h-svc" data-en="BADSI services">Servicii BADSI</h2><span class="hint" data-en="Prices excl. VAT">Prețuri fără TVA</span></div>
         <fieldset class="group" id="g-war">
-          <legend data-en="BADSI warranty package (DEFEND Car Protect DELUXE: 3 years, unlimited km, no excess, up to RON 40,000 per claim, battery included)">Pachet de garanție BADSI (DEFEND Car Protect DELUXE: 3 ani, km nelimitați, fără franșiză, până la 40.000 RON per eveniment, bateria inclusă)</legend>
+          <legend><span data-en="BADSI warranty package">Pachet de garanție BADSI</span><span id="tip-war"></span></legend>
           <div class="svc" id="svc-war"></div>
         </fieldset>
         <div class="group">
@@ -703,9 +781,9 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       '<span class="svc-desc">' + esc(sDesc(s)) + '</span></label>').join('');
     $('svc-other').innerHTML = OTHER.map(s =>
       '<label class="svc-row"><input type="checkbox" name="extra" value="' + esc(s.cod) + '">' +
-      '<span class="svc-name">' + esc(sNume(s)) + '</span>' +
-      '<span class="svc-price">+' + eur(s.pret) + '</span>' +
-      '<span class="svc-desc">' + esc(sDesc(s)) + '</span></label>').join('');
+      '<span class="svc-name">' + esc(sNume(s)) + tipBtn(sDesc(s)) + '</span>' +
+      '<span class="svc-price">+' + eur(s.pret) + '</span></label>').join('');
+    $('tip-war').innerHTML = tipBtn(L('DEFEND Car Protect DELUXE: 3 ani, km nelimitați, fără franșiză, până la 40.000 RON per eveniment, bateria inclusă.', 'DEFEND Car Protect DELUXE: 3 years, unlimited km, no excess, up to RON 40,000 per claim, battery included.'));
     document.querySelectorAll('input[name="war"]').forEach(i => { i.checked = i.value === S.war; });
     document.querySelectorAll('input[name="extra"]').forEach(i => { i.checked = S.extra.has(i.value); });
   }
@@ -730,7 +808,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       el.disabled = carsFor(S.model, st).length === 0;
       el.checked = S.stare === st;
     });
-    $('stare-note').textContent = S.stare === 'nou' ? tx('nota_antidumping') : tx('nota_rulat');
+    $('tip-stare').innerHTML = tipBtn(S.stare === 'nou' ? tx('nota_antidumping') : tx('nota_rulat'));   // nota stă în butonul (i)
   }
 
   function renderVersions() {
@@ -780,7 +858,8 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       }
       notes.push(tx('nota_livrare'), tx('nota_estimare'));
     }
-    $('p-notes').innerHTML = notes.map(n => '<p>' + esc(n) + '</p>').join('');
+    // notele (livrare, estimare, reducere) stau într-un singur buton (i)
+    $('p-notes').innerHTML = notes.length ? '<p>' + L('Ce trebuie să știi despre preț', 'What to know about the price') + tipBtn(notes.join('\n\n')) + '</p>' : '';
     const sendLabel = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send request');
     $('btn-panel').textContent = sendLabel;
     $('mb-btn').textContent = sendLabel;

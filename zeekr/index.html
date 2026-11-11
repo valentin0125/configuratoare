@@ -459,6 +459,8 @@ button { font: inherit; color: inherit; }
 }
 
 
+
+
 /* ==== BADSI DESIGN SYSTEM (din 11.11.2026; sursa: artefactul „Badsi Design System Default”) ====
    Suprascrie paleta veche (crem badsi.ro, Manrope/Michroma): gri închis #26262A, gri deschis #C7C7C7, alb, cyan #0097DB doar ca accent
    (linia de sub bară, focus), fonturi Jost (titluri + text) și Gudea (cifre), colțuri 4 px la butoane/câmpuri și 8 px la carduri.
@@ -516,6 +518,14 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="url"], i
 .svc-warranty .seg-body b { font-size: 10.5px; }
 .svc-warranty .seg-body small { font-size: 11px; }
 @media (max-width: 420px) { .svc-warranty .seg { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* butoane de informații (i): vezi info.js */
+.info { position: relative; display: inline-grid; place-items: center; width: 18px; height: 18px; padding: 0; margin: 0 0 0 5px; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--card); color: var(--muted); cursor: help; vertical-align: -3px; flex: none; font: inherit; line-height: 1; }
+.info::after { content: ""; position: absolute; inset: -9px; }
+.info svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.info:hover, .info[aria-expanded="true"] { color: #ffffff; background: var(--cyan); border-color: var(--cyan); }
+.tip-pop { position: fixed; z-index: 80; max-width: 320px; padding: 10px 12px; border-radius: 4px; background: #26262a; color: #ffffff; font-family: var(--font-body); font-size: 12.5px; font-weight: 400; line-height: 1.5; letter-spacing: 0; text-transform: none; text-align: left; white-space: pre-line; box-shadow: 0 8px 24px rgba(38, 38, 42, .2); pointer-events: none; }
+:root[data-scheme="dark"] .tip-pop { background: #ffffff; color: #26262a; }
+.svc-name .info, .seg-body b .info { vertical-align: -4px; }
 /* PDF: bandă gri închis cu logo-ul oficial, fonturile sistemului */
 .pdf-blk { font-family: Jost, system-ui, sans-serif !important; }
 .pdf-band { background: #26262a !important; border-bottom: 3px solid #0097db; }
@@ -525,6 +535,74 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
 .pdf-tier.t-platinum { background: #26262a; color: #fff; } .pdf-tier.t-gold { background: #d2b295; color: #26262a; } .pdf-tier.t-silver { background: #c7c7c7; color: #26262a; }
 /* ==== /BADSI DESIGN SYSTEM ==== */
 </style>
+<script>
+/* ==== BADSI INFO (i) (din 11.11.2026) ====
+   Butoane de informații: textul stă în data-tip. Pe calculator apare la trecerea mouse-ului și la focus (Tab);
+   pe telefon apare la atingere. Clic/atingere pe același buton sau în afară și Esc îl închid.
+   Paginile pun butonul cu window.tipBtn(text) (sau direct <button class="info" data-tip="…">). */
+(function () {
+  'use strict';
+  var SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.6v.2"/></svg>';
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  window.tipBtn = function (text, label) {
+    if (!text) return '';
+    var en = document.documentElement.lang === 'en';
+    return '<button type="button" class="info" data-tip="' + esc(text) + '" aria-label="' + esc(label || (en ? 'More information' : 'Detalii')) + '" aria-expanded="false">' + SVG + '</button>';
+  };
+  var pop = null, cur = null, pinned = false;
+  function ensure() {
+    if (pop) return pop;
+    pop = document.createElement('div');
+    pop.className = 'tip-pop'; pop.id = 'tip-pop'; pop.setAttribute('role', 'tooltip'); pop.hidden = true;
+    document.body.appendChild(pop);
+    return pop;
+  }
+  function place(b) {
+    var r = b.getBoundingClientRect();
+    pop.style.maxWidth = Math.min(320, innerWidth - 24) + 'px';
+    pop.style.left = '0px'; pop.style.top = '0px';
+    var p = pop.getBoundingClientRect();
+    var x = Math.max(12, Math.min(r.left + r.width / 2 - p.width / 2, innerWidth - p.width - 12));
+    var y = r.bottom + 8;
+    if (y + p.height > innerHeight - 12) y = r.top - p.height - 8;
+    pop.style.left = x + 'px'; pop.style.top = Math.max(8, y) + 'px';
+  }
+  function show(b, pin) {
+    ensure();
+    if (cur && cur !== b) cur.setAttribute('aria-expanded', 'false');
+    cur = b; pinned = !!pin;
+    pop.textContent = b.getAttribute('data-tip');
+    pop.hidden = false;
+    b.setAttribute('aria-expanded', 'true'); b.setAttribute('aria-describedby', 'tip-pop');
+    place(b);
+  }
+  function hide() {
+    if (!cur) return;
+    cur.setAttribute('aria-expanded', 'false'); cur.removeAttribute('aria-describedby');
+    cur = null; pinned = false; pop.hidden = true;
+  }
+  var btnOf = function (t) { return t && t.closest ? t.closest('.info[data-tip]') : null; };
+  var fine = window.matchMedia ? matchMedia('(hover: hover) and (pointer: fine)') : { matches: true };
+  document.addEventListener('mouseover', function (e) { var b = btnOf(e.target); if (b && fine.matches && !pinned) show(b); });
+  document.addEventListener('mouseout', function (e) { var b = btnOf(e.target); if (b && b === cur && fine.matches && !pinned && !b.contains(e.relatedTarget)) hide(); });
+  document.addEventListener('focusin', function (e) { var b = btnOf(e.target); if (b) { if (b !== cur) show(b); } else if (cur && !pinned) hide(); });
+  // capturare: butonul (i) dintr-o etichetă nu bifează/debifează opțiunea
+  document.addEventListener('click', function (e) {
+    var b = btnOf(e.target);
+    if (b) { e.preventDefault(); e.stopPropagation(); if (cur === b && pinned) hide(); else show(b, true); return; }
+    if (cur && !(pop && pop.contains(e.target))) hide();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur) { var b = cur; hide(); b.focus(); } });
+  // la derulare bula urmează butonul; dacă butonul iese din ecran (sau dispare), bula se închide
+  addEventListener('scroll', function () {
+    if (!cur) return;
+    var r = cur.getBoundingClientRect();
+    if (!cur.isConnected || r.bottom < 0 || r.top > innerHeight) hide(); else place(cur);
+  }, true);
+  addEventListener('resize', function () { if (cur) place(cur); });
+})();
+/* ==== /BADSI INFO ==== */
+</script>
 
 <header class="topbar">
   <div class="topbar-in">
@@ -592,8 +670,8 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       </section>
 
       <section class="pane" data-step="used" hidden>
-        <h2 class="pane-title" tabindex="-1" data-en="Used car">Mașină rulată</h2>
-        <p class="hint tax-hint" id="t-antidumping"></p>
+        <h2 class="pane-title" tabindex="-1"><span data-en="Used car">Mașină rulată</span><span id="tip-antidumping"></span></h2>
+
         <label class="svc-row svc-check" for="used">
           <input type="checkbox" id="used">
           <span class="box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
@@ -1768,7 +1846,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
         if (done) return '';
         done = true;
         return `<fieldset class="svc-row svc-warranty">
-          <legend class="svc-text"><strong>${L('Garanție BADSI', 'BADSI warranty')}</strong></legend>
+          <legend class="svc-text"><strong>${L('Garanție BADSI', 'BADSI warranty')}${tipBtn(L('DEFEND Car Protect DELUXE: 3 ani, km nelimitați, fără franșiză, până la 40.000 RON per eveniment, bateria inclusă.', 'DEFEND Car Protect DELUXE: 3 years, unlimited km, no excess, up to RON 40,000 per claim, battery included.'))}</strong></legend>
           <div class="seg">${WAR.map((x) => `<label class="pick" for="w-${esc(x.cod)}">
               <input type="radio" name="warranty" id="w-${esc(x.cod)}" value="${esc(x.cod)}"${x.cod === S.war ? ' checked' : ''}>
               <span class="pick-body seg-body"><b>${esc(sName(x))}</b><small class="num">${x.pret ? '+ ' + eur(x.pret) : eur(0)}</small></span>
@@ -1779,7 +1857,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
       return `<label class="svc-row svc-check" for="s-${esc(s.cod)}">
         <input type="checkbox" id="s-${esc(s.cod)}" data-svc="${esc(s.cod)}"${S.extra.has(s.cod) ? ' checked' : ''}>
         ${CHECK}
-        <span class="svc-text"><strong>${esc(sName(s))}</strong>${s.descriere ? `<span>${esc(sDesc(s))}</span>` : ''}</span>
+        <span class="svc-text"><strong>${esc(sName(s))}${tipBtn(sDesc(s))}</strong></span>
         <b class="num">+ ${eur(s.pret)}</b>
       </label>`;
     }).join('');
@@ -1910,7 +1988,8 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
     $('s-svc').textContent = '+ ' + eur(r.svc);
     $('s-gross').textContent = eur(g(r.net));
     $('s-net').textContent = eur(r.net);
-    $('s-notes').innerHTML = ['nota_livrare', 'nota_estimare'].map((k) => tx(k)).filter(Boolean).map((t) => '<p>' + esc(t) + '</p>').join('');
+    const sNotes = ['nota_livrare', 'nota_estimare'].map((k) => tx(k)).filter(Boolean);   // stau într-un singur buton (i)
+    $('s-notes').innerHTML = sNotes.length ? '<p>' + L('Ce trebuie să știi despre preț', 'What to know about the price') + tipBtn(sNotes.join('\n\n')) + '</p>' : '';
     renderRecap(r);
     // un singur buton principal, în panoul de preț (pe telefon: bara de jos): „Continuă” pe pași, „Trimite cererea” la sumar
     $('btn-panel').innerHTML = S.step < LAST
@@ -2306,7 +2385,7 @@ img.pdf-logo { display: block; height: 22px; width: auto; }
   // ---------- texte din date, limba și tema ----------
   function renderTexts() {
     $('intro').textContent = tx('intro');
-    $('t-antidumping').textContent = tx('nota_antidumping');
+    $('tip-antidumping').innerHTML = tipBtn(tx('nota_antidumping'));   // nota stă în butonul (i)
     $('foot').textContent = tx('subsol');
     const gd = $('t-gdpr');
     gd.textContent = tx('gdpr') + ' ';
