@@ -127,6 +127,15 @@ h2 { font-size: 16px; font-weight: 800; letter-spacing: .005em; }
 .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: -3px; }
 .seg input:disabled + span { opacity: .4; cursor: not-allowed; }
 
+/* card spre configuratorul dedicat (Zeekr) */
+.ded { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px 20px; padding: 20px 22px; border-radius: 14px; background: var(--bar); color: var(--bar-ink); }
+.ded h2 { font-family: var(--font-display); font-weight: 400; font-size: 16px; letter-spacing: .03em; }
+.ded p { font-size: 13px; color: var(--bar-muted); margin-top: 6px; max-width: 60ch; }
+.ded .btn { background: var(--bar-ink); border-color: var(--bar-ink); color: var(--bar); }
+.ded .btn:hover { background: transparent; color: var(--bar-ink); }
+.ded .btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 600px) { .ded { grid-template-columns: minmax(0, 1fr); padding: 16px; } .ded .btn { justify-self: start; } }
+
 /* modele */
 .models { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
 .opt { position: relative; display: block; cursor: pointer; min-width: 0; }
@@ -313,6 +322,9 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   <div class="layout">
     <div class="steps">
 
+      <!-- configuratoare dedicate (Zeekr): din 11.11.2026 Zeekr nu mai e în catalogul B2C, doar trimitere spre configuratorul lui -->
+      <div id="dedicate" class="steps" hidden></div>
+
       <!-- 1. masina -->
       <section class="card" aria-labelledby="h-car">
         <div class="step-head"><span class="step-no">1</span><h2 id="h-car" data-en="The car">Mașina</h2></div>
@@ -423,28 +435,37 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   "tva": 0.21,
   "endpoint": "https://script.google.com/macros/s/AKfycbxKSF_l1I7rCWU3PU3Sz6nUjQPtYUeaf2NUhQmz5Va4SkOgCqNS1i6NrAL8mDy1r-M/exec",
   "contact": { "telefon": "+40 722 384 008", "whatsapp": "40722384008", "email": "hello@badsi.ro", "gdprLink": "https://drive.google.com/file/d/1ZDby0AdaWGcxKvodKZhM71sm3-CN7eGN/view" },
+  "configuratoare_dedicate": [ { "marca": "Zeekr", "url": "https://valentin0125.github.io/configuratoare/zeekr/" } ],
   "texte": {
     "eticheta": "BADSI Automotive · import din China",
-    "titlu": "Configurează-ți mașina",
-    "intro": "Alege mașina și serviciile, vezi prețul estimativ livrat în București și trimite-ne cererea. Un consultant BADSI te contactează pentru oferta finală.",
+    "titlu": "Comandă-ți mașina din China",
+    "intro": "Spune-ne ce mașină cauți și revenim cu o estimare de preț livrat în București. Pentru Zeekr 9X și 8X ai un configurator dedicat, cu prețurile afișate pe loc.",
+    "intro_zeekr": "Alege mașina și serviciile, vezi prețul estimativ livrat în București și trimite-ne cererea. Un consultant BADSI te contactează pentru oferta finală.",
     "nota_livrare": "Livrat la sediul BADSI din București: transportul din China și vămuirea sunt incluse.",
     "nota_estimare": "Preț estimativ. Prețul final îți este confirmat de un consultant BADSI.",
     "nota_antidumping": "Posibil să apară taxe suplimentare la mașinile noi, inclusiv la cele hibride (taxa anti-dumping, până la 35%). Pentru a le evita, se recomandă mașina rulată.",
     "nota_rulat": "Mașini rulate 6.000–10.000 km, la aproximativ 6 luni de la prima înmatriculare în China.",
-    "alta_masina": "Nu găsești mașina pe care o cauți? Descrie-ne-o (marcă, model, an, buget) sau lipește linkul unui anunț și revenim cu o estimare.",
+    "alta_masina": "Descrie-ne mașina pe care o cauți (marcă, model, an, buget) sau lipește linkul unui anunț și revenim cu o estimare.",
+    "zeekr_titlu": "Cauți un Zeekr 9X sau 8X?",
+    "zeekr_text": "Alege versiunea, culoarea, opționalele și serviciile BADSI în configuratorul Zeekr și vezi prețul pe loc, mașini noi sau rulate.",
+    "zeekr_buton": "Deschide configuratorul Zeekr",
     "gdpr": "Sunt de acord ca BADSI Automotive să folosească datele mele pentru a mă contacta în legătură cu această cerere.",
     "confirmare": "Mulțumim! Am primit cererea ta. Un consultant BADSI te contactează în curând.",
     "subsol": "Prețurile sunt fără obligații contractuale și pot varia în funcție de cursul valutar și de disponibilitate."
   },
   "texte_en": {
     "eticheta": "BADSI Automotive · imported from China",
-    "titlu": "Configure your car",
-    "intro": "Choose the car and services, see the estimated price delivered in Bucharest and send us your request. A BADSI consultant will contact you with the final offer.",
+    "titlu": "Order your car from China",
+    "intro": "Tell us which car you are looking for and we will get back to you with an estimated price delivered in Bucharest. For the Zeekr 9X and 8X there is a dedicated configurator with prices shown instantly.",
+    "intro_zeekr": "Choose the car and services, see the estimated price delivered in Bucharest and send us your request. A BADSI consultant will contact you with the final offer.",
     "nota_livrare": "Delivered to the BADSI headquarters in Bucharest: transport from China and customs clearance are included.",
     "nota_estimare": "Estimated price. Your final price is confirmed by a BADSI consultant.",
     "nota_antidumping": "New cars may be subject to additional duties, including hybrids (anti-dumping duty of up to 35%). To avoid them, we recommend a used car.",
     "nota_rulat": "Used cars with 6,000–10,000 km, about 6 months after first registration in China.",
-    "alta_masina": "Can't find the car you're looking for? Describe it (make, model, year, budget) or paste a link to a listing and we'll get back to you with an estimate.",
+    "alta_masina": "Describe the car you are looking for (make, model, year, budget) or paste a link to a listing and we will get back to you with an estimate.",
+    "zeekr_titlu": "Looking for a Zeekr 9X or 8X?",
+    "zeekr_text": "Choose the version, colour, options and BADSI services in the Zeekr configurator and see the price instantly, new or used.",
+    "zeekr_buton": "Open the Zeekr configurator",
     "gdpr": "I agree that BADSI Automotive may use my data to contact me about this request.",
     "confirmare": "Thank you! We have received your request. A BADSI consultant will contact you shortly.",
     "subsol": "Prices are non-binding and may vary with the exchange rate and availability."
@@ -498,6 +519,9 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 
   // ---------- 1. date ----------
   const D = JSON.parse(document.getElementById('b2c-data').textContent);
+  // mărcile cu configurator propriu (Zeekr) nu apar în catalog: datele lor rămân în bloc pentru generatorul Zeekr și pentru B2B
+  const DEDIC = D.configuratoare_dedicate || [];
+  const CARS = D.masini.filter(m => !DEDIC.some(x => x.marca === m.marca));
   const SVC = D.servicii;
   const WAR = SVC.filter(s => s.tip === 'garanție');
   const OTHER = SVC.filter(s => s.tip !== 'garanție');
@@ -538,13 +562,13 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 
   // modele, în ordinea prețului de pornire (cel mai ieftin primul)
   const MODELS = [];
-  D.masini.forEach(m => { if (!MODELS.includes(keyOf(m))) MODELS.push(keyOf(m)); });
-  const minNet = k => Math.min.apply(null, D.masini.filter(m => keyOf(m) === k).map(m => m.pret));
+  CARS.forEach(m => { if (!MODELS.includes(keyOf(m))) MODELS.push(keyOf(m)); });
+  const minNet = k => Math.min.apply(null, CARS.filter(m => keyOf(m) === k).map(m => m.pret));
   MODELS.sort((a, b) => minNet(a) - minNet(b));
 
   // ---------- stare ----------
   const S = {
-    mode: 'catalog',
+    mode: CARS.length ? 'catalog' : 'other',   // fără mașini în catalog: direct Altă mașină
     model: MODELS[0],
     stare: 'nou',
     cod: null,
@@ -575,8 +599,8 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     const net = m.pret + svc;
     return { car: m.pret, svc: svc, net: net, gross: gross(net) };
   }
-  const car = () => D.masini.find(m => m.cod === S.cod) || null;
-  const carsFor = (k, st) => D.masini.filter(m => keyOf(m) === k && m.stare === st);
+  const car = () => CARS.find(m => m.cod === S.cod) || null;
+  const carsFor = (k, st) => CARS.filter(m => keyOf(m) === k && m.stare === st);
 
   // ---------- 4. interfață ----------
   function fillStatic() {
@@ -584,6 +608,15 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
     $('t-titlu').textContent = tx('titlu');
     $('t-intro').textContent = tx('intro');
     $('t-alta').textContent = tx('alta_masina');
+    // carduri spre configuratoarele dedicate; textele: <marca>_titlu / _text / _buton din Texte
+    const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    $('dedicate').innerHTML = DEDIC.map(x => {
+      const k = String(x.marca).toLowerCase();
+      return '<section class="ded" aria-labelledby="ded-' + esc(k) + '"><div><h2 id="ded-' + esc(k) + '">' + esc(tx(k + '_titlu') || x.marca) + '</h2>' +
+        (tx(k + '_text') ? '<p>' + esc(tx(k + '_text')) + '</p>' : '') + '</div>' +
+        '<a class="btn" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(tx(k + '_buton') || x.marca) + arrow + '</a></section>';
+    }).join('');
+    $('dedicate').hidden = !DEDIC.length;
     const g = $('t-gdpr');
     g.textContent = tx('gdpr') + ' ';
     if (D.contact.gdprLink) {
@@ -617,7 +650,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
 
   function renderModels() {
     $('models').innerHTML = MODELS.map(k => {
-      const from = Math.min.apply(null, D.masini.filter(m => keyOf(m) === k).map(m => priceOf(m).net));
+      const from = Math.min.apply(null, CARS.filter(m => keyOf(m) === k).map(m => priceOf(m).net));
       return '<label class="opt"><input type="radio" name="model" value="' + esc(k) + '"' + (k === S.model ? ' checked' : '') + '>' +
         '<span class="box"><span class="model-name">' + esc(k) + '</span>' +
         '<span class="model-from">' + L('de la ', 'from ') + '<b>' + eur(from) + '</b>' + L(' fără TVA', ' excl. VAT') + '</span></span></label>';
@@ -689,6 +722,7 @@ input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visib
   function renderMode() {
     const other = S.mode === 'other';
     $('catalog').hidden = other;
+    $('mode-catalog').closest('.seg').hidden = !CARS.length;   // fără catalog nu mai are rost comutatorul
     $('other').hidden = !other;
     $('s-svc').hidden = other;
     $('no-date').textContent = other ? '2' : '3';
