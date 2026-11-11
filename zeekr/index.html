@@ -1,0 +1,1908 @@
+<!doctype html><html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Configurator Zeekr | BADSI Automotive</title><meta name="description" content="Configurator Zeekr 9X &#537;i 8X de la BADSI Automotive: alege versiunea, culorile, op&#539;ionalele &#537;i serviciile, vezi pre&#539;ul estimat &#537;i trimite cererea."><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<script>
+/* tema si limba alese de vizitator (implicit: luminos, romana), aplicate inainte de prima desenare */
+(function () {
+  var d = document.documentElement, t = null, l = null;
+  try { t = localStorage.getItem('badsi-ui-theme'); l = localStorage.getItem('badsi-ui-lang'); } catch (e) { /* fara stocare locala */ }
+  if (t === 'dark') d.setAttribute('data-scheme', 'dark');
+  d.lang = l === 'en' ? 'en' : 'ro';
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Michroma&display=swap">
+<style>
+/* Layout: bara neagra BADSI sus (ca pe badsi.ro: limba + tema in dreapta); cardul de configurare in stanga; scena + sumarul raman lipite in dreapta. Pe telefon: o coloana + bara de pret jos.
+   Paleta badsi.ro: fond crem #fdf8f4, carduri albe, text #212529, negru pentru actiuni si pret. Luminos implicit; intunecat doar din butonul din bara (data-scheme="dark"). */
+:root {
+  --bg: #fdf8f4;
+  --card: #ffffff;
+  --ink: #212529;
+  --muted: #6b6f75;
+  --line: #e7e1db;
+  --soft: #f8f4f0;
+  --tile: #f4f1ee;
+  --tile-deep: #e4e0db;
+  --sel: #000000;
+  --accent: #000000;
+  --accent-ink: #ffffff;
+  --panel: #ffffff;
+  --panel-ink: #212529;
+  --panel-muted: #6b6f75;
+  --panel-line: #e7e1db;
+  --warn-ink: #8a4f08;
+  --warn-bg: #fcf0dc;
+  --ok: #1f7a4d;
+  --bar: #000000;
+  --bar-ink: #ffffff;
+  --bar-muted: #a9a9a9;
+  --bar-edge: #3d3d3d;
+  --bar-line: #000000;
+  --shadow: 0 1px 2px rgba(33, 37, 41, .05), 0 6px 20px rgba(33, 37, 41, .05);
+  --font-display: "Michroma", "Arial Black", system-ui, sans-serif;
+  --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+:root[data-scheme="dark"] {
+  --bg: #0b0c0e; --card: #15171a; --ink: #f2efeb; --muted: #9da0a6; --line: #2a2c30;
+  --soft: #1d1f23; --tile: #e8e5e1; --tile-deep: #d5d1cc; --sel: #f2efeb; --accent: #ffffff; --accent-ink: #000000;
+  --panel: #15171a; --panel-ink: #f2efeb; --panel-muted: #9da0a6; --panel-line: #2a2c30;
+  --warn-ink: #f0b45a; --warn-bg: #2e2416; --ok: #5cc196;
+  --bar: #000000; --bar-ink: #ffffff; --bar-muted: #9a9a9a; --bar-edge: #3d3d3d; --bar-line: #26282c;
+  --shadow: none;
+  color-scheme: dark;
+}
+
+/* bara BADSI: limba (RO/EN) si tema (luminos/intunecat) */
+.topbar { background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--bar-line); }
+.topbar-in {
+  max-width: 1160px; margin: 0 auto; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap;
+}
+.wordmark { font-family: var(--font-display); font-size: 16px; letter-spacing: .32em; margin-right: -.32em; }
+.ui-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lang { display: inline-flex; border: 1px solid var(--bar-edge); border-radius: 999px; padding: 2px; }
+.lang label { cursor: pointer; }
+.lang input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.lang span { display: block; padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--bar-muted); }
+.lang input:checked + span { background: var(--bar-ink); color: var(--bar); }
+.lang input:focus-visible + span { outline: 2px solid var(--bar-ink); outline-offset: 2px; }
+.theme-btn {
+  display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12px; font-weight: 700; color: var(--bar-ink);
+  background: transparent; border: 1px solid var(--bar-edge); border-radius: 999px; padding: 5px 12px 5px 9px; cursor: pointer;
+}
+.theme-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.theme-btn .i-sun { display: none; }
+:root[data-scheme="dark"] .theme-btn .i-sun { display: inline; }
+:root[data-scheme="dark"] .theme-btn .i-moon { display: none; }
+.theme-btn:hover { border-color: var(--bar-muted); }
+.theme-btn:focus-visible { outline: 2px solid var(--bar-ink); outline-offset: 2px; }
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* altfel display:flex/grid anuleaza atributul hidden */
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 390px);
+  gap: 24px;
+  align-items: start;
+}
+h1, h2, p { margin: 0; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- card configurare ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px 26px 18px;
+  display: grid;
+  gap: 26px;
+  min-width: 0;
+  box-shadow: var(--shadow);
+}
+.app { display: grid; gap: 26px; min-width: 0; }
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.brand { font-size: 18px; font-weight: 800; letter-spacing: .01em; }
+.head-note { color: var(--muted); font-size: 13px; }
+.step { display: grid; gap: 10px; min-width: 0; }
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.label-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* starea citirii din Baza date */
+.status {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+}
+.status.is-error { border-style: solid; color: var(--warn-ink); background: var(--warn-bg); border-color: transparent; }
+.status a { color: inherit; font-weight: 700; }
+.status-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.status-actions:empty { display: none; }
+.btn {
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--sel);
+  background: var(--sel);
+  color: var(--card);
+  cursor: pointer;
+}
+.btn:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.stale { color: var(--warn-ink); font-size: 12px; }
+
+/* alegeri cu radio ascuns (model, versiune, culori) */
+.pick { position: relative; cursor: pointer; display: block; min-width: 0; }
+.pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.pick-body {
+  display: grid;
+  height: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+.pick input:checked + .pick-body { border-color: var(--sel); box-shadow: inset 0 0 0 1px var(--sel); background: var(--soft); }
+.pick input:focus-visible + .pick-body { outline: 2px solid var(--sel); outline-offset: 2px; }
+
+.models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.model-body { padding: 20px 22px; gap: 4px; }
+.model-name { font-family: var(--font-display); font-size: 28px; letter-spacing: .06em; }
+.model-sub { color: var(--muted); font-size: 13px; }
+
+.versions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ver-body { padding: 14px 16px; gap: 4px; align-content: start; }
+.ver-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ver-name { font-size: 16px; font-weight: 800; }
+.ver-spec { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.ver-price { font-size: 18px; font-weight: 700; margin-top: 6px; }
+.ver-sub { font-size: 12px; color: var(--muted); }
+.ver-note { font-size: 11.5px; font-weight: 700; color: var(--warn-ink); }
+
+.color-group { display: grid; gap: 8px; }
+.sub { font-size: 13px; font-weight: 600; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.sw-body { overflow: hidden; }
+.sw-photo { aspect-ratio: 16 / 10; background: var(--tile); display: grid; place-items: center; }
+.sw-photo img { width: 100%; height: 100%; object-fit: cover; }
+/* mostra de culoare (cand in foaia Culori, la Imagine, e un cod #rrggbb in loc de poza) */
+.sw-chip { background: radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, .38), rgba(255, 255, 255, 0) 55%), var(--chip); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
+.sw-text { padding: 7px 9px 8px; display: grid; gap: 1px; }
+.sw-name { font-size: 12px; font-weight: 700; }
+.sw-price { font-size: 11px; color: var(--muted); }
+.empty {
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* opționale: rand cu checkbox, ca in poza de referinta */
+.opt-list { display: grid; gap: 8px; }
+.opt {
+  display: grid;
+  grid-template-columns: auto 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.opt:has(input:checked) { border-color: var(--sel); background: var(--soft); }
+.opt input { width: 17px; height: 17px; margin: 0; accent-color: var(--sel); }
+.opt input:focus-visible { outline: 2px solid var(--sel); outline-offset: 3px; }
+.thumb { width: 64px; height: 46px; border-radius: 6px; overflow: hidden; background: var(--tile); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.opt-text { display: grid; gap: 1px; min-width: 0; }
+.opt-name { font-weight: 600; }
+.opt-desc { color: var(--muted); font-size: 12px; }
+.opt-price { display: grid; justify-items: end; text-align: right; }
+.opt-price b { font-weight: 700; white-space: nowrap; }
+.opt-price small { color: var(--muted); font-size: 11px; }
+.hint { color: var(--muted); font-size: 12px; }
+.hint:empty { display: none; }
+.tax-hint { margin: 0 0 2px; font-size: 13px; }
+
+/* mașină rulată */
+.is-off { opacity: .45; }
+.is-off .pick, .is-off .opt { cursor: not-allowed; }
+.used-note {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--warn-ink);
+  background: var(--warn-bg);
+}
+.used-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.used-body { padding: 14px 16px; gap: 3px; align-content: start; }
+.used-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.used-name { font-size: 15px; font-weight: 800; }
+.used-meta { font-size: 12px; color: var(--muted); }
+.used-price { font-size: 18px; font-weight: 700; margin-top: 6px; }
+.used-save { font-size: 12px; font-weight: 700; color: var(--ok); }
+.used-opts { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.tag { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+
+/* servicii BADSI */
+.svc { display: grid; gap: 8px; }
+.svc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 0;
+  min-width: 0;
+}
+.svc-text { display: grid; gap: 1px; }
+.svc-text strong { font-weight: 600; }
+.svc-text span { color: var(--muted); font-size: 12px; }
+.svc-check { grid-template-columns: auto minmax(0, 1fr) auto; cursor: pointer; }
+.svc-check input { width: 17px; height: 17px; margin: 0; accent-color: var(--sel); }
+.svc-check:has(input:checked) { border-color: var(--sel); background: var(--soft); }
+.svc-check b { white-space: nowrap; }
+.svc-warranty { grid-template-columns: minmax(0, 1fr); }
+.svc-warranty legend { float: left; width: 100%; padding: 0; margin-bottom: 8px; }
+.seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; clear: both; }
+.seg-body { padding: 9px 10px; gap: 1px; text-align: center; }
+.seg-body b { font-size: 14px; }
+.seg-body small { color: var(--muted); font-size: 12px; }
+
+/* ---------- coloana dreapta ---------- */
+.aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 16px; min-width: 0; }
+.stage { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.stage-photo {
+  aspect-ratio: 16 / 8;
+  max-width: 100%;
+  background: radial-gradient(120% 90% at 50% 100%, var(--tile-deep) 0%, var(--tile) 60%);
+  display: grid;
+  place-items: center;
+}
+.stage-photo img { width: 64%; max-width: 250px; mix-blend-mode: multiply; }
+.stage-body { padding: 14px 18px 18px; display: grid; gap: 4px; }
+.stage-model { font-family: var(--font-display); font-size: 22px; letter-spacing: .08em; }
+.stage-version { font-size: 15px; font-weight: 700; }
+.stage-meta { color: var(--muted); font-size: 12px; }
+.stage-chips { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.stage-chips li { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); }
+
+.summary {
+  background: var(--panel);
+  color: var(--panel-ink);
+  border: 1px solid var(--panel-line);
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: grid;
+  gap: 12px;
+  scroll-margin-top: 16px;
+  box-shadow: var(--shadow);
+}
+.sum-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.sum-row > span { display: grid; gap: 1px; }
+.sum-row small { color: var(--panel-muted); font-size: 11px; }
+.sum-row b { font-weight: 700; white-space: nowrap; }
+.sum-line { border: 0; border-top: 1px solid var(--panel-line); margin: 2px 0; }
+.sum-total { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sum-total span { font-size: 13px; font-weight: 700; letter-spacing: .06em; }
+.sum-total b { font-size: 30px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.sum-note { margin: -4px 0 0; color: var(--panel-muted); font-size: 11px; line-height: 1.45; }
+.btn-ghost {
+  font: inherit; font-weight: 700; font-size: 13px; padding: 9px 14px; border-radius: 8px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn-ghost:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.btn:disabled { opacity: .6; cursor: progress; }
+
+/* ---------- public: intro, formular, confirmare, trimitere manuală ---------- */
+:root { --ok-bg: #e2f3ea; --err-ink: #a3261b; }
+:root[data-scheme="dark"] { --ok-bg: #15281f; --err-ink: #ff9a8f; }
+.intro { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0; max-width: 70ch; }
+.form { display: grid; gap: 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid; gap: 5px; min-width: 0; }
+.field > span { font-size: 12px; font-weight: 700; color: var(--muted); }
+.field input, .field textarea {
+  width: 100%; min-width: 0; font: inherit; font-size: 14px; color: var(--ink); background: var(--soft);
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+}
+.field textarea { resize: vertical; min-height: 64px; }
+.field input:focus-visible, .field textarea:focus-visible, .agree input:focus-visible { outline: 2px solid var(--sel); outline-offset: 1px; }
+.field.is-bad input, .field.is-bad textarea { border-color: var(--err-ink); }
+.field .err { color: var(--err-ink); font-size: 11.5px; }
+.agree { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; cursor: pointer; }
+.agree input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--sel); flex: none; }
+.agree a { color: inherit; font-weight: 700; }
+.agree.is-bad { color: var(--err-ink); }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.send-msg { margin: 0; font-size: 13px; color: var(--muted); }
+.send-msg:empty { display: none; }
+.send-msg.is-error { color: var(--err-ink); }
+.done { display: grid; gap: 8px; padding: 16px 18px; border-radius: 12px; background: var(--ok-bg); color: var(--ok); }
+.done p { margin: 0; color: var(--ink); }
+.manual-send { display: grid; gap: 12px; padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--soft); }
+.manual-send p { margin: 0; }
+.row-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+a.btn { text-decoration: none; display: inline-flex; align-items: center; }
+.manual-send textarea {
+  width: 100%; font: inherit; font-size: 12.5px; min-height: 140px; background: var(--card); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+}
+.addr { font-weight: 700; user-select: all; }
+.btn:hover { opacity: .88; }
+.btn-wide { width: 100%; padding: 12px 14px; font-size: 14px; }
+.sum-notes { display: grid; gap: 4px; }
+.sum-notes p { margin: 0; color: var(--panel-muted); font-size: 11px; line-height: 1.45; }
+.war-desc { margin: 0; }
+.foot { color: var(--muted); font-size: 11.5px; margin: 4px 0 0; max-width: 90ch; }
+@media (max-width: 560px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+
+/* bara de pret pe telefon */
+.bar { display: none; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .aside { position: static; }
+  .page { padding-block-end: 96px; }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 5;
+    background: var(--panel);
+    color: var(--panel-ink);
+    border-top: 1px solid var(--panel-line);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, .08);
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  }
+  .bar div { display: grid; }
+  .bar small { color: var(--panel-muted); font-size: 11px; }
+  .bar b { font-size: 16px; white-space: nowrap; }
+  .bar .bar-net b { color: var(--accent); font-size: 18px; }
+  .bar a { margin-left: auto; color: var(--panel-ink); font-weight: 700; font-size: 13px; padding: 8px 12px; border: 1px solid var(--panel-line); border-radius: 8px; text-decoration: none; }
+}
+@media (max-width: 560px) {
+  .card { padding: 18px 16px 16px; }
+  .versions, .used-list { grid-template-columns: minmax(0, 1fr); }
+  .opt { grid-template-columns: auto 52px minmax(0, 1fr); }
+  .thumb { width: 52px; height: 40px; }
+  .opt-price { grid-column: 3; justify-items: start; text-align: left; display: flex; gap: 8px; align-items: baseline; }
+  .model-body { padding: 16px; }
+  .model-name { font-size: 23px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pick-body, .opt, .svc-check { transition: border-color .15s, background-color .15s; }
+}
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="wordmark" aria-hidden="true">BADSI</span>
+    <div class="ui-tools">
+      <div class="lang" role="radiogroup" aria-label="Limba / Language">
+        <label><input type="radio" name="ui-lang" id="ui-lang-ro" value="ro"><span lang="ro">RO</span></label>
+        <label><input type="radio" name="ui-lang" id="ui-lang-en" value="en"><span lang="en">EN</span></label>
+      </div>
+      <button class="theme-btn" type="button" id="ui-theme" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/><g class="i-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        <span data-en="Dark mode">Mod întunecat</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+  <div class="layout">
+    <main class="card" aria-labelledby="brand">
+      <header class="card-head">
+        <h1 class="brand" id="brand">BADSI AUTOMOTIVE</h1>
+        <span class="head-note" data-en="Zeekr configurator">Configurator Zeekr</span>
+      </header>
+      <p class="intro" id="intro"></p>
+
+      <div class="app" id="app">
+        <section class="step">
+          <h2 class="label" id="l-model">Model</h2>
+          <div class="models" id="models" role="radiogroup" aria-labelledby="l-model"></div>
+        </section>
+
+        <p class="used-note" id="used-note" hidden data-en="You chose a used car. The version, colour and options below no longer apply: the price and equipment are those of the car chosen under “Used car”.">Ai ales o mașină rulată. Versiunea, culoarea și opționalele de mai jos nu se mai aplică: prețul și dotările sunt ale mașinii alese la „Mașină rulată”.</p>
+
+        <section class="step" id="step-ver">
+          <h2 class="label" id="l-ver" data-en="Version">Versiune</h2>
+          <div class="versions" id="versions" role="radiogroup" aria-labelledby="l-ver"></div>
+        </section>
+
+        <section class="step" id="step-color">
+          <h2 class="label" data-en="Colour">Culoare</h2>
+          <div id="colors" class="color-group"></div>
+        </section>
+
+        <section class="step" id="step-opt">
+          <h2 class="label" data-en="Optional equipment">Dotări opționale</h2>
+          <div class="opt-list" id="options"></div>
+          <p class="hint" id="opt-hint"></p>
+        </section>
+
+        <section class="step">
+          <h2 class="label" data-en="Used car">Mașină rulată</h2>
+          <p class="hint tax-hint" id="t-antidumping"></p>
+          <label class="svc-row svc-check" for="used">
+            <input type="checkbox" id="used">
+            <span class="svc-text">
+              <strong data-en="I want a used car">Vreau o mașină rulată</strong>
+              <span data-en="Cars with 6,000–10,000 km, about 6 months after first registration in China, cheaper than new ones. They come with their own equipment instead of the choices above.">Mașini cu 6.000–10.000 km, la circa 6 luni de la prima înmatriculare în China, mai ieftine decât cele noi. Vin cu dotările lor, în locul selecțiilor de mai sus.</span>
+            </span>
+            <span class="tag num" id="used-from"></span>
+          </label>
+          <div class="used-list" id="used-list" role="radiogroup" aria-label="Mașini rulate disponibile" data-en-aria="Available used cars" hidden></div>
+          <p class="hint" id="used-hint" hidden></p>
+        </section>
+
+        <section class="step">
+          <div class="label-row">
+            <h2 class="label" data-en="BADSI services">Servicii BADSI</h2>
+          </div>
+          <div class="svc" id="svc"></div>
+        </section>
+
+        <section class="step" id="cerere">
+          <h2 class="label" data-en="Your details">Datele tale</h2>
+          <p class="hint" data-en="Send us the configuration and a BADSI consultant will contact you with the final offer.">Trimite-ne configurația și un consultant BADSI te contactează cu oferta finală.</p>
+          <form id="form" class="form" novalidate>
+            <div class="grid2">
+              <label class="field" id="fw-nume"><span data-en="Full name">Nume și prenume</span>
+                <input type="text" id="f-nume" autocomplete="name" maxlength="120" required>
+                <small class="err" id="e-nume" hidden data-en="Write your name.">Scrie-ți numele.</small>
+              </label>
+              <label class="field" id="fw-tel"><span data-en="Phone">Telefon</span>
+                <input type="tel" id="f-tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="07xx xxx xxx" data-en-ph="+40 7xx xxx xxx" required>
+                <small class="err" id="e-tel" hidden data-en="Write a valid phone number.">Scrie un număr de telefon valid.</small>
+              </label>
+            </div>
+            <label class="field" id="fw-email"><span>Email</span>
+              <input type="email" id="f-email" autocomplete="email" maxlength="160" placeholder="nume@exemplu.ro" data-en-ph="name@example.com" required>
+              <small class="err" id="e-email" hidden data-en="Write a valid email address.">Scrie o adresă de email validă.</small>
+            </label>
+            <label class="field" id="fw-msg"><span data-en="Message (optional)">Mesaj (opțional)</span>
+              <textarea id="f-msg" rows="2" maxlength="1500" placeholder="ex.: când ai vrea mașina, întrebări despre dotări" data-en-ph="e.g. when you would like the car, questions about equipment"></textarea>
+            </label>
+            <label class="agree" id="fw-gdpr"><input type="checkbox" id="f-gdpr" required><span id="t-gdpr"></span></label>
+            <div class="trap" aria-hidden="true"><label>Website <input type="text" id="f-website" tabindex="-1" autocomplete="off"></label></div>
+            <div class="row-actions">
+              <button class="btn" type="submit" id="btn-send" data-en="Send the request">Trimite cererea</button>
+              <p class="send-msg" id="send-msg" aria-live="polite"></p>
+            </div>
+          </form>
+          <div class="done" id="done" hidden role="status"></div>
+          <div class="manual-send" id="manual" hidden></div>
+        </section>
+      </div>
+    </main>
+
+    <aside class="aside" id="aside" aria-label="Configurația aleasă" data-en-aria="Your configuration">
+      <div class="stage">
+        <div class="stage-photo"><img id="stage-img" alt=""></div>
+        <div class="stage-body">
+          <p class="stage-model" id="stage-model"></p>
+          <p class="stage-version" id="stage-version"></p>
+          <p class="stage-meta" id="stage-meta"></p>
+          <ul class="stage-chips" id="stage-chips"></ul>
+        </div>
+      </div>
+
+      <section class="summary" id="sumar" aria-live="polite" aria-label="Preț" data-en-aria="Price">
+        <div class="sum-row"><span><span id="s-base-l"></span> <small id="s-ver"></small></span><b class="num" id="s-base"></b></div>
+        <div class="sum-row"><span><span id="s-opts-l"></span> <small id="s-optn"></small></span><b class="num" id="s-opts"></b></div>
+        <div class="sum-row"><span><span data-en="BADSI services">Servicii BADSI</span> <small id="s-svcn"></small></span><b class="num" id="s-svc"></b></div>
+        <hr class="sum-line">
+        <div class="sum-total"><span data-en="ESTIMATED PRICE INCL. VAT">PREȚ ESTIMATIV CU TVA</span><b class="num" id="s-gross"></b></div>
+        <div class="sum-row"><span data-en="Price excl. VAT">Preț fără TVA</span><b class="num" id="s-net"></b></div>
+        <div class="sum-row" id="s-save-row" hidden><span><span data-en="Saving vs. the new car">Economie față de mașina nouă</span> <small id="s-save-n"></small></span><b class="num" id="s-save"></b></div>
+        <div class="sum-notes" id="s-notes"></div>
+        <button class="btn btn-wide" type="button" id="btn-panel"></button>
+      </section>
+    </aside>
+  </div>
+  <p class="foot" id="foot"></p>
+</div>
+
+<div class="bar" id="bar">
+  <div class="bar-net"><small data-en="Incl. VAT">Cu TVA</small><b class="num" id="b-gross"></b></div>
+  <div><small data-en="Excl. VAT">Fără TVA</small><b class="num" id="b-net"></b></div>
+  <a href="#cerere" data-en="Request">Cerere</a>
+</div>
+
+<!-- DATE ZEEKR (public): generate cu genereaza-date-zeekr.ps1 din datele B2C (prețuri, servicii, texte, contact)
+     și din opționalele / culorile Zeekr. Nu se editează de mână. Conține doar ce vede clientul. -->
+<script type="application/json" id="zeekr-data">
+{
+    "generat":  "11.11.2026",
+    "tva":  0.21,
+    "endpoint":  "https://script.google.com/macros/s/AKfycbxKSF_l1I7rCWU3PU3Sz6nUjQPtYUeaf2NUhQmz5Va4SkOgCqNS1i6NrAL8mDy1r-M/exec",
+    "contact":  {
+                    "telefon":  "+40 722 384 008",
+                    "whatsapp":  "40722384008",
+                    "email":  "hello@badsi.ro",
+                    "gdprLink":  "https://drive.google.com/file/d/1ZDby0AdaWGcxKvodKZhM71sm3-CN7eGN/view"
+                },
+    "texte":  {
+                  "eticheta":  "BADSI Automotive · import din China",
+                  "titlu":  "Configurează-ți mașina",
+                  "intro":  "Alege mașina și serviciile, vezi prețul estimativ livrat în București și trimite-ne cererea. Un consultant BADSI te contactează pentru oferta finală.",
+                  "nota_livrare":  "Livrat la sediul BADSI din București: transportul din China și vămuirea sunt incluse.",
+                  "nota_estimare":  "Preț estimativ. Prețul final îți este confirmat de un consultant BADSI.",
+                  "nota_antidumping":  "Posibil să apară taxe suplimentare la mașinile noi, inclusiv la cele hibride (taxa anti-dumping, până la 35%). Pentru a le evita, se recomandă mașina rulată.",
+                  "nota_rulat":  "Mașini rulate 6.000–10.000 km, la aproximativ 6 luni de la prima înmatriculare în China.",
+                  "alta_masina":  "Nu găsești mașina pe care o cauți? Descrie-ne-o (marcă, model, an, buget) sau lipește linkul unui anunț și revenim cu o estimare.",
+                  "gdpr":  "Sunt de acord ca BADSI Automotive să folosească datele mele pentru a mă contacta în legătură cu această cerere.",
+                  "confirmare":  "Mulțumim! Am primit cererea ta. Un consultant BADSI te contactează în curând.",
+                  "subsol":  "Prețurile sunt fără obligații contractuale și pot varia în funcție de cursul valutar și de disponibilitate."
+              },
+    "texte_en":  {
+                     "eticheta":  "BADSI Automotive · imported from China",
+                     "titlu":  "Configure your car",
+                     "intro":  "Choose the car and services, see the estimated price delivered in Bucharest and send us your request. A BADSI consultant will contact you with the final offer.",
+                     "nota_livrare":  "Delivered to the BADSI headquarters in Bucharest: transport from China and customs clearance are included.",
+                     "nota_estimare":  "Estimated price. Your final price is confirmed by a BADSI consultant.",
+                     "nota_antidumping":  "New cars may be subject to additional duties, including hybrids (anti-dumping duty of up to 35%). To avoid them, we recommend a used car.",
+                     "nota_rulat":  "Used cars with 6,000–10,000 km, about 6 months after first registration in China.",
+                     "alta_masina":  "Can\u0027t find the car you\u0027re looking for? Describe it (make, model, year, budget) or paste a link to a listing and we\u0027ll get back to you with an estimate.",
+                     "gdpr":  "I agree that BADSI Automotive may use my data to contact me about this request.",
+                     "confirmare":  "Thank you! We have received your request. A BADSI consultant will contact you shortly.",
+                     "subsol":  "Prices are non-binding and may vary with the exchange rate and availability."
+                 },
+    "servicii":  [
+                     {
+                         "cod":  "omol",
+                         "nume":  "Omologare + înmatriculare",
+                         "nume_en":  "Homologation + registration",
+                         "descriere":  "Omologarea vehiculului și înmatricularea în România",
+                         "descriere_en":  "Vehicle homologation and registration in Romania",
+                         "pret":  5000,
+                         "tip":  "bifă",
+                         "implicit":  true
+                     },
+                     {
+                         "cod":  "w-none",
+                         "nume":  "Fără garanție",
+                         "nume_en":  "No warranty",
+                         "descriere":  "Fără pachet de garanție",
+                         "descriere_en":  "No warranty package",
+                         "pret":  0,
+                         "tip":  "garanție",
+                         "implicit":  false
+                     },
+                     {
+                         "cod":  "w-base",
+                         "nume":  "SILVER",
+                         "nume_en":  "SILVER",
+                         "descriere":  "Garanție DEFEND 3 ani",
+                         "descriere_en":  "DEFEND 3-year warranty",
+                         "pret":  2000,
+                         "tip":  "garanție",
+                         "implicit":  false
+                     },
+                     {
+                         "cod":  "w-concierge",
+                         "nume":  "GOLD",
+                         "nume_en":  "GOLD",
+                         "descriere":  "Garanție DEFEND 3 ani + Concierge BADSI dedicat (un om de la noi, la care apelezi oricând)",
+                         "descriere_en":  "DEFEND 3-year warranty + dedicated BADSI Concierge (one person on our team you can call any time)",
+                         "pret":  5000,
+                         "tip":  "garanție",
+                         "implicit":  false
+                     },
+                     {
+                         "cod":  "w-service",
+                         "nume":  "PLATINUM",
+                         "nume_en":  "PLATINUM",
+                         "descriere":  "Garanție DEFEND 3 ani + Concierge BADSI dedicat + 3 revizii periodice incluse",
+                         "descriere_en":  "DEFEND 3-year warranty + dedicated BADSI Concierge + 3 scheduled services included",
+                         "pret":  10000,
+                         "tip":  "garanție",
+                         "implicit":  true
+                     },
+                     {
+                         "cod":  "soft",
+                         "nume":  "Software",
+                         "nume_en":  "Software",
+                         "descriere":  "Pachet software BADSI",
+                         "descriere_en":  "BADSI software package",
+                         "pret":  1500,
+                         "tip":  "bifă",
+                         "implicit":  true
+                     },
+                     {
+                         "cod":  "resoft",
+                         "nume":  "Resoftare",
+                         "nume_en":  "Software update",
+                         "descriere":  "Actualizare la ultima versiune de software",
+                         "descriere_en":  "Update to the latest software version",
+                         "pret":  700,
+                         "tip":  "bifă",
+                         "implicit":  false
+                     },
+                     {
+                         "cod":  "lang",
+                         "nume":  "Limba română, SIM și CarPlay",
+                         "nume_en":  "Romanian language, SIM and CarPlay",
+                         "descriere":  "Interfață în limba română, cartelă SIM locală și Apple CarPlay",
+                         "descriere_en":  "Romanian-language interface, local SIM card and Apple CarPlay",
+                         "pret":  2500,
+                         "tip":  "bifă",
+                         "implicit":  false
+                     }
+                 ],
+    "modele":  [
+                   {
+                       "cod":  "8x",
+                       "nume":  "Zeekr 8X",
+                       "img":  "8x-ext-black",
+                       "versiuni":  [
+                                        {
+                                            "cod":  "8x-max-nou",
+                                            "ver":  "max",
+                                            "nume":  "Max",
+                                            "baterie":  "55 kWh",
+                                            "km":  "0 km",
+                                            "pret":  89500,
+                                            "termen":  "",
+                                            "termen_en":  "",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        },
+                                        {
+                                            "cod":  "8x-ultra-nou",
+                                            "ver":  "ultra",
+                                            "nume":  "Ultra",
+                                            "baterie":  "55 kWh",
+                                            "km":  "0 km",
+                                            "pret":  94500,
+                                            "termen":  "",
+                                            "termen_en":  "",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        },
+                                        {
+                                            "cod":  "8x-ultraplus-nou",
+                                            "ver":  "ultraplus",
+                                            "nume":  "Ultra+",
+                                            "baterie":  "70 kWh",
+                                            "km":  "0 km",
+                                            "pret":  99500,
+                                            "termen":  "",
+                                            "termen_en":  "",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        },
+                                        {
+                                            "cod":  "8x-h7-nou",
+                                            "ver":  "h7",
+                                            "nume":  "Dawn Edition",
+                                            "baterie":  "70 kWh",
+                                            "km":  "0 km",
+                                            "pret":  109500,
+                                            "termen":  "",
+                                            "termen_en":  "",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        }
+                                    ],
+                       "rulate":  [
+                                      {
+                                          "cod":  "8x-max-rulat",
+                                          "ver":  "max",
+                                          "nume":  "Max",
+                                          "baterie":  "55 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  76500,
+                                          "termen":  "3 luni",
+                                          "termen_en":  "3 months",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      },
+                                      {
+                                          "cod":  "8x-ultra55-rulat",
+                                          "ver":  "ultra",
+                                          "nume":  "Ultra 55 kWh",
+                                          "baterie":  "55 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  79500,
+                                          "termen":  "3 luni",
+                                          "termen_en":  "3 months",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      },
+                                      {
+                                          "cod":  "8x-ultra70-rulat",
+                                          "ver":  "ultra",
+                                          "nume":  "Ultra 70 kWh",
+                                          "baterie":  "70 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  81500,
+                                          "termen":  "3 luni",
+                                          "termen_en":  "3 months",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      },
+                                      {
+                                          "cod":  "8x-ultraplus-rulat",
+                                          "ver":  "ultraplus",
+                                          "nume":  "Ultra+",
+                                          "baterie":  "70 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  88500,
+                                          "termen":  "3 luni",
+                                          "termen_en":  "3 months",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      },
+                                      {
+                                          "cod":  "8x-h7-rulat",
+                                          "ver":  "h7",
+                                          "nume":  "Dawn Edition",
+                                          "baterie":  "70 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  98500,
+                                          "termen":  "3 luni",
+                                          "termen_en":  "3 months",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      }
+                                  ],
+                       "optionale":  {
+                                         "max":  [
+                                                     {
+                                                         "cod":  "kwh70",
+                                                         "nume":  "70kWh Battery",
+                                                         "descriere":  "Baterie de 70 kWh în loc de 55 kWh",
+                                                         "descriere_en":  "70 kWh battery instead of 55 kWh",
+                                                         "pret":  2000.12,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "8x-70kwh"
+                                                     },
+                                                     {
+                                                         "cod":  "night",
+                                                         "nume":  "Night Package + 22\" Night Wheels",
+                                                         "descriere":  "Pachet Night cu jante negre de 22\"",
+                                                         "descriere_en":  "Night package with 22\" black wheels",
+                                                         "pret":  2667.49,
+                                                         "grupuri":  [
+                                                                         "jante"
+                                                                     ],
+                                                         "img":  "8x-night"
+                                                     },
+                                                     {
+                                                         "cod":  "brilliance",
+                                                         "nume":  "22\" Brilliance Alloy Wheels",
+                                                         "descriere":  "Jante din aliaj de 22\" Brilliance",
+                                                         "descriere_en":  "22\" Brilliance alloy wheels",
+                                                         "pret":  1333.75,
+                                                         "grupuri":  [
+                                                                         "jante"
+                                                                     ],
+                                                         "img":  "8x-brilliance"
+                                                     },
+                                                     {
+                                                         "cod":  "seat6",
+                                                         "nume":  "6-Seat Comfort Package",
+                                                         "descriere":  "Pachet confort cu 6 locuri",
+                                                         "descriere_en":  "6-seat comfort package",
+                                                         "pret":  1333.75,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "8x-6seat"
+                                                     },
+                                                     {
+                                                         "cod":  "tow",
+                                                         "nume":  "Electric Tow Hook",
+                                                         "descriere":  "Cârlig de remorcare electric",
+                                                         "descriere_en":  "Electric tow hook",
+                                                         "pret":  933.93,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "8x-tow"
+                                                     },
+                                                     {
+                                                         "cod":  "rearscreen",
+                                                         "nume":  "Rear Overhead Screen Package",
+                                                         "descriere":  "Ecran în plafon pentru pasagerii din spate",
+                                                         "descriere_en":  "Overhead screen for rear passengers",
+                                                         "pret":  1333.75,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "8x-rearscreen"
+                                                     }
+                                                 ]
+                                     },
+                       "exterior":  [
+                                        {
+                                            "cod":  "black",
+                                            "nume":  "Black",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-ext-black"
+                                        },
+                                        {
+                                            "cod":  "red",
+                                            "nume":  "Red",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-ext-red"
+                                        },
+                                        {
+                                            "cod":  "lunar",
+                                            "nume":  "Lunar Sea Gray",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-ext-lunar"
+                                        },
+                                        {
+                                            "cod":  "basalt",
+                                            "nume":  "Basalt Gray",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-ext-basalt"
+                                        },
+                                        {
+                                            "cod":  "white",
+                                            "nume":  "White",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-ext-white"
+                                        },
+                                        {
+                                            "cod":  "blue",
+                                            "nume":  "Blue",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-ext-blue"
+                                        },
+                                        {
+                                            "cod":  "matte",
+                                            "nume":  "Matte Star Gray",
+                                            "pret":  1333.75,
+                                            "doar":  [
+                                                         "h7"
+                                                     ],
+                                            "img":  "8x-ext-matte"
+                                        }
+                                    ],
+                       "interior":  [
+                                        {
+                                            "cod":  "brown",
+                                            "nume":  "Brown \u0026 Black",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-int-brown"
+                                        },
+                                        {
+                                            "cod":  "white",
+                                            "nume":  "White \u0026 Black",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-int-white"
+                                        },
+                                        {
+                                            "cod":  "red",
+                                            "nume":  "Shadow Red",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-int-red"
+                                        },
+                                        {
+                                            "cod":  "black",
+                                            "nume":  "Solid Black",
+                                            "pret":  0,
+                                            "doar":  [
+
+                                                     ],
+                                            "img":  "8x-int-black"
+                                        }
+                                    ]
+                   },
+                   {
+                       "cod":  "9x",
+                       "nume":  "Zeekr 9X",
+                       "img":  "9x-glosspkg",
+                       "versiuni":  [
+                                        {
+                                            "cod":  "9x-max-nou",
+                                            "ver":  "max",
+                                            "nume":  "Max",
+                                            "baterie":  "55 kWh",
+                                            "km":  "0 km",
+                                            "pret":  99500,
+                                            "termen":  "5 luni",
+                                            "termen_en":  "5 months",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        },
+                                        {
+                                            "cod":  "9x-ultra-nou",
+                                            "ver":  "ultra",
+                                            "nume":  "Ultra",
+                                            "baterie":  "55 kWh",
+                                            "km":  "0 km",
+                                            "pret":  114500,
+                                            "termen":  "5 luni",
+                                            "termen_en":  "5 months",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        },
+                                        {
+                                            "cod":  "9x-hyper-nou",
+                                            "ver":  "hyper",
+                                            "nume":  "Hyper",
+                                            "baterie":  "70 kWh",
+                                            "km":  "0 km",
+                                            "pret":  132500,
+                                            "termen":  "5 luni",
+                                            "termen_en":  "5 months",
+                                            "mentiune":  "Momentan nu se poate comanda",
+                                            "mentiune_en":  "Currently not available to order"
+                                        },
+                                        {
+                                            "cod":  "9x-obsidian-nou",
+                                            "ver":  "obsidian",
+                                            "nume":  "Gloss Black (Obsidian)",
+                                            "baterie":  "70 kWh",
+                                            "km":  "0 km",
+                                            "pret":  138500,
+                                            "termen":  "5 luni",
+                                            "termen_en":  "5 months",
+                                            "mentiune":  "",
+                                            "mentiune_en":  ""
+                                        }
+                                    ],
+                       "rulate":  [
+                                      {
+                                          "cod":  "9x-ultra70-rulat",
+                                          "ver":  "ultra",
+                                          "nume":  "Ultra 70 kWh",
+                                          "baterie":  "70 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  100500,
+                                          "termen":  "",
+                                          "termen_en":  "",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      },
+                                      {
+                                          "cod":  "9x-hyper-rulat",
+                                          "ver":  "hyper",
+                                          "nume":  "Hyper",
+                                          "baterie":  "70 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  110500,
+                                          "termen":  "",
+                                          "termen_en":  "",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      },
+                                      {
+                                          "cod":  "9x-obsidian-rulat",
+                                          "ver":  "obsidian",
+                                          "nume":  "Gloss Black (Obsidian)",
+                                          "baterie":  "70 kWh",
+                                          "km":  "6.000–10.000 km",
+                                          "pret":  113500,
+                                          "termen":  "",
+                                          "termen_en":  "",
+                                          "mentiune":  "",
+                                          "mentiune_en":  ""
+                                      }
+                                  ],
+                       "optionale":  {
+                                         "max":  [
+                                                     {
+                                                         "cod":  "h9",
+                                                         "nume":  "Qianli Haohan H9",
+                                                         "descriere":  "Sistem avansat de asistență la condus",
+                                                         "descriere_en":  "Advanced driver assistance system",
+                                                         "pret":  3333.86,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "9x-h9"
+                                                     },
+                                                     {
+                                                         "cod":  "gloss",
+                                                         "nume":  "Gloss Black Appearance Package",
+                                                         "descriere":  "Pachet exterior negru lucios",
+                                                         "descriere_en":  "Gloss black exterior package",
+                                                         "pret":  1600.29,
+                                                         "grupuri":  [
+                                                                         "exterior"
+                                                                     ],
+                                                         "img":  "9x-gloss"
+                                                     },
+                                                     {
+                                                         "cod":  "swivel",
+                                                         "nume":  "2nd-row Swivel Seats",
+                                                         "descriere":  "Scaune rotative pe rândul 2",
+                                                         "descriere_en":  "Swivel seats in the second row",
+                                                         "pret":  799.64,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "9x-swivel"
+                                                     },
+                                                     {
+                                                         "cod":  "tow",
+                                                         "nume":  "Electric Tow Hook",
+                                                         "descriere":  "Cârlig de remorcare electric",
+                                                         "descriere_en":  "Electric tow hook",
+                                                         "pret":  933.93,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "9x-tow"
+                                                     },
+                                                     {
+                                                         "cod":  "kw7",
+                                                         "nume":  "7kW Charging",
+                                                         "descriere":  "Stație de încărcare 7 kW",
+                                                         "descriere_en":  "7 kW charging station",
+                                                         "pret":  399.82,
+                                                         "grupuri":  [
+
+                                                                     ],
+                                                         "img":  "9x-7kw"
+                                                     }
+                                                 ],
+                                         "ultra":  [
+                                                       {
+                                                           "cod":  "h9",
+                                                           "nume":  "Qianli Haohan H9",
+                                                           "descriere":  "Sistem avansat de asistență la condus",
+                                                           "descriere_en":  "Advanced driver assistance system",
+                                                           "pret":  3333.86,
+                                                           "grupuri":  [
+
+                                                                       ],
+                                                           "img":  "9x-h9"
+                                                       },
+                                                       {
+                                                           "cod":  "kwh70",
+                                                           "nume":  "70kWh Battery",
+                                                           "descriere":  "Baterie de 70 kWh în loc de 55 kWh",
+                                                           "descriere_en":  "70 kWh battery instead of 55 kWh",
+                                                           "pret":  2000.12,
+                                                           "grupuri":  [
+
+                                                                       ],
+                                                           "img":  "9x-70kwh"
+                                                       },
+                                                       {
+                                                           "cod":  "gloss",
+                                                           "nume":  "Gloss Black Appearance Package",
+                                                           "descriere":  "Pachet exterior negru lucios",
+                                                           "descriere_en":  "Gloss black exterior package",
+                                                           "pret":  1600.29,
+                                                           "grupuri":  [
+                                                                           "exterior"
+                                                                       ],
+                                                           "img":  "9x-gloss"
+                                                       },
+                                                       {
+                                                           "cod":  "glosspkg",
+                                                           "nume":  "Gloss Black Package + 22\" Gloss Black Forged Wheels",
+                                                           "descriere":  "Pachet negru lucios cu jante forjate negre de 22\"",
+                                                           "descriere_en":  "Gloss black package with 22\" black forged wheels",
+                                                           "pret":  3333.86,
+                                                           "grupuri":  [
+                                                                           "exterior",
+                                                                           "jante"
+                                                                       ],
+                                                           "img":  "9x-glosspkg"
+                                                       },
+                                                       {
+                                                           "cod":  "starry",
+                                                           "nume":  "22\" Starry Forged Alloy Wheels",
+                                                           "descriere":  "Jante forjate de 22\" și etriere portocalii cu 6 pistoane",
+                                                           "descriere_en":  "22\" forged wheels and orange 6-piston calipers",
+                                                           "pret":  666.37,
+                                                           "grupuri":  [
+                                                                           "jante"
+                                                                       ],
+                                                           "img":  "9x-starry"
+                                                       },
+                                                       {
+                                                           "cod":  "mirror",
+                                                           "nume":  "22\" Mirror Polished Forged Wheels",
+                                                           "descriere":  "Jante forjate lustruite de 22\" și etriere portocalii cu 6 pistoane",
+                                                           "descriere_en":  "22\" polished forged wheels and orange 6-piston calipers",
+                                                           "pret":  1333.75,
+                                                           "grupuri":  [
+                                                                           "jante"
+                                                                       ],
+                                                           "img":  "9x-mirror"
+                                                       },
+                                                       {
+                                                           "cod":  "v48",
+                                                           "nume":  "48V Active Stabilizer Bar",
+                                                           "descriere":  "Bară stabilizatoare activă 48V",
+                                                           "descriere_en":  "48V active stabiliser bar",
+                                                           "pret":  2934.04,
+                                                           "grupuri":  [
+
+                                                                       ],
+                                                           "img":  "9x-48v"
+                                                       },
+                                                       {
+                                                           "cod":  "swivel",
+                                                           "nume":  "2nd-row Swivel Seats",
+                                                           "descriere":  "Scaune rotative pe rândul 2",
+                                                           "descriere_en":  "Swivel seats in the second row",
+                                                           "pret":  799.64,
+                                                           "grupuri":  [
+
+                                                                       ],
+                                                           "img":  "9x-swivel"
+                                                       },
+                                                       {
+                                                           "cod":  "tow",
+                                                           "nume":  "Electric Tow Hook",
+                                                           "descriere":  "Cârlig de remorcare electric",
+                                                           "descriere_en":  "Electric tow hook",
+                                                           "pret":  933.93,
+                                                           "grupuri":  [
+
+                                                                       ],
+                                                           "img":  "9x-tow"
+                                                       },
+                                                       {
+                                                           "cod":  "kw7",
+                                                           "nume":  "7kW Charging",
+                                                           "descriere":  "Stație de încărcare 7 kW",
+                                                           "descriere_en":  "7 kW charging station",
+                                                           "pret":  399.82,
+                                                           "grupuri":  [
+
+                                                                       ],
+                                                           "img":  "9x-7kw"
+                                                       }
+                                                   ]
+                                     },
+                       "exterior":  [
+                                        {
+                                            "cod":  "crystal",
+                                            "nume":  "Crystal White Metallic",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#f2f1ee"
+                                        },
+                                        {
+                                            "cod":  "silver",
+                                            "nume":  "Silver Metallic",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#b8babc"
+                                        },
+                                        {
+                                            "cod":  "lava",
+                                            "nume":  "Grey Lava Metallic",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#4a4a4c"
+                                        },
+                                        {
+                                            "cod":  "phantom",
+                                            "nume":  "Phantom Black Metallic",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#0d0d0f"
+                                        },
+                                        {
+                                            "cod":  "purple",
+                                            "nume":  "Purple Metallic",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#4b3b5c"
+                                        },
+                                        {
+                                            "cod":  "obsidian",
+                                            "nume":  "Obsidian Black",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "obsidian"
+                                                     ],
+                                            "img":  "#111113"
+                                        }
+                                    ],
+                       "interior":  [
+                                        {
+                                            "cod":  "moonglade",
+                                            "nume":  "Moonglade",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#2b2e33"
+                                        },
+                                        {
+                                            "cod":  "caramel",
+                                            "nume":  "Caramel",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#a9683c"
+                                        },
+                                        {
+                                            "cod":  "polar",
+                                            "nume":  "Polar White",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "max",
+                                                         "ultra",
+                                                         "hyper"
+                                                     ],
+                                            "img":  "#f5f3ef"
+                                        },
+                                        {
+                                            "cod":  "obsidian",
+                                            "nume":  "Obsidian Black",
+                                            "pret":  0,
+                                            "doar":  [
+                                                         "obsidian"
+                                                     ],
+                                            "img":  "#111113"
+                                        }
+                                    ]
+                   }
+               ]
+}
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     CONFIGURATOR ZEEKR (public)
+     1. Date      - blocul JSON de mai sus: prețurile mașinilor fără servicii (aceleași ca în B2C),
+                    opționale și culori în EUR, servicii BADSI, texte, contact
+     2. Calcul    - preț = mașina + opționale + culoare + servicii; TVA peste. Prețurile afișate sunt cu TVA.
+     3. Interfață - model -> versiune -> culoare -> opționale (sau mașină rulată) -> servicii -> datele clientului
+     4. Trimitere - POST JSON la scriptul din Cereri BTC (același ca la B2C); dacă nu merge: WhatsApp + text de copiat.
+     Pagina nu citește nimic din afară: merge la fel ca artefact și pe GitHub.
+     ===================================================================== */
+
+  const $ = (id) => document.getElementById(id);
+  const D = JSON.parse($('zeekr-data').textContent);
+  const T = 1 + D.tva;
+  const SVC = D.servicii;
+  const WAR = SVC.filter((s) => s.tip === 'garanție');
+  const OTHER = SVC.filter((s) => s.tip !== 'garanție');
+  const MOD = {};
+  D.modele.forEach((m) => { MOD[m.cod] = m; });
+  const GROUP_HINTS = {
+    exterior: ['Pachetul exterior negru e inclus în Gloss Black Package, așa că se alege doar unul dintre ele.', 'The black exterior package is included in the Gloss Black Package, so only one of them can be chosen.'],
+    jante: ['Se alege un singur set de jante de 22".', 'Only one set of 22" wheels can be chosen.']
+  };
+
+  // ---------- limba (RO/EN) ----------
+  const UI = { lang: document.documentElement.lang === 'en' ? 'en' : 'ro' };
+  const L = (ro, en) => (UI.lang === 'en' ? en : ro);
+  const pick = (ro, en) => (UI.lang === 'en' && en ? en : ro);
+  function withLang(lang, fn) { const prev = UI.lang; UI.lang = lang; try { return fn(); } finally { UI.lang = prev; } }
+  const uiSave = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* fără stocare locală */ } };
+  function applyStatic() {
+    const en = UI.lang === 'en';
+    document.querySelectorAll('[data-en]').forEach((el) => { if (el.dataset.ro == null) el.dataset.ro = el.innerHTML; el.innerHTML = en ? el.dataset.en : el.dataset.ro; });
+    document.querySelectorAll('[data-en-ph]').forEach((el) => { if (el.dataset.roPh == null) el.dataset.roPh = el.getAttribute('placeholder') || ''; el.setAttribute('placeholder', en ? el.dataset.enPh : el.dataset.roPh); });
+    document.querySelectorAll('[data-en-aria]').forEach((el) => { if (el.dataset.roAria == null) el.dataset.roAria = el.getAttribute('aria-label') || ''; el.setAttribute('aria-label', en ? el.dataset.enAria : el.dataset.roAria); });
+    $('ui-lang-' + UI.lang).checked = true;
+  }
+  const tx = (k) => pick(D.texte[k], (D.texte_en || {})[k]);
+  const sName = (s) => pick(s.nume, s.nume_en);
+  const sDesc = (s) => pick(s.descriere, s.descriere_en);
+  const oDesc = (o) => pick(o.descriere, o.descriere_en);
+  const note = (c) => pick(c.mentiune, c.mentiune_en);
+  const term = (c) => pick(c.termen, c.termen_en);
+  const kmOf = (c) => L(c.km, String(c.km).replace(/(\d)\.(\d{3})/g, '$1,$2'));
+  const TBD = () => L('De confirmat', 'To be confirmed');
+
+  const group3 = (n) => String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, L('.', ','));
+  const eur = (n) => (n < 0 ? '− ' : '') + '€ ' + group3(n);   // spațiu care nu se rupe între € și sumă
+  const g = (n) => n * T;   // cu TVA
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const isChip = (s) => /^#[0-9a-f]{3,8}$/i.test(String(s || ''));
+  const photoOf = (c) => (c && c.img && !isChip(c.img) ? c.img : null);
+  const colorsFor = (m, v, tip) => (tip === 'ext' ? m.exterior : m.interior).filter((c) => !c.doar.length || c.doar.includes(v.ver));
+  const verLabel = (c) => c.nume + (c.baterie && !/kwh/i.test(c.nume) ? ' ' + c.baterie : '');
+
+  // ---------- stare ----------
+  const S = {
+    model: D.modele[0].cod, ver: {}, ext: {}, int: {}, opts: new Set(),
+    war: (WAR.find((s) => s.implicit) || WAR[WAR.length - 1] || {}).cod,
+    extra: new Set(OTHER.filter((s) => s.implicit).map((s) => s.cod)),
+    usedOn: false, used: null, sent: false
+  };
+
+  function current() {
+    const m = MOD[S.model];
+    return { m, v: m.versiuni.find((x) => x.ver === S.ver[m.cod]) || m.versiuni[0] };
+  }
+
+  function normalize() {
+    D.modele.forEach((m) => {
+      if (!m.versiuni.some((x) => x.ver === S.ver[m.cod])) S.ver[m.cod] = m.versiuni[0].ver;
+      const v = m.versiuni.find((x) => x.ver === S.ver[m.cod]);
+      const ext = colorsFor(m, v, 'ext'), int = colorsFor(m, v, 'int');
+      if (!ext.some((c) => c.cod === S.ext[m.cod])) S.ext[m.cod] = ext.length ? ext[0].cod : null;
+      if (!int.some((c) => c.cod === S.int[m.cod])) S.int[m.cod] = int.length ? int[0].cod : null;
+    });
+    const { m, v } = current();
+    const avail = new Set(((m.optionale || {})[v.ver] || []).map((o) => o.cod));
+    [...S.opts].forEach((c) => { if (!avail.has(c)) S.opts.delete(c); });
+    if (S.used && !m.rulate.some((u) => u.cod === S.used)) S.used = null;
+  }
+
+  // ---------- calcul (sume fără TVA; afișarea adaugă TVA) ----------
+  function svcNet() {
+    const w = WAR.find((s) => s.cod === S.war);
+    return (w ? w.pret : 0) + OTHER.filter((s) => S.extra.has(s.cod)).reduce((a, s) => a + s.pret, 0);
+  }
+  function svcNames() {
+    const out = [];
+    OTHER.forEach((s) => { if (S.extra.has(s.cod) && s.cod === 'omol') out.push(sName(s)); });
+    const w = WAR.find((s) => s.cod === S.war);
+    if (w) out.push(w.pret ? L('Pachet ' + sName(w), sName(w) + ' package') : sName(w));
+    OTHER.forEach((s) => { if (S.extra.has(s.cod) && s.cod !== 'omol') out.push(sName(s)); });
+    return out;
+  }
+
+  function compute() {
+    const { m, v } = current();
+    const svc = svcNet();
+    if (S.usedOn && S.used) {
+      const u = m.rulate.find((x) => x.cod === S.used);
+      const nv = m.versiuni.find((x) => x.ver === u.ver);
+      const net = u.pret + svc;
+      return { m, v: nv || v, u, used: true, carEur: u.pret, newEur: nv ? nv.pret : null, svc, net };
+    }
+    const opts = ((m.optionale || {})[v.ver] || []).filter((o) => S.opts.has(o.cod));
+    const ext = colorsFor(m, v, 'ext').find((c) => c.cod === S.ext[m.cod]);
+    const int = colorsFor(m, v, 'int').find((c) => c.cod === S.int[m.cod]);
+    const paint = (ext ? ext.pret : 0) + (int ? int.pret : 0);
+    const optsEur = opts.reduce((a, o) => a + o.pret, 0) + paint;
+    const net = v.pret + optsEur + svc;
+    return { m, v, used: false, opts, ext, int, paint, optsEur, carEur: v.pret, svc, net };
+  }
+
+  // ---------- afișare ----------
+  const usedMeta = (u) => u.baterie + ' · ' + kmOf(u);
+  const svcNote = (svc) => (svc > 0 ? L('cu Serviciile BADSI alese', 'with the selected BADSI services') : L('fără Servicii BADSI', 'without BADSI services'));
+
+  function swatch(name, c, priceText, checked) {
+    const img = isChip(c.img) ? `<span class="sw-photo sw-chip" style="--chip:${c.img}"></span>`
+      : c.img ? `<span class="sw-photo"><img src="img/${esc(c.img)}.jpg" alt="" loading="lazy"></span>` : '';
+    return `<label class="pick" for="${name}-${esc(c.cod)}">
+      <input type="radio" name="${name}" id="${name}-${esc(c.cod)}" value="${esc(c.cod)}"${checked ? ' checked' : ''}>
+      <span class="pick-body sw-body">${img}
+        <span class="sw-text"><span class="sw-name">${esc(c.nume)}</span><span class="sw-price num">${priceText}</span></span>
+      </span>
+    </label>`;
+  }
+
+  function render() {
+    const focusId = document.activeElement && document.activeElement.id;
+    const { m, v } = current();
+
+    const ext = colorsFor(m, v, 'ext'), int = colorsFor(m, v, 'int');
+    const colorPrice = (c) => (c.pret ? '+ ' + eur(g(c.pret)) : L('Inclus', 'Included'));
+    $('colors').innerHTML = ext.length || int.length
+      ? (ext.length ? `<p class="sub">Exterior</p><div class="swatches">${ext.map((c) => swatch('ext', c, colorPrice(c), c.cod === S.ext[m.cod])).join('')}</div>` : '')
+        + (int.length ? `<p class="sub">Interior</p><div class="swatches">${int.map((c) => swatch('int', c, colorPrice(c), c.cod === S.int[m.cod])).join('')}</div>` : '')
+      : `<p class="empty">${L('Culorile se stabilesc împreună cu consultantul BADSI.', 'Colours are agreed with your BADSI consultant.')}</p>`;
+
+    const tbd = S.usedOn && S.used;
+    const vopts = (m.optionale || {})[v.ver] || [];
+    $('options').innerHTML = vopts.length ? vopts.map((o) => `<label class="opt" for="o-${m.cod}-${esc(o.cod)}">
+        <input type="checkbox" id="o-${m.cod}-${esc(o.cod)}" data-opt="${esc(o.cod)}"${S.opts.has(o.cod) ? ' checked' : ''}>
+        <span class="thumb">${o.img ? `<img src="img/${esc(o.img)}.jpg" alt="" loading="lazy">` : ''}</span>
+        <span class="opt-text"><span class="opt-name">${esc(o.nume)}</span><span class="opt-desc">${esc(oDesc(o))}</span></span>
+        <span class="opt-price num"><b>${tbd ? TBD() : o.pret ? '+ ' + eur(g(o.pret)) : L('Fără cost', 'No cost')}</b></span>
+      </label>`).join('') : `<p class="empty">${L('Versiunea aleasă nu are dotări opționale de ales.', 'The selected version has no optional equipment to choose.')}</p>`;
+
+    const groups = {};
+    vopts.forEach((o) => o.grupuri.forEach((gr) => { (groups[gr] = groups[gr] || []).push(o.cod); }));
+    $('opt-hint').textContent = Object.keys(groups).filter((gr) => groups[gr].length > 1)
+      .map((gr) => (GROUP_HINTS[gr] ? L(GROUP_HINTS[gr][0], GROUP_HINTS[gr][1]) : L('Din grupul „' + gr + '” se alege o singură opțiune.', 'Only one option can be chosen from the “' + gr + '” group.'))).join(' ');
+
+    renderUsed();
+    renderServices();
+    update();
+    if (focusId && $(focusId)) $(focusId).focus();
+  }
+
+  function renderModels(svc) {
+    const { m } = current();
+    $('models').innerHTML = D.modele.map((x) => {
+      const cheapest = Math.min(...x.versiuni.map((c) => c.pret)) + svc;
+      return `<label class="pick" for="m-${x.cod}">
+        <input type="radio" name="model" id="m-${x.cod}" value="${x.cod}"${x.cod === m.cod ? ' checked' : ''}>
+        <span class="pick-body model-body">
+          <span class="model-name">${esc(x.nume.replace('Zeekr ', ''))}</span>
+          <span class="model-sub num">${L('de la', 'from')} ${eur(g(cheapest))} ${L('cu TVA', 'incl. VAT')} · ${x.versiuni.length} ${L('versiuni', 'versions')}</span>
+        </span>
+      </label>`;
+    }).join('');
+  }
+
+  // cardul versiunii alese arată prețul cu opționalele și culoarea alese; toate includ Serviciile BADSI bifate
+  function renderVersions(r) {
+    const { m, v } = current();
+    const n = r.used ? 0 : r.opts.length + (r.paint ? 1 : 0);
+    const hasOpts = !!(r.opts && r.opts.length);
+    const what = hasOpts && r.paint ? L('opționalele și culoarea alese', 'the selected options and colour') : hasOpts ? L('opționalele alese', 'the selected options') : L('culoarea aleasă', 'the selected colour');
+    $('versions').innerHTML = m.versiuni.map((x) => {
+      const mine = n > 0 && x.ver === v.ver;
+      const price = x.pret + (mine ? r.optsEur : 0) + r.svc;
+      const sub = L('cu TVA, ', 'incl. VAT, ') + (mine ? L('cu ', 'with ') + what + ' (+ ' + eur(g(r.optsEur)) + '), ' : L('fără opționale, ', 'without options, ')) + svcNote(r.svc);
+      return `
+      <label class="pick" for="v-${m.cod}-${esc(x.ver)}">
+        <input type="radio" name="ver" id="v-${m.cod}-${esc(x.ver)}" value="${esc(x.ver)}"${x.ver === v.ver ? ' checked' : ''}>
+        <span class="pick-body ver-body">
+          <span class="ver-top"><span class="ver-name">${esc(x.nume)}</span><span class="ver-spec">${esc(x.baterie)}</span></span>
+          <span class="ver-price num">${eur(g(price))}</span>
+          <span class="ver-sub num">${sub}${term(x) ? ' · ' + L('livrare în ', 'delivery in ') + esc(term(x)) : ''}</span>
+          ${note(x) ? `<span class="ver-note">${esc(note(x))}</span>` : ''}
+        </span>
+      </label>`;
+    }).join('');
+  }
+
+  function renderUsed() {
+    const { m, v } = current();
+    const svc = svcNet();
+    const prices = m.rulate.map((u) => u.pret + svc);
+    $('used-from').textContent = prices.length ? L('de la ', 'from ') + eur(g(Math.min(...prices))) : L('indisponibil', 'unavailable');
+    $('used').checked = S.usedOn;
+    $('used').disabled = !m.rulate.length;
+    $('used-list').hidden = !S.usedOn;
+    $('used-hint').hidden = !S.usedOn;
+    $('used-hint').textContent = S.used
+      ? L('Dotările opționale exacte ale mașinii ți le confirmă consultantul BADSI.', 'A BADSI consultant will confirm the exact optional equipment of the car.')
+      : L('Alege una dintre mașinile de mai sus. Până atunci, prețul din dreapta rămâne cel al mașinii noi.', 'Choose one of the cars above. Until then, the price on the right stays that of the new car.');
+    if (!S.usedOn) { $('used-list').innerHTML = ''; return; }
+    $('used-list').innerHTML = m.rulate.map((u, i) => {
+      const nv = m.versiuni.find((x) => x.ver === u.ver);
+      const save = nv ? nv.pret - u.pret : null;
+      return `<label class="pick" for="u-${esc(u.cod)}">
+        <input type="radio" name="usedcar" id="u-${esc(u.cod)}" value="${esc(u.cod)}"${u.cod === S.used ? ' checked' : ''}>
+        <span class="pick-body used-body">
+          <span class="used-top"><span class="used-name">${esc(u.nume)}</span>${u.ver === v.ver ? `<span class="tag">${L('versiunea aleasă', 'selected version')}</span>` : ''}</span>
+          <span class="used-meta num">${esc(usedMeta(u))}${term(u) ? ' · ' + L('livrare în ', 'delivery in ') + esc(term(u)) : ''}</span>
+          <span class="used-price num">${eur(g(prices[i]))}</span>
+          <span class="used-meta num">${L('cu TVA, ', 'incl. VAT, ') + svcNote(svc)}</span>
+          ${save !== null ? `<span class="used-save num">${L((save >= 0 ? 'cu ' + eur(g(save)) + ' sub ' : 'cu ' + eur(g(-save)) + ' peste ') + esc(nv.nume) + ' nou, fără opționale',
+            eur(g(Math.abs(save))) + (save >= 0 ? ' less than ' : ' more than ') + 'a new ' + esc(nv.nume) + ' without options')}</span>` : ''}
+          <span class="used-opts">${L('Dotări opționale', 'Optional equipment')}: ${TBD()}</span>
+          ${note(u) ? `<span class="ver-note">${esc(note(u))}</span>` : ''}
+        </span>
+      </label>`;
+    }).join('');
+  }
+
+  function renderServices() {
+    const w = WAR.find((s) => s.cod === S.war);
+    let done = false;
+    $('svc').innerHTML = SVC.map((s) => {
+      if (s.tip === 'garanție') {
+        if (done) return '';
+        done = true;
+        return `<fieldset class="svc-row svc-warranty">
+          <legend class="svc-text"><strong>${L('Garanție BADSI', 'BADSI warranty')}</strong></legend>
+          <div class="seg">${WAR.map((x) => `<label class="pick" for="w-${esc(x.cod)}">
+              <input type="radio" name="warranty" id="w-${esc(x.cod)}" value="${esc(x.cod)}"${x.cod === S.war ? ' checked' : ''}>
+              <span class="pick-body seg-body"><b>${esc(sName(x))}</b><small class="num">${x.pret ? '+ ' + eur(g(x.pret)) : eur(0)}</small></span>
+            </label>`).join('')}</div>
+          ${w && w.descriere ? `<p class="hint war-desc">${esc(sDesc(w))}</p>` : ''}
+        </fieldset>`;
+      }
+      return `<label class="svc-row svc-check" for="s-${esc(s.cod)}">
+        <input type="checkbox" id="s-${esc(s.cod)}" data-svc="${esc(s.cod)}"${S.extra.has(s.cod) ? ' checked' : ''}>
+        <span class="svc-text"><strong>${esc(sName(s))}</strong>${s.descriere ? `<span>${esc(sDesc(s))}</span>` : ''}</span>
+        <b class="num">+ ${eur(g(s.pret))}</b>
+      </label>`;
+    }).join('');
+  }
+
+  function update() {
+    const r = compute();
+    const { m } = r;
+    renderModels(r.svc);
+    renderVersions(r);
+
+    ['step-ver', 'step-color', 'step-opt'].forEach((id) => {
+      const s = $(id);
+      s.classList.toggle('is-off', !!r.used);
+      s.querySelectorAll('input').forEach((i) => { i.disabled = !!r.used; });
+    });
+    $('used-note').hidden = !r.used;
+
+    // scena
+    $('stage-model').textContent = m.nume.toUpperCase();
+    const img = $('stage-img');
+    if (r.used) {
+      $('stage-version').textContent = r.u.nume + ' · ' + r.u.baterie + ' · ' + L('rulată', 'used');
+      img.src = 'img/' + m.img + '.jpg';
+      img.alt = m.nume + ' ' + r.u.nume + L(', imagine generică', ', generic image');
+      $('stage-meta').textContent = usedMeta(r.u) + L(' · imagine generică', ' · generic image');
+      $('stage-chips').innerHTML = '<li>' + L('Mașină rulată', 'Used car') + '</li><li>' + L('Dotări: ', 'Equipment: ') + TBD() + '</li>';
+    } else {
+      $('stage-version').textContent = r.v.nume + ' · ' + r.v.baterie;
+      img.src = 'img/' + (photoOf(r.ext) || m.img) + '.jpg';
+      img.alt = m.nume + ' ' + r.v.nume + (r.ext ? ', exterior ' + r.ext.nume : '');
+      $('stage-meta').textContent = [r.ext && 'Exterior ' + r.ext.nume, r.int && 'Interior ' + r.int.nume].filter(Boolean).join(' · ');
+      $('stage-chips').innerHTML = r.opts.map((o) => '<li>' + esc(o.nume) + '</li>').join('');
+    }
+
+    // sumar (sumele afișate sunt cu TVA)
+    $('s-save-row').hidden = !r.used || r.newEur === null;
+    if (r.used) {
+      $('s-base-l').textContent = L('Mașină rulată', 'Used car');
+      $('s-ver').textContent = m.nume + ' ' + verLabel(r.u) + ', ' + kmOf(r.u);
+      $('s-base').textContent = eur(g(r.carEur));
+      $('s-opts-l').textContent = L('Dotări opționale', 'Optional equipment');
+      $('s-optn').textContent = L('ale mașinii rulate', 'of the used car');
+      $('s-opts').textContent = TBD();
+      if (r.newEur !== null) {
+        $('s-save-n').textContent = L('față de ' + m.nume + ' ' + r.v.nume + ' nou, fără opționale', 'vs. a new ' + m.nume + ' ' + r.v.nume + ' without options');
+        $('s-save').textContent = eur(g(r.newEur - r.carEur));
+      }
+    } else {
+      $('s-base-l').textContent = L('Mașina', 'Car');
+      $('s-ver').textContent = m.nume + ' ' + verLabel(r.v) + L(', fără opționale', ', without options');
+      $('s-base').textContent = eur(g(r.carEur));
+      $('s-opts-l').textContent = L('Opționale', 'Options');
+      const n = r.opts.length + (r.paint ? 1 : 0);
+      $('s-optn').textContent = n
+        ? L(n + (n === 1 ? ' opțiune' : ' opțiuni') + (r.paint ? ', culoare cu cost inclusă' : ''), n + (n === 1 ? ' option' : ' options') + (r.paint ? ', paid colour included' : ''))
+        : L('niciuna', 'none');
+      $('s-opts').textContent = '+ ' + eur(g(r.optsEur));
+    }
+    $('s-svcn').textContent = svcNames().join(', ') || L('niciunul', 'none');
+    $('s-svc').textContent = '+ ' + eur(g(r.svc));
+    $('s-gross').textContent = eur(g(r.net));
+    $('s-net').textContent = eur(r.net);
+    $('b-gross').textContent = eur(g(r.net));
+    $('b-net').textContent = eur(r.net);
+    $('s-notes').innerHTML = ['nota_livrare', 'nota_estimare'].map((k) => tx(k)).filter(Boolean).map((t) => '<p>' + esc(t) + '</p>').join('');
+    $('btn-panel').textContent = S.sent ? L('Cerere trimisă', 'Request sent') : L('Trimite cererea', 'Send the request');
+  }
+
+  // ---------- evenimente: configurare ----------
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    const { m } = current();
+    if (t.name === 'model') {
+      S.model = t.value; S.opts.clear(); S.used = null; normalize(); render();
+    } else if (t.id === 'used') {
+      S.usedOn = t.checked; if (!t.checked) S.used = null; render();
+    } else if (t.name === 'usedcar') {
+      S.used = t.value; S.opts.clear(); render();   // selecțiile de mașină nouă nu mai sunt valabile
+    } else if (t.name === 'ver') {
+      S.ver[m.cod] = t.value; normalize(); render();
+    } else if (t.dataset.opt) {
+      const id = t.dataset.opt;
+      const { v } = current();
+      const list = (m.optionale || {})[v.ver] || [];
+      if (t.checked) {
+        S.opts.add(id);
+        const mine = list.find((o) => o.cod === id);
+        list.forEach((o) => {
+          if (o.cod !== id && o.grupuri.some((gr) => mine.grupuri.includes(gr))) {
+            S.opts.delete(o.cod);
+            const box = $('o-' + m.cod + '-' + o.cod);
+            if (box) box.checked = false;
+          }
+        });
+      } else {
+        S.opts.delete(id);
+      }
+      update();
+    } else if (t.name === 'ext') {
+      S.ext[m.cod] = t.value; update();
+    } else if (t.name === 'int') {
+      S.int[m.cod] = t.value; update();
+    } else if (t.name === 'warranty') {
+      S.war = t.value; renderUsed(); renderServices(); update();
+    } else if (t.dataset.svc) {
+      if (t.checked) S.extra.add(t.dataset.svc); else S.extra.delete(t.dataset.svc);
+      renderUsed(); update();
+    }
+  });
+
+  // ---------- trimitere (ca la B2C: același script, aceeași foaie Cereri BTC) ----------
+  const fields = {
+    nume: { el: $('f-nume'), wrap: $('fw-nume'), err: $('e-nume'), ok: (v) => v.trim().length >= 3 },
+    tel: { el: $('f-tel'), wrap: $('fw-tel'), err: $('e-tel'), ok: (v) => v.replace(/\D/g, '').length >= 9 },
+    email: { el: $('f-email'), wrap: $('fw-email'), err: $('e-email'), ok: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) }
+  };
+
+  function validate() {
+    let first = null;
+    const bad = (wrap, err, isBad, el) => {
+      wrap.classList.toggle('is-bad', isBad);
+      if (err) err.hidden = !isBad;
+      if (isBad && !first) first = el;
+    };
+    Object.keys(fields).forEach((k) => { const f = fields[k]; bad(f.wrap, f.err, !f.ok(f.el.value), f.el); });
+    bad($('fw-gdpr'), null, !$('f-gdpr').checked, $('f-gdpr'));
+    return first;
+  }
+
+  // descrierea mașinii și a opționalelor, în limba curentă
+  function carText(r) {
+    if (r.used) return r.m.nume + ' ' + verLabel(r.u) + ' (' + L('rulată', 'used') + ', ' + kmOf(r.u) + ')';
+    const col = [r.ext && 'ext. ' + r.ext.nume, r.int && 'int. ' + r.int.nume].filter(Boolean).join(' / ');
+    return r.m.nume + ' ' + verLabel(r.v) + ' (' + L('nouă', 'new') + (col ? ', ' + col : '') + ')';
+  }
+  const optsText = (r) => (r.used ? '' : r.opts.map((o) => o.nume).join(', '));
+
+  function payload() {
+    const r = compute();
+    const msg = $('f-msg').value.trim();
+    const opts = optsText(r);
+    return {
+      tip: 'Configurator Zeekr',
+      masina: carText(r),
+      stare: r.used ? 'rulat' : 'nou',
+      servicii: svcNames().join(', '),
+      pretFaraTva: Math.round(r.net),
+      pretCuTva: Math.round(g(r.net)),
+      nume: $('f-nume').value.trim(),
+      telefon: $('f-tel').value.trim(),
+      email: $('f-email').value.trim(),
+      acord: $('f-gdpr').checked,
+      website: $('f-website').value,
+      mesaj: [opts ? 'Opționale alese: ' + opts : '', msg].filter(Boolean).join('\n'),
+      link: '',
+      sursa: (location.hostname || 'pagină locală') + ' · configurator Zeekr ' + D.generat
+    };
+  }
+
+  // textul pentru WhatsApp / copiere, în limba aleasă (snap = mașina, opționalele și serviciile în ambele limbi)
+  function messageText(d, withContact, snap) {
+    const lines = [L('Bună ziua! Aș dori o ofertă de la BADSI Automotive.', 'Hello! I would like an offer from BADSI Automotive.')];
+    lines.push(L('Mașina: ', 'Car: ') + L(snap.carRo, snap.carEn));
+    if (snap.opts) lines.push(L('Opționale: ', 'Options: ') + snap.opts);
+    lines.push(L('Servicii BADSI: ', 'BADSI services: ') + (L(snap.svcRo, snap.svcEn) || L('niciunul', 'none')));
+    lines.push(L('Preț estimativ din configurator: ', 'Estimated price from the configurator: ') + eur(d.pretCuTva) + L(' cu TVA (', ' incl. VAT (') + eur(d.pretFaraTva) + L(' fără TVA)', ' excl. VAT)'));
+    if (snap.msg) lines.push(L('Mesaj: ', 'Message: ') + snap.msg);
+    lines.push(L('Nume: ', 'Name: ') + d.nume);
+    if (withContact) { lines.push(L('Telefon: ', 'Phone: ') + d.telefon); lines.push('Email: ' + d.email); }
+    return lines.join('\n');
+  }
+
+  let doneNr = null;
+  let manualArgs = null;   // ultima cerere pregătită pentru WhatsApp / copiere, ca să se poată reface în cealaltă limbă
+  function renderDone() {
+    $('done').innerHTML = '<b>' + esc(tx('confirmare')) + '</b>' + (doneNr ? '<p>' + L('Numărul cererii: ', 'Request number: ') + '<strong>' + esc(doneNr) + '</strong></p>' : '');
+  }
+  function showDone(nr) {
+    S.sent = true;
+    doneNr = nr || null;
+    manualArgs = null;
+    $('send-msg').textContent = '';
+    $('form').hidden = true;
+    $('manual').hidden = true;
+    $('done').hidden = false;
+    renderDone();
+    update();
+    $('done').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function renderManual() {
+    const { d, reason, snap } = manualArgs;
+    const full = messageText(d, true, snap);
+    const wa = D.contact.whatsapp ? 'https://wa.me/' + encodeURIComponent(D.contact.whatsapp) + '?text=' + encodeURIComponent(messageText(d, false, snap)) : '';
+    const box = $('manual');
+    box.hidden = false;
+    box.innerHTML =
+      '<p><b>' + (reason ? L('Nu am putut trimite cererea automat.', 'We could not send the request automatically.') : L('Cererea ta e pregătită.', 'Your request is ready.')) + '</b> ' +
+        L('Trimite-ne-o pe WhatsApp sau pe email; textul e mai jos.', 'Send it to us on WhatsApp or by email; the text is below.') + '</p>' +
+      '<div class="row-actions">' +
+        (wa ? '<a class="btn" href="' + esc(wa) + '" target="_blank" rel="noopener">' + L('Deschide WhatsApp ↗', 'Open WhatsApp ↗') + '</a>' : '') +
+        '<button class="btn-ghost" type="button" id="btn-copy">' + L('Copiază textul', 'Copy the text') + '</button>' +
+        '<span class="send-msg" id="copy-msg" aria-live="polite"></span>' +
+      '</div>' +
+      '<p class="hint">Email: <span class="addr">' + esc(D.contact.email) + '</span> · ' + L('Telefon', 'Phone') + ': <span class="addr">' + esc(D.contact.telefon) + '</span></p>' +
+      '<label class="field"><span>' + L('Textul cererii', 'Request text') + '</span><textarea id="manual-text" readonly rows="7"></textarea></label>';
+    $('manual-text').value = full;
+    $('btn-copy').addEventListener('click', () => {
+      const ta = $('manual-text');
+      const fallback = () => { ta.focus(); ta.select(); $('copy-msg').textContent = L('Textul e selectat: apasă Ctrl+C.', 'The text is selected: press Ctrl+C.'); };
+      try {
+        navigator.clipboard.writeText(full).then(() => { $('copy-msg').textContent = L('Copiat.', 'Copied.'); }, fallback);
+      } catch (err) { fallback(); }
+    });
+  }
+  function showManual(d, reason) {
+    const r = compute();
+    const msg = $('f-msg').value.trim();
+    manualArgs = {
+      d, reason,
+      snap: {
+        carRo: withLang('ro', () => carText(r)), carEn: withLang('en', () => carText(r)), opts: optsText(r), msg,
+        svcRo: withLang('ro', () => svcNames().join(', ')), svcEn: withLang('en', () => svcNames().join(', '))
+      }
+    };
+    renderManual();
+    $('manual').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  async function send() {
+    if (S.sent) { $('done').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    const first = validate();
+    if (first) {
+      $('send-msg').textContent = L('Completează câmpurile marcate.', 'Fill in the marked fields.');
+      $('send-msg').className = 'send-msg is-error';
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      first.focus({ preventScroll: true });
+      return;
+    }
+    $('send-msg').textContent = '';
+    $('send-msg').className = 'send-msg';
+    const d = withLang('ro', payload);   // în Cereri BTC totul rămâne în română; limba clientului se vede la „sursa”
+    if (UI.lang === 'en') d.sursa += ' · EN';
+    if (!D.endpoint) { showManual(d, false); return; }
+    const btns = [$('btn-send'), $('btn-panel')];
+    btns.forEach((b) => { b.disabled = true; b.textContent = L('Se trimite…', 'Sending…'); });
+    let reached = false;   // false = cererea n-a plecat deloc (ex. pagina e un artefact claude.ai, unde trimiterea e blocată)
+    try {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 20000);
+      const res = await fetch(D.endpoint, { method: 'POST', body: JSON.stringify(d), signal: ctl.signal });
+      clearTimeout(timer);
+      reached = true;
+      const r = await res.json();
+      if (r && r.ok) { showDone(r.nr); return; }
+      if (r && r.error === 'email') { fields.email.wrap.classList.add('is-bad'); fields.email.err.hidden = false; $('send-msg').textContent = L('Verifică adresa de email.', 'Check the email address.'); $('send-msg').className = 'send-msg is-error'; return; }
+      throw new Error((r && r.error) || 'raspuns');
+    } catch (err) {
+      $('send-msg').textContent = '';
+      showManual(d, reached);
+    } finally {
+      btns.forEach((b) => { b.disabled = false; });
+      $('btn-send').textContent = L('Trimite cererea', 'Send the request');
+      update();
+    }
+  }
+
+  $('form').addEventListener('submit', (e) => { e.preventDefault(); send(); });
+  $('btn-panel').addEventListener('click', send);
+  Object.keys(fields).forEach((k) => fields[k].el.addEventListener('input', () => {
+    if (fields[k].wrap.classList.contains('is-bad') && fields[k].ok(fields[k].el.value)) { fields[k].wrap.classList.remove('is-bad'); fields[k].err.hidden = true; }
+  }));
+  $('f-gdpr').addEventListener('change', () => { if ($('f-gdpr').checked) $('fw-gdpr').classList.remove('is-bad'); });
+
+  // ---------- texte din date, limba și tema ----------
+  function renderTexts() {
+    $('intro').textContent = tx('intro');
+    $('t-antidumping').textContent = tx('nota_antidumping');
+    $('foot').textContent = tx('subsol');
+    const gd = $('t-gdpr');
+    gd.textContent = tx('gdpr') + ' ';
+    if (D.contact.gdprLink) {
+      const a = document.createElement('a');
+      a.href = D.contact.gdprLink; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = L('Politica de confidențialitate', 'Privacy policy');
+      gd.appendChild(a);
+    }
+  }
+  function setLang(lang) {
+    UI.lang = lang === 'en' ? 'en' : 'ro';
+    document.documentElement.lang = UI.lang;
+    uiSave('badsi-ui-lang', UI.lang);
+    applyStatic();
+    renderTexts();
+    render();
+    if (!$('done').hidden) renderDone();
+    if (manualArgs && !$('manual').hidden) renderManual();
+  }
+  function setScheme(dark) {
+    if (dark) document.documentElement.setAttribute('data-scheme', 'dark'); else document.documentElement.removeAttribute('data-scheme');
+    $('ui-theme').setAttribute('aria-pressed', dark ? 'true' : 'false');
+    uiSave('badsi-ui-theme', dark ? 'dark' : 'light');
+  }
+  document.querySelectorAll('input[name="ui-lang"]').forEach((i) => i.addEventListener('change', () => setLang(i.value)));
+  $('ui-theme').addEventListener('click', () => setScheme(document.documentElement.getAttribute('data-scheme') !== 'dark'));
+
+  // ---------- pornire ----------
+  $('ui-theme').setAttribute('aria-pressed', document.documentElement.getAttribute('data-scheme') === 'dark' ? 'true' : 'false');
+  applyStatic();
+  renderTexts();
+  normalize();
+  render();
+})();
+</script>
+</body></html>
